@@ -1,665 +1,452 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="hi" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drownford - AI-Powered Marketing Agency</title>
-    
-    <!-- Tailwind CSS CDN -->
+    <title>Drownford - Aapki Marketing Superpower</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts: Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #0d1117;
-            color: #c9d1d9;
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            color: #e2e8f0;
         }
         .gradient-text {
-            background: linear-gradient(90deg, #58a6ff, #a371f7, #f778ba);
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .glass-nav {
-            background: rgba(13, 17, 23, 0.7);
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .hero-bg {
-            background-color: #0d1117;
-            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0);
-            background-size: 2rem 2rem;
-        }
-        .btn-primary {
-            background: linear-gradient(90deg, #58a6ff, #a371f7);
-            transition: all 0.3s ease;
-            background-size: 150% 150%;
-        }
-        .btn-primary:hover {
-            background-position: right center;
-            transform: scale(1.05);
-        }
-        .ai-card {
-            background: #161b22;
-            border: 1px solid #30363d;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .ai-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(88, 166, 255, 0.1), 0 10px 10px -5px rgba(88, 166, 255, 0.04);
-        }
-        .fade-in-section {
+        .scroll-reveal {
             opacity: 0;
             transform: translateY(30px);
             transition: opacity 0.8s ease-out, transform 0.8s ease-out;
         }
-        .fade-in-section.is-visible {
+        .scroll-reveal.visible {
             opacity: 1;
             transform: translateY(0);
         }
-        .loader {
-            width: 48px;
-            height: 48px;
-            border: 5px solid #FFF;
-            border-bottom-color: #58a6ff;
-            border-radius: 50%;
-            display: inline-block;
-            box-sizing: border-box;
-            animation: rotation 1s linear infinite;
-        }
-        @keyframes rotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        /* Styles for the video slideshow */
-        #video-slideshow-container {
-            position: relative;
-            aspect-ratio: 16 / 9;
-        }
-        .slide {
+        .hero-bg {
             position: absolute;
-            inset: 0;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-        }
-        .slide.active {
-            opacity: 1;
-        }
-        .slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 6s linear; /* For Ken Burns effect */
-        }
-        .slide.active img {
-            transform: scale(1.15); /* Ken Burns zoom effect */
-        }
-        .slide-caption {
-            position: absolute;
-            bottom: 0;
+            top: 0;
             left: 0;
             right: 0;
-            background: rgba(0,0,0,0.7);
-            padding: 1rem;
-            font-size: 0.9rem;
-            border-bottom-left-radius: 0.75rem;
-            border-bottom-right-radius: 0.75rem;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(at 27% 37%, hsla(215, 98%, 61%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 97% 21%, hsla(125, 98%, 72%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 52% 99%, hsla(355, 98%, 71%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 10% 29%, hsla(256, 96%, 68%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 97% 96%, hsla(38, 60%, 74%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 33% 50%, hsla(222, 67%, 73%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 79% 53%, hsla(343, 68%, 79%, 0.1) 0px, transparent 50%);
+            z-index: -1;
         }
     </style>
 </head>
-<body class="antialiased pt-16">
-
-    <!-- API Key Banner -->
-    <div id="api-key-banner" class="fixed top-0 left-0 right-0 bg-yellow-500 text-black p-3 text-center text-sm z-[100] hidden">
-        <span>AI features are disabled. Please</span>
-        <button id="banner-settings-btn" class="font-bold underline hover:text-gray-800">set your API Key</button>
-        <span>to enable them.</span>
-        <button id="close-banner-btn" class="absolute top-1/2 right-4 -translate-y-1/2">&times;</button>
-    </div>
-
-    <!-- API Key Modal -->
-    <div id="api-key-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[99] hidden">
-        <div class="bg-[#161b22] p-8 rounded-2xl shadow-2xl max-w-md w-full border border-gray-700">
-            <h2 class="text-2xl font-bold text-white mb-4">Enter Your API Key</h2>
-            <p class="text-gray-400 mb-6">To use the AI features on a public host like GitHub, you need a free Google AI API Key. Your key will be saved securely in your browser.</p>
-            <input type="password" id="api-key-input" placeholder="Enter your Google AI API Key" class="w-full bg-[#0d1117] border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors">
-            <div class="flex justify-between items-center mt-6">
-                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-sm text-blue-400 hover:underline">Get an API Key</a>
-                <button id="save-api-key-btn" class="btn-primary text-white font-semibold px-6 py-2 rounded-lg">Save Key</button>
-            </div>
-        </div>
-    </div>
+<body class="antialiased">
 
     <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 glass-nav" id="main-header">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="#home" class="flex items-center">
-                <img src="http://googleusercontent.com/file_content/1" alt="Drownford Logo" class="h-10 sm:h-12" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e293b/ffffff?text=D';">
-            </a>
-            <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
-                <a href="#home" class="hover:text-blue-400 transition-colors duration-300">Home</a>
-                <a href="#services" class="hover:text-blue-400 transition-colors duration-300">Services</a>
-                <a href="#ai-hub" class="hover:text-blue-400 transition-colors duration-300">AI Hub</a>
-                <a href="#ai-video" class="hover:text-blue-400 transition-colors duration-300">AI Video</a>
-                <a href="#portfolio" class="hover:text-blue-400 transition-colors duration-300">Work</a>
-                <a href="#contact" class="hover:text-blue-400 transition-colors duration-300">Contact</a>
-            </nav>
-            <div>
-                <button id="settings-btn" class="hidden md:inline-block text-white mr-4 p-2 rounded-full hover:bg-gray-700 transition-colors">
-                    <i data-lucide="settings" class="w-5 h-5"></i>
-                </button>
-                <a href="#contact" class="hidden md:inline-block btn-primary text-white font-semibold px-6 py-2 rounded-lg shadow-lg">
-                    Get Started
-                </a>
-            </div>
-            <button id="mobile-menu-button" class="md:hidden text-white">
-                <i data-lucide="menu" class="w-7 h-7"></i>
-            </button>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                 <a href="#home" class="block text-center py-3 px-6 hover:bg-gray-800 rounded-md transition-colors">Home</a>
-                <a href="#services" class="block text-center py-3 px-6 hover:bg-gray-800 rounded-md transition-colors">Services</a>
-                <a href="#ai-hub" class="block text-center py-3 px-6 hover:bg-gray-800 rounded-md transition-colors">AI Hub</a>
-                <a href="#ai-video" class="block text-center py-3 px-6 hover:bg-gray-800 rounded-md transition-colors">AI Video</a>
-                <a href="#portfolio" class="block text-center py-3 px-6 hover:bg-gray-800 rounded-md transition-colors">Work</a>
-                <a href="#contact" class="block text-center py-3 px-6 hover:bg-gray-800 rounded-md transition-colors">Contact</a>
-                <button id="mobile-settings-btn" class="w-full mt-2 text-white p-2 rounded-md hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
-                    <i data-lucide="settings" class="w-5 h-5"></i> API Key Settings
+    <header id="header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <a href="#" class="text-3xl font-black tracking-tighter gradient-text">Drownford</a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#services" class="text-slate-300 hover:text-white transition-colors">Services</a>
+                    <a href="#ai-tool" class="text-slate-300 hover:text-white transition-colors">AI Tool</a>
+                    <a href="#about" class="text-slate-300 hover:text-white transition-colors">About Us</a>
+                    <a href="#contact" class="text-slate-300 hover:text-white transition-colors">Contact</a>
+                </nav>
+                <a href="#contact" class="hidden md:inline-block bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded-lg transition-transform hover:scale-105">Get Started</a>
+                <button id="mobile-menu-btn" class="md:hidden">
+                    <i data-lucide="menu" class="text-white"></i>
                 </button>
             </div>
         </div>
     </header>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-90 z-40">
+        <div class="flex justify-end p-4">
+             <button id="close-menu-btn"><i data-lucide="x" class="text-white h-8 w-8"></i></button>
+        </div>
+        <nav class="flex flex-col items-center justify-center h-full space-y-8 text-2xl">
+            <a href="#services" class="mobile-link text-slate-300 hover:text-white transition-colors">Services</a>
+            <a href="#ai-tool" class="mobile-link text-slate-300 hover:text-white transition-colors">AI Tool</a>
+            <a href="#about" class="mobile-link text-slate-300 hover:text-white transition-colors">About Us</a>
+            <a href="#contact" class="mobile-link text-slate-300 hover:text-white transition-colors">Contact</a>
+            <a href="#contact" class="mobile-link bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105 mt-4">Get Started</a>
+        </nav>
+    </div>
 
-    <main class="mt-[-64px]">
+    <main>
         <!-- Hero Section -->
-        <section id="home" class="min-h-screen flex items-center pt-28 md:pt-0 hero-bg relative">
-            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[#0d1117] z-10"></div>
-            <div class="container mx-auto px-6 text-center z-20">
-                <h1 class="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-4 leading-tight text-white">
-                    We Build Brands <br> That <span class="gradient-text">Dominate</span>
+        <section id="home" class="relative min-h-screen flex items-center justify-center text-center overflow-hidden pt-20">
+            <div class="hero-bg"></div>
+            <div class="container mx-auto px-4 z-10">
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-4 text-white animate-fade-in-down">
+                    Marketing Jo <span class="gradient-text">Result</span> De.
                 </h1>
-                <p class="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-10">
-                    Your search for a results-driven marketing partner ends here. We blend creativity with AI-powered strategy to deliver unparalleled growth.
+                <p class="max-w-3xl mx-auto text-lg md:text-xl text-slate-400 mb-8 animate-fade-in-up">
+                    Hum Drownford mein data, creativity aur AI ka istemal karke aapke business ko nayi unchaiyon tak pahunchate hain. Aapke vision ko reality mein badalna hamara kaam hai.
                 </p>
-                <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                    <a href="#services" class="w-full sm:w-auto btn-primary text-white font-bold py-4 px-10 rounded-full shadow-xl">
-                        Our Solutions
-                    </a>
-                    <a href="#portfolio" class="w-full sm:w-auto text-white font-medium py-4 px-10 rounded-full transition-all duration-300 flex items-center justify-center gap-2 group">
-                        View Our Work <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
-                    </a>
-                </div>
+                <a href="#ai-tool" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-4 px-10 rounded-lg transition-transform hover:scale-105 text-lg animate-bounce-slow">
+                    Try Our AI Superpower
+                </a>
             </div>
         </section>
 
-        <!-- Stats Section -->
-        <section class="py-12 bg-[#161b22] fade-in-section">
-            <div class="container mx-auto px-6">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                    <div><h3 class="text-3xl md:text-4xl font-bold text-white"><span class="stat-counter" data-target="150">0</span>+</h3><p class="text-gray-400">Projects Done</p></div>
-                    <div><h3 class="text-3xl md:text-4xl font-bold text-white"><span class="stat-counter" data-target="99">0</span>%</h3><p class="text-gray-400">Happy Clients</p></div>
-                    <div><h3 class="text-3xl md:text-4xl font-bold text-white"><span class="stat-counter" data-target="10">0</span>+</h3><p class="text-gray-400">Years of Experience</p></div>
-                    <div><h3 class="text-3xl md:text-4xl font-bold text-white"><span class="stat-counter" data-target="24">0</span>/7</h3><p class="text-gray-400">Support</p></div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Gemini AI Hub Section -->
-        <section id="ai-hub" class="py-24 fade-in-section">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-16">
-                    <h2 class="text-3xl md:text-5xl font-bold text-white">✨ AI-Powered <span class="gradient-text">Idea Hub</span></h2>
-                    <p class="text-gray-400 mt-3 max-w-2xl mx-auto">Stuck for ideas? Describe your business below and let our AI, powered by Gemini, generate marketing concepts for you in seconds.</p>
-                </div>
-                <div class="max-w-2xl mx-auto">
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <input type="text" id="business-input" placeholder="e.g., 'a local coffee shop'" class="w-full bg-[#0d1117] border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors flex-grow">
-                        <button id="generate-ideas-btn" class="btn-primary text-white font-bold py-3 px-8 rounded-lg shadow-xl w-full sm:w-auto">Generate Ideas</button>
-                    </div>
-                </div>
-                <div id="ai-results" class="mt-12">
-                     <div id="idea-loader" class="hidden text-center"><div class="loader mx-auto"></div><p class="mt-4 text-gray-400">Generating brilliant ideas...</p></div>
-                    <div id="idea-results-container" class="hidden"></div>
-                     <div id="idea-error-message" class="hidden text-center text-red-400 p-4 bg-red-500/10 rounded-lg"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SUPER-POWERED: AI Video Pitch Generator -->
-        <section id="ai-video" class="py-24 bg-[#161b22] fade-in-section">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-16">
-                    <h2 class="text-3xl md:text-5xl font-bold text-white">🎬 AI Video Pitch <span class="gradient-text">Generator</span></h2>
-                    <p class="text-gray-400 mt-3 max-w-2xl mx-auto">Visualize your next ad campaign. Enter a concept, and our AI will write a script, generate visuals, and create a custom animated video pitch with a voiceover!</p>
-                </div>
-                <div class="max-w-2xl mx-auto">
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <input type="text" id="video-idea-input" placeholder="e.g., 'a 30-second ad for our new coffee blend'" class="w-full bg-[#0d1117] border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors flex-grow">
-                        <button id="generate-video-btn" class="btn-primary text-white font-bold py-3 px-8 rounded-lg shadow-xl w-full sm:w-auto">Generate Video Pitch</button>
-                    </div>
-                </div>
-                <div id="video-results" class="mt-12">
-                    <div id="video-loader" class="hidden text-center">
-                        <div class="loader mx-auto"></div>
-                        <p id="video-loader-text" class="mt-4 text-gray-400">Directing your video pitch...</p>
-                    </div>
-                    <div id="video-results-container" class="hidden grid lg:grid-cols-2 gap-8 items-start">
-                        <div class="relative">
-                            <div id="video-slideshow-container" class="ai-card rounded-xl overflow-hidden">
-                                <!-- Slides will be injected here -->
-                                <audio id="voiceover-audio"></audio>
-                            </div>
-                            <div id="video-controls" class="mt-4 flex justify-center gap-4 hidden">
-                                <button id="replay-video-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold px-6 py-2 rounded-lg flex items-center gap-2"><i data-lucide="rotate-cw" class="w-4 h-4"></i> Replay</button>
-                                <a id="download-video-btn" href="#" download="drownford-pitch.webm" class="btn-primary text-white font-semibold px-6 py-2 rounded-lg flex items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Download Video</a>
-                            </div>
-                        </div>
-                        <div id="video-script-container" class="ai-card p-6 rounded-xl text-left">
-                            <!-- Script will be injected here -->
-                        </div>
-                    </div>
-                    <div id="video-error-message" class="hidden text-center text-red-400 p-4 bg-red-500/10 rounded-lg"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Other sections -->
-        <section id="services" class="py-24 fade-in-section">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-16">
-                    <h2 class="text-3xl md:text-5xl font-bold text-white">Our Core <span class="gradient-text">Services</span></h2>
-                    <p class="text-gray-400 mt-3 max-w-2xl mx-auto">We offer a complete spectrum of digital marketing services to ensure your success.</p>
+        <!-- Services Section -->
+        <section id="services" class="py-20 lg:py-32">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12 lg:mb-20 scroll-reveal">
+                    <h2 class="text-4xl md:text-5xl font-black tracking-tighter gradient-text">Hamari Services</h2>
+                    <p class="max-w-2xl mx-auto text-slate-400 mt-4">Aapke brand ko grow karne ke liye complete marketing solutions.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="ai-card p-8 rounded-2xl text-center"><div class="inline-block bg-blue-500/10 p-4 rounded-full mb-4"><i data-lucide="search" class="w-8 h-8 text-blue-400"></i></div><h3 class="text-xl font-bold mb-2 text-white">SEO & Content Strategy</h3><p class="text-gray-400">Rank higher, attract more visitors, and become an authority in your industry.</p></div>
-                    <div class="ai-card p-8 rounded-2xl text-center"><div class="inline-block bg-purple-500/10 p-4 rounded-full mb-4"><i data-lucide="megaphone" class="w-8 h-8 text-purple-400"></i></div><h3 class="text-xl font-bold mb-2 text-white">Paid Advertising (PPC)</h3><p class="text-gray-400">Instant visibility and targeted campaigns that deliver a high return on investment.</p></div>
-                    <div class="ai-card p-8 rounded-2xl text-center"><div class="inline-block bg-pink-500/10 p-4 rounded-full mb-4"><i data-lucide="share-2" class="w-8 h-8 text-pink-400"></i></div><h3 class="text-xl font-bold mb-2 text-white">Social Media Management</h3><p class="text-gray-400">Build a vibrant community around your brand and drive meaningful engagement.</p></div>
+                    <!-- Service Card 1 -->
+                    <div class="glass-card p-8 rounded-2xl scroll-reveal transition-all duration-300 hover:border-sky-500 hover:-translate-y-2">
+                        <div class="bg-sky-900/50 inline-block p-3 rounded-lg mb-4"><i data-lucide="video" class="text-sky-400"></i></div>
+                        <h3 class="text-2xl font-bold text-white mb-2">High-Quality Ad Videos</h3>
+                        <p class="text-slate-400">Aise advertising videos jo aapke audience ka dil jeet lein aur conversion badhayein.</p>
+                    </div>
+                    <!-- Service Card 2 -->
+                    <div class="glass-card p-8 rounded-2xl scroll-reveal transition-all duration-300 hover:border-purple-500 hover:-translate-y-2" style="transition-delay: 100ms;">
+                        <div class="bg-purple-900/50 inline-block p-3 rounded-lg mb-4"><i data-lucide="facebook" class="text-purple-400"></i></div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Facebook & Insta Ads</h3>
+                        <p class="text-slate-400">Targeted ad campaigns jo sahi logon tak pahunche aur aapko behtareen ROI dein.</p>
+                    </div>
+                    <!-- Service Card 3 -->
+                    <div class="glass-card p-8 rounded-2xl scroll-reveal transition-all duration-300 hover:border-pink-500 hover:-translate-y-2" style="transition-delay: 200ms;">
+                        <div class="bg-pink-900/50 inline-block p-3 rounded-lg mb-4"><i data-lucide="users" class="text-pink-400"></i></div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Social Media Management</h3>
+                        <p class="text-slate-400">Aapke social media presence ko manage karna, content create karna aur engagement badhana.</p>
+                    </div>
+                    <!-- Service Card 4 -->
+                    <div class="glass-card p-8 rounded-2xl scroll-reveal transition-all duration-300 hover:border-teal-500 hover:-translate-y-2">
+                        <div class="bg-teal-900/50 inline-block p-3 rounded-lg mb-4"><i data-lucide="mic" class="text-teal-400"></i></div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Voice Ad</h3>
+                        <p class="text-slate-400">Podcasts aur music streaming platforms ke liye aakarshak voice ads taiyar karna.</p>
+                    </div>
+                    <!-- Service Card 5 -->
+                    <div class="glass-card p-8 rounded-2xl scroll-reveal transition-all duration-300 hover:border-amber-500 hover:-translate-y-2" style="transition-delay: 100ms;">
+                        <div class="bg-amber-900/50 inline-block p-3 rounded-lg mb-4"><i data-lucide="image" class="text-amber-400"></i></div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Social Media Post Design</h3>
+                        <p class="text-slate-400">Aapke brand ke liye creative aur eye-catching posts, stories aur reels design karna.</p>
+                    </div>
+                    <!-- Service Card 6 -->
+                    <div class="glass-card p-8 rounded-2xl scroll-reveal transition-all duration-300 hover:border-indigo-500 hover:-translate-y-2" style="transition-delay: 200ms;">
+                        <div class="bg-indigo-900/50 inline-block p-3 rounded-lg mb-4"><i data-lucide="lightbulb" class="text-indigo-400"></i></div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Marketing Strategy & Consultancy</h3>
+                        <p class="text-slate-400">Aapke business goals ke hisab se ek solid marketing plan aur expert salah.</p>
+                    </div>
                 </div>
             </div>
         </section>
-        <section id="portfolio" class="py-24 bg-[#161b22] fade-in-section">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-16"><h2 class="text-3xl md:text-5xl font-bold text-white">Our <span class="gradient-text">Success Stories</span></h2><p class="text-gray-400 mt-3">We let our results do the talking.</p></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="group relative overflow-hidden rounded-lg shadow-lg"><img src="https://placehold.co/800x600/1e293b/ffffff?text=Fintech+App+Launch" alt="Project 1" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent p-6 flex flex-col justify-end"><h3 class="text-2xl font-bold text-white">Fintech App Launch</h3><p class="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-2">Achieved 100k+ downloads in 3 months through a targeted PPC and Social Media campaign.</p></div></div>
-                    <div class="group relative overflow-hidden rounded-lg shadow-lg"><img src="https://placehold.co/800x600/4a044e/ffffff?text=E-commerce+SEO" alt="Project 2" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent p-6 flex flex-col justify-end"><h3 class="text-2xl font-bold text-white">E-commerce SEO</h3><p class="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-2">Increased organic revenue by 300% in one year with a comprehensive SEO and content strategy.</p></div></div>
+
+        <!-- AI Tool Section -->
+        <section id="ai-tool" class="py-20 lg:py-32 bg-slate-900/50">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12 lg:mb-20 scroll-reveal">
+                    <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-white">Drownford AI <span class="gradient-text">Superpower</span></h2>
+                    <p class="max-w-3xl mx-auto text-slate-400 mt-4">Apne business ki koi bhi problem yahan likhein aur hamara AI aapko ek research-based, actionable solution dega. Yeh aapka personal business consultant hai.</p>
+                </div>
+                <div class="max-w-4xl mx-auto scroll-reveal">
+                    <div class="glass-card rounded-2xl p-6 md:p-8">
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <input id="ai-prompt-input" type="text" placeholder="Jaise: 'Mere restaurant mein customers kaise badhayein?'" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all">
+                            <button id="get-solution-btn" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105 w-full md:w-auto flex items-center justify-center">
+                                <span id="btn-text">Solution Paayein</span>
+                                <div id="btn-loader" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="ai-result-container" class="mt-8 glass-card rounded-2xl p-6 md:p-8 hidden">
+                        <h3 class="text-2xl font-bold gradient-text mb-4">AI ka Sujhav:</h3>
+                        <div id="ai-result-text" class="text-slate-300 space-y-4 prose prose-invert max-w-none">
+                            <!-- AI response will be injected here -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
-        <section id="contact" class="py-24 fade-in-section">
-            <div class="container mx-auto px-6 text-center">
-                <h2 class="text-3xl md:text-5xl font-bold text-white">Ready to Grow Your Business?</h2>
-                <p class="gradient-text mt-3 text-lg font-semibold">Let's build something great together.</p>
-                <div class="mt-8"><a href="mailto:contact@drownford.com" class="btn-primary text-white font-bold py-4 px-10 rounded-full shadow-xl">Contact Us Now</a></div>
+
+        <!-- About Us Section -->
+        <section id="about" class="py-20 lg:py-32">
+            <div class="container mx-auto px-4">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="scroll-reveal">
+                        <h2 class="text-4xl md:text-5xl font-black tracking-tighter mb-4"><span class="gradient-text">Hum Kaun Hain?</span></h2>
+                        <p class="text-slate-400 mb-4 text-lg">
+                            Drownford ek passion-driven marketing agency hai. Hum sirf campaigns nahi banate, hum aapke business ka hissa bankar uski growth story likhte hain. Hamari team mein strategists, designers, aur tech experts hain jo aapke brand ko next level par le jaane ke liye committed hain.
+                        </p>
+                        <p class="text-slate-400 text-lg">
+                            Hamara manna hai ki har business unique hota hai, isliye hum cookie-cutter solutions nahi dete. Hum aapke business ko samajhte hain aur fir ek custom strategy banate hain jo kaam kare.
+                        </p>
+                    </div>
+                    <div class="scroll-reveal" style="transition-delay: 200ms;">
+                        <img src="https://placehold.co/600x400/0a0a0a/38bdf8?text=Team+Drownford" alt="Drownford Team" class="rounded-2xl shadow-2xl shadow-sky-900/20 w-full">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-20 lg:py-32 bg-slate-900/50">
+            <div class="container mx-auto px-4 text-center">
+                <div class="max-w-3xl mx-auto scroll-reveal">
+                    <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-white mb-4">Aaiye, Baat Karein</h2>
+                    <p class="text-slate-400 mb-8">
+                        Aapke business ko grow karne ke liye taiyar hain? Humein message karein aur hum jald hi aapse contact karenge.
+                    </p>
+                    <form id="contact-form" class="space-y-6 text-left">
+                        <input type="text" placeholder="Aapka Naam" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <input type="email" placeholder="Aapka Email" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <textarea placeholder="Aapka Message..." rows="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+                        <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105">Message Bhejein</button>
+                    </form>
+                    <div id="form-success-message" class="mt-6 text-green-400 hidden">Aapka message bhej diya gaya hai. Hum jald hi aapse sampark karenge!</div>
+                </div>
             </div>
         </section>
     </main>
 
-    <footer class="bg-black py-12">
-        <div class="container mx-auto px-6 text-center text-gray-400">
-             <a href="#home" class="inline-block mb-6"><img src="http://googleusercontent.com/file_content/1" alt="Drownford Logo" class="h-12" onerror="this.onerror=null; this.src='https://placehold.co/150x50/000000/ffffff?text=Drownford';"></a>
-            <div class="flex justify-center space-x-6 my-6">
-                <a href="#" class="hover:text-blue-400 transition-colors"><i data-lucide="facebook" class="w-6 h-6"></i></a>
-                <a href="#" class="hover:text-blue-400 transition-colors"><i data-lucide="twitter" class="w-6 h-6"></i></a>
-                <a href="#" class="hover:text-blue-400 transition-colors"><i data-lucide="linkedin" class="w-6 h-6"></i></a>
-                <a href="#" class="hover:text-blue-400 transition-colors"><i data-lucide="instagram" class="w-6 h-6"></i></a>
-            </div>
-            <p class="text-sm">&copy; 2024 Drownford Marketing Agency. All Rights Reserved.</p>
+    <!-- Footer -->
+    <footer class="bg-black py-8">
+        <div class="container mx-auto px-4 text-center text-slate-500">
+            <p>&copy; 2024 Drownford. All Rights Reserved.</p>
+            <p class="text-sm mt-2">Designed with ❤️ for Growth</p>
         </div>
     </footer>
 
     <script>
-        // --- Global State ---
-        let slideshowAbortController;
-        let mediaRecorder;
-        let recordedChunks = [];
+        // Initialize Lucide Icons
+        lucide.createIcons();
 
-        // --- Setup and Utils ---
-        const setupEventListeners = () => {
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const apiKeyModal = document.getElementById('api-key-modal');
-            
-            mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
-            
-            document.querySelectorAll('#mobile-menu a, .glass-nav a').forEach(link => {
-                link.addEventListener('click', () => !mobileMenu.classList.contains('hidden') && mobileMenu.classList.add('hidden'));
-            });
-
-            document.getElementById('generate-ideas-btn').addEventListener('click', handleIdeaGeneration);
-            document.getElementById('generate-video-btn').addEventListener('click', handleVideoGeneration);
-            
-            // API Key Modal listeners
-            document.getElementById('settings-btn').addEventListener('click', () => apiKeyModal.classList.remove('hidden'));
-            document.getElementById('mobile-settings-btn').addEventListener('click', () => apiKeyModal.classList.remove('hidden'));
-            document.getElementById('banner-settings-btn').addEventListener('click', () => apiKeyModal.classList.remove('hidden'));
-            document.getElementById('close-banner-btn').addEventListener('click', () => {
-                const banner = document.getElementById('api-key-banner');
-                banner.classList.add('hidden');
-                document.querySelector('body').style.paddingTop = '0';
-                document.getElementById('main-header').style.top = '0';
-            });
-
-            document.getElementById('save-api-key-btn').addEventListener('click', () => {
-                const key = document.getElementById('api-key-input').value;
-                if (key) {
-                    localStorage.setItem('googleAiApiKey', key);
-                    apiKeyModal.classList.add('hidden');
-                    const banner = document.getElementById('api-key-banner');
-                    if (!banner.classList.contains('hidden')) {
-                         banner.classList.add('hidden');
-                         document.querySelector('body').style.paddingTop = '0';
-                         document.getElementById('main-header').style.top = '0';
-                    }
-                }
-            });
-            
-            apiKeyModal.addEventListener('click', (e) => {
-                if (e.target === apiKeyModal) apiKeyModal.classList.add('hidden');
-            });
-        };
-
-        const setupObservers = () => {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('is-visible'); });
-            }, { threshold: 0.1 });
-            document.querySelectorAll('.fade-in-section').forEach(section => observer.observe(section));
-            const counterObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        animateCounter(entry.target);
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.8 });
-            document.querySelectorAll('.stat-counter').forEach(counter => counterObserver.observe(counter));
-        };
-
-        const animateCounter = (counter) => {
-            const target = +counter.getAttribute('data-target');
-            const speed = 200;
-            const updateCount = () => {
-                const count = +counter.innerText;
-                const inc = target / speed;
-                if (count < target) {
-                    counter.innerText = Math.ceil(count + inc);
-                    setTimeout(updateCount, 10);
-                } else {
-                    counter.innerText = target;
-                }
-            };
-            updateCount();
-        };
-
-        // --- API Call Logic ---
-        function getApiKey() {
-            if (typeof __google_api_key !== 'undefined' && __google_api_key) {
-                return __google_api_key;
-            }
-            return localStorage.getItem('googleAiApiKey');
-        }
-
-        async function callApi(apiUrl, payload) {
-            const apiKey = getApiKey();
-            if (!apiKey) {
-                document.getElementById('api-key-modal').classList.remove('hidden');
-                throw new Error("API Key not found. Please enter your API key.");
-            }
-            
-            const response = await fetch(`${apiUrl}?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            
-            if (!response.ok) {
-                const errorBody = await response.text();
-                console.error("API Error Response:", errorBody);
-                throw new Error(`API call failed: ${response.status}. Check if the API is enabled for your key.`);
-            }
-            return response.json();
-        }
-
-        async function callGeminiForText(prompt, responseSchema) {
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent`;
-            const payload = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", responseSchema } };
-            const result = await callApi(apiUrl, payload);
-            if (result.candidates && result.candidates.length > 0) return JSON.parse(result.candidates[0].content.parts[0].text);
-            throw new Error("No content generated from Gemini.");
-        }
-
-        async function callImageGenerationAPI(prompt) {
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent`;
-            const payload = {
-                contents: [{ parts: [{ text: `A cinematic, professional, high-resolution marketing image for: ${prompt}` }] }],
-                generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
-            };
-            const result = await callApi(apiUrl, payload);
-            const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
-            if (base64Data) {
-                return `data:image/png;base64,${base64Data}`;
-            }
-            throw new Error("No image generated from the API.");
-        }
-
-        async function callTTSAPI(text) {
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent`;
-            const payload = {
-                contents: [{ parts: [{ text }] }],
-                generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Puck" } } } },
-                model: "gemini-2.5-flash-preview-tts"
-            };
-            const result = await callApi(apiUrl, payload);
-            const part = result?.candidates?.[0]?.content?.parts?.[0];
-            const audioData = part?.inlineData?.data;
-            const mimeType = part?.inlineData?.mimeType;
-            if (audioData && mimeType && mimeType.startsWith("audio/")) {
-                const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10);
-                const pcmData = base64ToArrayBuffer(audioData);
-                const pcm16 = new Int16Array(pcmData);
-                const wavBlob = pcmToWav(pcm16, sampleRate);
-                return { url: URL.createObjectURL(wavBlob), blob: wavBlob };
-            }
-            throw new Error("No audio data generated.");
-        }
-
-        // --- Audio Helper Functions ---
-        function base64ToArrayBuffer(base64) {
-            const binaryString = window.atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return bytes.buffer;
-        }
-
-        function pcmToWav(pcmData, sampleRate) {
-            const numChannels = 1, bitsPerSample = 16, blockAlign = (numChannels * bitsPerSample) / 8, byteRate = sampleRate * blockAlign, dataSize = pcmData.length * (bitsPerSample / 8), buffer = new ArrayBuffer(44 + dataSize), view = new DataView(buffer);
-            const writeString = (v, o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
-            writeString(view, 0, 'RIFF'); view.setUint32(4, 36 + dataSize, true); writeString(view, 8, 'WAVE'); writeString(view, 12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, numChannels, true); view.setUint32(24, sampleRate, true); view.setUint32(28, byteRate, true); view.setUint16(32, blockAlign, true); view.setUint16(34, bitsPerSample, true); writeString(view, 36, 'data'); view.setUint32(40, dataSize, true);
-            for (let i = 0; i < pcmData.length; i++) view.setInt16(44 + i * 2, pcmData[i], true);
-            return new Blob([view], { type: 'audio/wav' });
-        }
-
-        // --- AI Idea Hub Logic ---
-        const handleIdeaGeneration = async () => {
-            const input = document.getElementById('business-input'), loader = document.getElementById('idea-loader'), container = document.getElementById('idea-results-container'), errorEl = document.getElementById('idea-error-message');
-            if (!input.value.trim()) { showError("Please describe your business first.", errorEl); return; }
-            setLoading(true, loader, container, errorEl);
-            try {
-                const prompt = `For a business described as "${input.value.trim()}", generate 3 creative blog post titles, 3 catchy social media slogans, and 2 unique marketing campaign concepts.`;
-                const schema = { type: "OBJECT", properties: { blog_ideas: { type: "ARRAY", items: { type: "STRING" } }, social_media_slogans: { type: "ARRAY", items: { type: "STRING" } }, campaign_concepts: { type: "ARRAY", items: { type: "STRING" } } }, required: ["blog_ideas", "social_media_slogans", "campaign_concepts"] };
-                const ideas = await callGeminiForText(prompt, schema);
-                displayIdeas(ideas, container);
-            } catch (error) {
-                console.error("Error generating ideas:", error);
-                showError(error.message, errorEl);
-            } finally {
-                setLoading(false, loader, container, errorEl);
-            }
-        };
-        const displayIdeas = (ideas, container) => {
-            const { blog_ideas, social_media_slogans, campaign_concepts } = ideas;
-            const createList = (title, items, icon, color) => `<div class="ai-card p-6 rounded-xl text-left"><h3 class="text-xl font-bold mb-4 ${color}">${title}</h3><ul class="space-y-3 text-gray-300">${items.map(item => `<li class="flex items-start gap-3"><i data-lucide="${icon}" class="w-5 h-5 ${color} mt-1 flex-shrink-0"></i><span>${item}</span></li>`).join('')}</ul></div>`;
-            container.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">${createList('Blog Post Ideas', blog_ideas, 'lightbulb', 'text-blue-400')}${createList('Social Media Slogans', social_media_slogans, 'thumbs-up', 'text-purple-400')}${createList('Campaign Concepts', campaign_concepts, 'rocket', 'text-pink-400')}</div>`;
-            lucide.createIcons();
-        };
-
-        // --- AI Video Pitch Logic ---
-        const handleVideoGeneration = async () => {
-            const input = document.getElementById('video-idea-input'), loader = document.getElementById('video-loader'), loaderText = document.getElementById('video-loader-text'), container = document.getElementById('video-results-container'), errorEl = document.getElementById('video-error-message');
-            if (!input.value.trim()) { showError("Please describe your video idea first.", errorEl); return; }
-            setLoading(true, loader, container, errorEl);
-            if (slideshowAbortController) slideshowAbortController.abort();
-            slideshowAbortController = new AbortController();
-
-            try {
-                loaderText.textContent = "Step 1/4: Directing your video script...";
-                const scriptPrompt = `You are a creative director. Create a short, punchy video script for: "${input.value.trim()}". The script must have a title and exactly 3 distinct scenes. For each scene, provide a visual description and a compelling voiceover.`;
-                const scriptSchema = { type: "OBJECT", properties: { title: { type: "STRING" }, scenes: { type: "ARRAY", items: { type: "OBJECT", properties: { visual: { type: "STRING" }, voiceover: { type: "STRING" } }, required: ["visual", "voiceover"] } } }, required: ["title", "scenes"] };
-                const pitch = await callGeminiForText(scriptPrompt, scriptSchema);
-                
-                loaderText.textContent = "Step 2/4: Generating visuals for each scene...";
-                const imagePrompts = pitch.scenes.map(scene => `A cinematic, professional, high-resolution marketing image for: ${pitch.title} - ${scene.visual}`);
-                const imageResults = await Promise.allSettled(imagePrompts.map(prompt => callImageGenerationAPI(prompt)));
-                const imageUrls = imageResults.map((result) => result.status === 'fulfilled' ? result.value : `https://placehold.co/1280x720/161b22/c9d1d9?text=Image+Generation+Failed`);
-
-                loaderText.textContent = "Step 3/4: Recording voiceover for each scene...";
-                const audioResults = await Promise.allSettled(pitch.scenes.map(scene => callTTSAPI(scene.voiceover)));
-                const audioData = audioResults.map(result => result.status === 'fulfilled' ? result.value : null);
-
-                loaderText.textContent = "Step 4/4: Assembling your video pitch...";
-                await displayVideoPitch(pitch, imageUrls, audioData, slideshowAbortController.signal);
-
-                if (imageResults.some(r => r.status === 'rejected') || audioResults.some(r => r.status === 'rejected')) {
-                     showError("Note: Some AI elements could not be generated. Placeholders are being used.", errorEl, 'yellow');
-                }
-
-            } catch (error) {
-                console.error("Error generating video pitch:", error);
-                showError(error.message, errorEl);
-            } finally {
-                setLoading(false, loader, container, errorEl);
-            }
-        };
-
-        async function displayVideoPitch(pitch, imageUrls, audioData, signal) {
-            const slideshowContainer = document.getElementById('video-slideshow-container');
-            const scriptContainer = document.getElementById('video-script-container');
-            const videoControls = document.getElementById('video-controls');
-            videoControls.classList.add('hidden');
-            
-            slideshowContainer.innerHTML = imageUrls.map((url, index) => `
-                <div class="slide ${index === 0 ? 'active' : ''}" data-index="${index}">
-                    <img src="${url}" alt="Scene ${index + 1}">
-                    <div class="slide-caption">
-                        <p>"${pitch.scenes[index].voiceover}"</p>
-                    </div>
-                </div>
-            `).join('') + '<audio id="voiceover-audio"></audio>';
-
-            scriptContainer.innerHTML = `<h3 class="text-xl font-bold mb-4 text-white">${pitch.title}</h3>` + pitch.scenes.map((scene, index) => `
-                <div class="mb-4 p-3 rounded-lg transition-all duration-300" id="script-scene-${index}">
-                    <h4 class="font-bold text-purple-400">Scene ${index + 1}</h4>
-                    <p class="text-sm text-gray-300 mt-1"><strong class="text-gray-400">Visual:</strong> ${scene.visual}</p>
-                </div>
-            `).join('');
-            
-            const playFullVideo = async () => {
-                const slides = slideshowContainer.querySelectorAll('.slide');
-                const scriptScenes = scriptContainer.querySelectorAll('[id^="script-scene-"]');
-                const audioPlayer = document.getElementById('voiceover-audio');
-                
-                for (let i = 0; i < slides.length; i++) {
-                    if (signal.aborted) return;
-                    
-                    slides.forEach(slide => slide.classList.remove('active'));
-                    scriptScenes.forEach(scene => scene.style.backgroundColor = 'transparent');
-                    
-                    slides[i].classList.add('active');
-                    scriptScenes[i].style.backgroundColor = 'rgba(88, 166, 255, 0.1)';
-
-                    const audioInfo = audioData[i];
-                    if (audioInfo) {
-                        audioPlayer.src = audioInfo.url;
-                        await new Promise((resolve, reject) => {
-                            audioPlayer.onended = resolve;
-                            audioPlayer.onerror = reject;
-                            audioPlayer.play().catch(reject);
-                            if (signal.aborted) reject(new Error('Aborted'));
-                        });
-                    } else {
-                        await new Promise(resolve => setTimeout(resolve, 5000));
-                    }
-                }
-            };
-
-            // Start recording and playing
-            const stream = slideshowContainer.captureStream(25); // 25 fps
-            mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-            recordedChunks = [];
-            mediaRecorder.ondataavailable = event => {
-                if (event.data.size > 0) recordedChunks.push(event.data);
-            };
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(recordedChunks, { type: 'video/webm' });
-                const url = URL.createObjectURL(blob);
-                const downloadBtn = document.getElementById('download-video-btn');
-                downloadBtn.href = url;
-                videoControls.classList.remove('hidden');
-                lucide.createIcons();
-            };
-            
-            mediaRecorder.start();
-            await playFullVideo();
-            // Loop it one more time for a good recording length
-            await playFullVideo();
-            mediaRecorder.stop();
-
-            document.getElementById('replay-video-btn').onclick = playFullVideo;
-        };
-
-        // --- General UI Helpers ---
-        const setLoading = (isLoading, loader, container, errorEl) => {
-            loader.classList.toggle('hidden', !isLoading);
-            container.classList.toggle('hidden', isLoading);
-            errorEl.classList.add('hidden');
-        };
-        const showError = (message, errorEl, color = 'red') => {
-            errorEl.textContent = message;
-            errorEl.classList.remove('hidden');
-            errorEl.classList.remove('text-red-400', 'bg-red-500/10', 'text-yellow-400', 'bg-yellow-500/10');
-            if (color === 'red') {
-                errorEl.classList.add('text-red-400', 'bg-red-500/10');
+        // Header scroll effect
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('bg-black/70', 'backdrop-blur-sm');
             } else {
-                errorEl.classList.add('text-yellow-400', 'bg-yellow-500/10');
-            }
-        };
-
-        // --- Initial Load ---
-        document.addEventListener('DOMContentLoaded', () => {
-            setupEventListeners();
-            setupObservers();
-            lucide.createIcons();
-            if (!getApiKey()) {
-                setTimeout(() => {
-                    const banner = document.getElementById('api-key-banner');
-                    banner.classList.remove('hidden');
-                    document.querySelector('body').style.paddingTop = '40px';
-                    document.getElementById('main-header').style.top = '40px';
-                }, 1000);
+                header.classList.remove('bg-black/70', 'backdrop-blur-sm');
             }
         });
+        
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.remove('hidden');
+        });
+
+        closeMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.add('hidden');
+        });
+        
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // Scroll reveal animation
+        const revealElements = document.querySelectorAll('.scroll-reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        revealElements.forEach(el => {
+            observer.observe(el);
+        });
+        
+        // Contact Form Submission
+        const contactForm = document.getElementById('contact-form');
+        const successMessage = document.getElementById('form-success-message');
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Yahan aap form submission logic (e.g., email service) add kar sakte hain.
+            // Abhi ke liye, hum sirf success message dikha rahe hain.
+            contactForm.reset();
+            successMessage.classList.remove('hidden');
+            setTimeout(() => {
+                successMessage.classList.add('hidden');
+            }, 5000);
+        });
+
+
+        // --- AI SUPERPOWER FEATURE ---
+
+        const getSolutionBtn = document.getElementById('get-solution-btn');
+        const promptInput = document.getElementById('ai-prompt-input');
+        const resultContainer = document.getElementById('ai-result-container');
+        const resultText = document.getElementById('ai-result-text');
+        const btnText = document.getElementById('btn-text');
+        const btnLoader = document.getElementById('btn-loader');
+
+        getSolutionBtn.addEventListener('click', handleAISolution);
+        promptInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                handleAISolution();
+            }
+        });
+
+        async function handleAISolution() {
+            const userPrompt = promptInput.value.trim();
+            if (!userPrompt) {
+                alert('Kripya apna business problem likhein.');
+                return;
+            }
+
+            // Show loading state
+            setLoading(true);
+            resultContainer.classList.add('hidden');
+
+            // Constructing the prompt for the Gemini API
+            const fullPrompt = `Tum ek expert business aur marketing consultant ho jiska naam 'Drownford AI' hai. Ek user ne apna business problem bataya hai. Tumhara kaam hai ki ek detailed, well-researched, aur actionable solution do. Jawab ko professional, encouraging, aur step-by-step format mein do. Jawab Hindi (Devanagari script) mein hona chahiye.
+            
+            User ka problem hai: "${userPrompt}"
+            
+            Apna jawab is tarah se structure karo:
+            1.  **Samasya ka Sankshipt Vishleshan (Brief Problem Analysis):** Problem ko samjho aur use sankshipt mein batao.
+            2.  **Mukhya Karan (Potential Root Causes):** Is samasya ke kya-kya karan ho sakte hain.
+            3.  **Actionable Strategy (Step-by-Step Solution):** Bilkul saaf steps mein batao ki user ko kya karna chahiye. Har step ko detail mein samjhao.
+            4.  **Anumanit Parinaam (Expected Outcomes):** Is strategy ko apnane se kya fayda ho sakta hai.
+            5.  **Pro Tip:** Ek extra expert tip do.`;
+
+            try {
+                const response = await callGeminiAPI(fullPrompt);
+                displayResult(response);
+            } catch (error) {
+                console.error('Error calling Gemini API:', error);
+                displayResult('Maaf kijiye, abhi hum aapse connect nahi kar pa rahe hain. Kripya thodi der baad koshish karein.');
+            } finally {
+                setLoading(false);
+            }
+        }
+        
+        function setLoading(isLoading) {
+            if (isLoading) {
+                btnText.classList.add('hidden');
+                btnLoader.classList.remove('hidden');
+                getSolutionBtn.disabled = true;
+                promptInput.disabled = true;
+            } else {
+                btnText.classList.remove('hidden');
+                btnLoader.classList.add('hidden');
+                getSolutionBtn.disabled = false;
+                promptInput.disabled = false;
+            }
+        }
+
+        function displayResult(text) {
+            // Simple markdown-to-HTML conversion
+            let html = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                .replace(/\n/g, '<br>'); // New lines
+            
+            resultText.innerHTML = html;
+            resultContainer.classList.remove('hidden');
+        }
+
+        async function callGeminiAPI(prompt) {
+            // This is a placeholder for the actual API call.
+            // In a real environment, you would use the Gemini API key and endpoint.
+            console.log("Calling mock Gemini API with prompt:", prompt);
+            
+            // Simulating API call with a delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Mock response based on a common query
+            if (prompt.includes("restaurant mein customers")) {
+                return `**Samasya ka Sankshipt Vishleshan:** Aap apne restaurant mein grahakon ki sankhya badhana chahte hain.
+                
+**Mukhya Karan:** Ho sakta hai aapki marketing sahi na ho, khane ki quality mein kami ho, ya customer service achhi na ho.
+                
+**Actionable Strategy (Step-by-Step Solution):**
+1.  **Online Presence Majboot Karein:** Google Maps par apni listing update karein. Achhe photos daalein. Instagram aur Facebook par 'Food Posts' daalein.
+2.  **Local Food Bloggers se Sampark Karein:** Unhein apne restaurant mein invite karein aur unse review likhwayein.
+3.  **Offer Chalayein:** 'Happy Hours', 'Combo Offers' ya 'Weekend Special' jaise offers shuru karein.
+4.  **Customer Feedback Lein:** Har customer se feedback lein aur uspar kaam karein. Ek chhota sa discount dekar feedback ke liye encourage karein.
+                
+**Anumanit Parinaam:** In steps se aapki online visibility badhegi, naye customers aayenge aur purane customers wapas aayenge.
+                
+**Pro Tip:** Ek 'Loyalty Program' shuru karein. Jaise, 5 baar aane par 1 dish free. Isse customer retention badhta hai.`;
+            }
+
+            // Generic mock response
+            return `**Samasya ka Sankshipt Vishleshan:** Aapne apne business ke liye ek mahatvapurna samasya pesh ki hai.
+            
+**Actionable Strategy (Step-by-Step Solution):**
+1.  **Bazaar ko Samjhein:** Apne target audience aur competitors ka aakalan karein.
+2.  **Apna USP Pehchanein:** Aap apne competitors se alag kya de rahe hain? Use highlight karein.
+3.  **Digital Marketing ka Sahyog Lein:** Social media, SEO, aur content marketing par focus karein.
+            
+**Anumanit Parinaam:** Ek saaf strategy se aapka business tezi se grow kar sakta hai.
+            
+**Pro Tip:** Chhote steps se shuruaat karein aur result ko track karte rahein. Data ke adhar par apne plan ko badalte rahein.`;
+        }
+        
+        // NOTE: To make the AI feature work, you need to replace the `callGeminiAPI` function
+        // with a real fetch call to the Google Gemini API.
+        // You will need an API key for that.
+        /*
+        async function callGeminiAPI(prompt) {
+             const apiKey = "YOUR_GEMINI_API_KEY"; // IMPORTANT: Replace with your actual API key
+             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+             
+             const payload = {
+                 contents: [{
+                     parts: [{
+                         text: prompt
+                     }]
+                 }]
+             };
+
+             try {
+                const response = await fetch(apiUrl, {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/json'
+                     },
+                     body: JSON.stringify(payload)
+                 });
+
+                 if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                 }
+
+                 const data = await response.json();
+                 return data.candidates[0].content.parts[0].text;
+
+             } catch (error) {
+                console.error("API call failed:", error);
+                throw error;
+             }
+        }
+        */
+
     </script>
 </body>
 </html>
