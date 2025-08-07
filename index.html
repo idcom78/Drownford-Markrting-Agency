@@ -1,203 +1,575 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8">   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Drownford - A leading marketing agency providing digital marketing, SEO, and content creation services.">
-  <title>Drownford - Marketing Agency</title>
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Font Awesome -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drownford - AI-Powered Marketing Agency</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #58a6ff, #a371f7, #f778ba);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glass-nav {
+            background: rgba(13, 17, 23, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .hero-bg {
+            background-color: #0d1117;
+            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0);
+            background-size: 2rem 2rem;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #58a6ff, #a371f7);
+            transition: all 0.3s ease;
+            background-size: 150% 150%;
+        }
+        .btn-primary:hover {
+            background-position: right center;
+            transform: scale(1.05);
+        }
+        .ai-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .ai-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(88, 166, 255, 0.1), 0 10px 10px -5px rgba(88, 166, 255, 0.04);
+        }
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #FFF;
+            border-bottom-color: #58a6ff;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Styles for the video slideshow */
+        #video-slideshow-container {
+            position: relative;
+            aspect-ratio: 16 / 9;
+        }
+        .slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        .slide.active {
+            opacity: 1;
+        }
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 6s linear; /* For Ken Burns effect */
+        }
+        .slide.active img {
+            transform: scale(1.15); /* Ken Burns zoom effect */
+        }
+        .slide-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            padding: 1rem;
+            font-size: 0.9rem;
+            border-bottom-left-radius: 0.75rem;
+            border-bottom-right-radius: 0.75rem;
+        }
+    </style>
 </head>
-<body>
-  <!-- Preloader -->
-  <div id="preloader">
-    <div class="spinner"></div>
-  </div>
+<body class="antialiased">
 
-  <!-- Scroll Progress Bar -->
-  <div id="progress-bar"></div>
-
-  <!-- Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
-    <div class="container">
-      <a class="navbar-brand" href="#">
-        <img src="logo.svg" alt="Drownford Logo" class="logo">
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-          <li class="nav-item"><a class="nav-link" href="#portfolio">Portfolio</a></li>
-          <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>
-          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Hero Section with Parallax -->
-  <section id="home" class="hero parallax text-white text-center py-5">
-    <div class="container">
-      <h1 class="display-4">Transform Your Brand with Expert Marketing Solutions</h1>
-      <p class="lead">Partner with Drownford to elevate your business.</p>
-      <a href="#contact" class="btn btn-accent btn-lg">Get Started</a>
-    </div>
-  </section>
-
-  <!-- Services Section -->
-  <section id="services" class="services py-5">
-    <div class="container">
-      <h2 class="text-center mb-4">Our Services</h2>
-      <div class="row">
-        <div class="col-md-4 text-center service-item">
-          <i class="fas fa-globe fa-3x mb-3"></i>
-          <h3>Digital Marketing</h3>
-          <p>Boost your online presence with our tailored strategies.</p>
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#home" class="flex items-center">
+                <img src="http://googleusercontent.com/file_content/1" alt="Drownford Logo" class="h-10 sm:h-12" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e293b/ffffff?text=D';">
+            </a>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium">
+                <a href="#home" class="hover:text-blue-400 transition-colors duration-300">Home</a>
+                <a href="#services" class="hover:text-blue-400 transition-colors duration-300">Services</a>
+                <a href="#ai-hub" class="hover:text-blue-400 transition-colors duration-300">AI Hub</a>
+                <a href="#ai-video" class="hover:text-blue-400 transition-colors duration-300">AI Video</a>
+                <a href="#portfolio" class="hover:text-blue-400 transition-colors duration-300">Work</a>
+                <a href="#contact" class="hover:text-blue-400 transition-colors duration-300">Contact</a>
+            </nav>
+            <a href="#contact" class="hidden md:inline-block btn-primary text-white font-semibold px-6 py-2 rounded-lg shadow-lg">
+                Get Started
+            </a>
+            <button id="mobile-menu-button" class="md:hidden text-white">
+                <i data-lucide="menu" class="w-7 h-7"></i>
+            </button>
         </div>
-        <div class="col-md-4 text-center service-item">
-          <i class="fas fa-search fa-3x mb-3"></i>
-          <h3>SEO Optimization</h3>
-          <p>Rank higher on search engines and attract more customers.</p>
-        </div>
-        <div class="col-md-4 text-center service-item">
-          <i class="fas fa-pen fa-3x mb-3"></i>
-          <h3>Content Creation</h3>
-          <p>Engage your audience with compelling content.</p>
-        </div>
-      </div>
-      <div class="text-center mt-4">
-        <a href="#contact" class="btn btn-primary">Learn More</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Portfolio Section -->
-  <section id="portfolio" class="portfolio py-5 bg-light">
-    <div class="container">
-      <h2 class="text-center mb-4">Our Work</h2>
-      <div class="row">
-        <div class="col-md-4 mb-4">
-          <div class="card">
-            <img src="images/project1.jpg" class="card-img-top" alt="Project 1">
-            <div class="card-body">
-              <h5 class="card-title">Project One</h5>
-              <p class="card-text">A successful campaign for a leading brand.</p>
-              <a href="#" class="btn btn-primary view-project" data-project="1">View Details</a>
+        <div id="mobile-menu" class="hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                 <a href="#home" class="block text-center py-3 px-6 hover:bg-gray-800 rounded-md transition-colors">Home</a>
+                <a href="#services" class="block text-center py-3 px-6 hover:bg-gray-800 rounded-md transition-colors">Services</a>
+                <a href="#ai-hub" class="block text-center py-3 px-6 hover:bg-gray-800 rounded-md transition-colors">AI Hub</a>
+                <a href="#ai-video" class="block text-center py-3 px-6 hover:bg-gray-800 rounded-md transition-colors">AI Video</a>
+                <a href="#portfolio" class="block text-center py-3 px-6 hover:bg-gray-800 rounded-md transition-colors">Work</a>
+                <a href="#contact" class="block text-center py-3 px-6 hover:bg-gray-800 rounded-md transition-colors">Contact</a>
             </div>
-          </div>
         </div>
-        <div class="col-md-4 mb-4">
-          <div class="card">
-            <img src="images/project2.jpg" class="card-img-top" alt="Project 2">
-            <div class="card-body">
-              <h5 class="card-title">Project Two</h5>
-              <p class="card-text">Innovative solutions for a growing startup.</p>
-              <a href="#" class="btn btn-primary view-project" data-project="2">View Details</a>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="min-h-screen flex items-center pt-28 md:pt-0 hero-bg relative">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[#0d1117] z-10"></div>
+            <div class="container mx-auto px-6 text-center z-20">
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-4 leading-tight text-white">
+                    We Build Brands <br> That <span class="gradient-text">Dominate</span>
+                </h1>
+                <p class="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-10">
+                    Your search for a results-driven marketing partner ends here. We blend creativity with AI-powered strategy to deliver unparalleled growth.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="#services" class="w-full sm:w-auto btn-primary text-white font-bold py-4 px-10 rounded-full shadow-xl">
+                        Our Solutions
+                    </a>
+                    <a href="#portfolio" class="w-full sm:w-auto text-white font-medium py-4 px-10 rounded-full transition-all duration-300 flex items-center justify-center gap-2 group">
+                        View Our Work <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                </div>
             </div>
-          </div>
-        </div>
-        <div class="col-md-4 mb-4">
-          <div class="card">
-            <img src="images/project3.jpg" class="card-img-top" alt="Project 3">
-            <div class="card-body">
-              <h5 class="card-title">Project Three</h5>
-              <p class="card-text">Transformed a business with strategic marketing.</p>
-              <a href="#" class="btn btn-primary view-project" data-project="3">View Details</a>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="py-12 bg-[#161b22] fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                    <div><h3 class="text-3xl md:text-4xl font-bold text-white"><span class="stat-counter" data-target="150">0</span>+</h3><p class="text-gray-400">Projects Done</p></div>
+                    <div><h3 class="text-3xl md:text-4xl font-bold text-white"><span class="stat-counter" data-target="99">0</span>%</h3><p class="text-gray-400">Happy Clients</p></div>
+                    <div><h3 class="text-3xl md:text-4xl font-bold text-white"><span class="stat-counter" data-target="10">0</span>+</h3><p class="text-gray-400">Years of Experience</p></div>
+                    <div><h3 class="text-3xl md:text-4xl font-bold text-white"><span class="stat-counter" data-target="24">0</span>/7</h3><p class="text-gray-400">Support</p></div>
+                </div>
             </div>
-          </div>
+        </section>
+        
+        <!-- Gemini AI Hub Section -->
+        <section id="ai-hub" class="py-24 fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-5xl font-bold text-white">✨ AI-Powered <span class="gradient-text">Idea Hub</span></h2>
+                    <p class="text-gray-400 mt-3 max-w-2xl mx-auto">Stuck for ideas? Describe your business below and let our AI, powered by Gemini, generate marketing concepts for you in seconds.</p>
+                </div>
+                <div class="max-w-2xl mx-auto">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <input type="text" id="business-input" placeholder="e.g., 'a local coffee shop'" class="w-full bg-[#0d1117] border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors flex-grow">
+                        <button id="generate-ideas-btn" class="btn-primary text-white font-bold py-3 px-8 rounded-lg shadow-xl w-full sm:w-auto">Generate Ideas</button>
+                    </div>
+                </div>
+                <div id="ai-results" class="mt-12">
+                     <div id="idea-loader" class="hidden text-center"><div class="loader mx-auto"></div><p class="mt-4 text-gray-400">Generating brilliant ideas...</p></div>
+                    <div id="idea-results-container" class="hidden"></div>
+                     <div id="idea-error-message" class="hidden text-center text-red-400 p-4 bg-red-500/10 rounded-lg"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SUPER-POWERED: AI Video Pitch Generator -->
+        <section id="ai-video" class="py-24 bg-[#161b22] fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-5xl font-bold text-white">🎬 AI Video Pitch <span class="gradient-text">Generator</span></h2>
+                    <p class="text-gray-400 mt-3 max-w-2xl mx-auto">Visualize your next ad campaign. Enter a concept, and our AI will write a script, generate visuals, and create a custom animated video pitch with a voiceover!</p>
+                </div>
+                <div class="max-w-2xl mx-auto">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <input type="text" id="video-idea-input" placeholder="e.g., 'a 30-second ad for our new coffee blend'" class="w-full bg-[#0d1117] border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors flex-grow">
+                        <button id="generate-video-btn" class="btn-primary text-white font-bold py-3 px-8 rounded-lg shadow-xl w-full sm:w-auto">Generate Video Pitch</button>
+                    </div>
+                </div>
+                <div id="video-results" class="mt-12">
+                    <div id="video-loader" class="hidden text-center">
+                        <div class="loader mx-auto"></div>
+                        <p id="video-loader-text" class="mt-4 text-gray-400">Directing your video pitch...</p>
+                    </div>
+                    <div id="video-results-container" class="hidden grid lg:grid-cols-2 gap-8 items-start">
+                        <div id="video-slideshow-container" class="ai-card rounded-xl overflow-hidden">
+                            <!-- Slides will be injected here -->
+                            <audio id="voiceover-audio"></audio>
+                        </div>
+                        <div id="video-script-container" class="ai-card p-6 rounded-xl text-left">
+                            <!-- Script will be injected here -->
+                        </div>
+                    </div>
+                    <div id="video-error-message" class="hidden text-center text-red-400 p-4 bg-red-500/10 rounded-lg"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Other sections -->
+        <section id="services" class="py-24 fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-5xl font-bold text-white">Our Core <span class="gradient-text">Services</span></h2>
+                    <p class="text-gray-400 mt-3 max-w-2xl mx-auto">We offer a complete spectrum of digital marketing services to ensure your success.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="ai-card p-8 rounded-2xl text-center"><div class="inline-block bg-blue-500/10 p-4 rounded-full mb-4"><i data-lucide="search" class="w-8 h-8 text-blue-400"></i></div><h3 class="text-xl font-bold mb-2 text-white">SEO & Content Strategy</h3><p class="text-gray-400">Rank higher, attract more visitors, and become an authority in your industry.</p></div>
+                    <div class="ai-card p-8 rounded-2xl text-center"><div class="inline-block bg-purple-500/10 p-4 rounded-full mb-4"><i data-lucide="megaphone" class="w-8 h-8 text-purple-400"></i></div><h3 class="text-xl font-bold mb-2 text-white">Paid Advertising (PPC)</h3><p class="text-gray-400">Instant visibility and targeted campaigns that deliver a high return on investment.</p></div>
+                    <div class="ai-card p-8 rounded-2xl text-center"><div class="inline-block bg-pink-500/10 p-4 rounded-full mb-4"><i data-lucide="share-2" class="w-8 h-8 text-pink-400"></i></div><h3 class="text-xl font-bold mb-2 text-white">Social Media Management</h3><p class="text-gray-400">Build a vibrant community around your brand and drive meaningful engagement.</p></div>
+                </div>
+            </div>
+        </section>
+        <section id="portfolio" class="py-24 bg-[#161b22] fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16"><h2 class="text-3xl md:text-5xl font-bold text-white">Our <span class="gradient-text">Success Stories</span></h2><p class="text-gray-400 mt-3">We let our results do the talking.</p></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="group relative overflow-hidden rounded-lg shadow-lg"><img src="https://placehold.co/800x600/1e293b/ffffff?text=Fintech+App+Launch" alt="Project 1" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent p-6 flex flex-col justify-end"><h3 class="text-2xl font-bold text-white">Fintech App Launch</h3><p class="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-2">Achieved 100k+ downloads in 3 months through a targeted PPC and Social Media campaign.</p></div></div>
+                    <div class="group relative overflow-hidden rounded-lg shadow-lg"><img src="https://placehold.co/800x600/4a044e/ffffff?text=E-commerce+SEO" alt="Project 2" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><div class="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent p-6 flex flex-col justify-end"><h3 class="text-2xl font-bold text-white">E-commerce SEO</h3><p class="text-gray-300 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-2">Increased organic revenue by 300% in one year with a comprehensive SEO and content strategy.</p></div></div>
+                </div>
+            </div>
+        </section>
+        <section id="contact" class="py-24 fade-in-section">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-5xl font-bold text-white">Ready to Grow Your Business?</h2>
+                <p class="gradient-text mt-3 text-lg font-semibold">Let's build something great together.</p>
+                <div class="mt-8"><a href="mailto:contact@drownford.com" class="btn-primary text-white font-bold py-4 px-10 rounded-full shadow-xl">Contact Us Now</a></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-black py-12">
+        <div class="container mx-auto px-6 text-center text-gray-400">
+             <a href="#home" class="inline-block mb-6"><img src="http://googleusercontent.com/file_content/1" alt="Drownford Logo" class="h-12" onerror="this.onerror=null; this.src='https://placehold.co/150x50/000000/ffffff?text=Drownford';"></a>
+            <div class="flex justify-center space-x-6 my-6">
+                <a href="#" class="hover:text-blue-400 transition-colors"><i data-lucide="facebook" class="w-6 h-6"></i></a>
+                <a href="#" class="hover:text-blue-400 transition-colors"><i data-lucide="twitter" class="w-6 h-6"></i></a>
+                <a href="#" class="hover:text-blue-400 transition-colors"><i data-lucide="linkedin" class="w-6 h-6"></i></a>
+                <a href="#" class="hover:text-blue-400 transition-colors"><i data-lucide="instagram" class="w-6 h-6"></i></a>
+            </div>
+            <p class="text-sm">&copy; 2024 Drownford Marketing Agency. All Rights Reserved.</p>
         </div>
-      </div>
-    </div>
-  </section>
+    </footer>
 
-  <!-- Testimonials Section -->
-  <section id="testimonials" class="testimonials py-5">
-    <div class="container">
-      <h2 class="text-center mb-4">What Our Clients Say</h2>
-      <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <blockquote class="blockquote text-center">
-              <p>"Drownford took our brand to the next level!"</p>
-              <footer class="blockquote-footer">Client A, CEO</footer>
-            </blockquote>
-          </div>
-          <div class="carousel-item">
-            <blockquote class="blockquote text-center">
-              <p>"Their digital marketing expertise is unmatched."</p>
-              <footer class="blockquote-footer">Client B, Marketing Director</footer>
-            </blockquote>
-          </div>
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Next</span>
-        </button>
-      </div>
-    </div>
-  </section>
+    <script>
+        // --- Global State ---
+        let slideshowAbortController;
 
-  <!-- Contact Section -->
-  <section id="contact" class="contact py-5 bg-light">
-    <div class="container">
-      <h2 class="text-center mb-4">Get in Touch</h2>
-      <form id="contactForm" class="mx-auto" style="max-width: 600px;">
-        <div class="mb-3">
-          <label for="name" class="form-label">Name</label>
-          <input type="text" class="form-control" id="name" required>
-        </div>
-        <div class="mb-3">
-          <label for="email" class="form-label">Email</label>
-          <input type="email" class="form-control" id="email" required>
-        </div>
-        <div class="mb-3">
-          <label for="message" class="form-label">Message</label>
-          <textarea class="form-control" id="message" rows="3" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary w-100">Send Message</button>
-      </form>
-    </div>
-  </section>
+        // --- Setup and Utils ---
+        const setupEventListeners = () => {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+            document.querySelectorAll('#mobile-menu a, .glass-nav a').forEach(link => {
+                link.addEventListener('click', () => !mobileMenu.classList.contains('hidden') && mobileMenu.classList.add('hidden'));
+            });
+            document.getElementById('generate-ideas-btn').addEventListener('click', handleIdeaGeneration);
+            document.getElementById('generate-video-btn').addEventListener('click', handleVideoGeneration);
+        };
 
-  <!-- Footer -->
-  <footer class="bg-dark text-white text-center py-3">
-    <p>© 2023 Drownford. All Rights Reserved.</p>
-    <div class="social-links">
-      <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-      <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-    </div>
-  </footer>
+        const setupObservers = () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('is-visible'); });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.fade-in-section').forEach(section => observer.observe(section));
+            const counterObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateCounter(entry.target);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.8 });
+            document.querySelectorAll('.stat-counter').forEach(counter => counterObserver.observe(counter));
+        };
 
-  <!-- Portfolio Modal -->
-  <div id="portfolioModal" class="modal">
-    <div class="modal-content">
-      <span class="close-modal">×</span>
-      <h3 id="modalTitle"></h3>
-      <img id="modalImage" src="" alt="Project Image">
-      <p id="modalDescription"></p>
-    </div>
-  </div>
+        const animateCounter = (counter) => {
+            const target = +counter.getAttribute('data-target');
+            const speed = 200;
+            const updateCount = () => {
+                const count = +counter.innerText;
+                const inc = target / speed;
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + inc);
+                    setTimeout(updateCount, 10);
+                } else {
+                    counter.innerText = target;
+                }
+            };
+            updateCount();
+        };
 
-  <!-- Back to Top Button -->
-  <button id="backToTop" class="btn btn-primary">Top</button>
+        // --- API Call Logic ---
+        async function callGeminiForText(prompt, responseSchema) {
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", responseSchema } };
+            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (!response.ok) throw new Error(`Gemini API call failed: ${response.status}`);
+            const result = await response.json();
+            if (result.candidates && result.candidates.length > 0) return JSON.parse(result.candidates[0].content.parts[0].text);
+            throw new Error("No content generated from Gemini.");
+        }
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Custom JS -->
-  <script src="script.js"></script>
+        async function callImageGenerationAPI(prompt) {
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+            const payload = { instances: [{ prompt: `A cinematic, professional, high-resolution marketing image for: ${prompt}` }], parameters: { "sampleCount": 1 } };
+            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (!response.ok) throw new Error(`Image generation API call failed: ${response.status}`);
+            const result = await response.json();
+            if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                return `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+            }
+            throw new Error("No image generated from Imagen.");
+        }
+
+        async function callTTSAPI(text) {
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text }] }],
+                generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Puck" } } } },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            if (!response.ok) throw new Error(`TTS API call failed: ${response.status}`);
+            const result = await response.json();
+            const part = result?.candidates?.[0]?.content?.parts?.[0];
+            const audioData = part?.inlineData?.data;
+            const mimeType = part?.inlineData?.mimeType;
+            if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10);
+                const pcmData = base64ToArrayBuffer(audioData);
+                const pcm16 = new Int16Array(pcmData);
+                const wavBlob = pcmToWav(pcm16, sampleRate);
+                return URL.createObjectURL(wavBlob);
+            }
+            throw new Error("No audio data generated.");
+        }
+
+        // --- Audio Helper Functions ---
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function pcmToWav(pcmData, sampleRate) {
+            const numChannels = 1;
+            const bitsPerSample = 16;
+            const blockAlign = (numChannels * bitsPerSample) / 8;
+            const byteRate = sampleRate * blockAlign;
+            const dataSize = pcmData.length * (bitsPerSample / 8);
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+
+            function writeString(view, offset, string) {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            }
+
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + dataSize, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, byteRate, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitsPerSample, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, dataSize, true);
+
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
+            }
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+
+
+        // --- AI Idea Hub Logic ---
+        const handleIdeaGeneration = async () => {
+            const input = document.getElementById('business-input'), loader = document.getElementById('idea-loader'), container = document.getElementById('idea-results-container'), errorEl = document.getElementById('idea-error-message');
+            if (!input.value.trim()) { showError("Please describe your business first.", errorEl); return; }
+            setLoading(true, loader, container, errorEl);
+            try {
+                const prompt = `For a business described as "${input.value.trim()}", generate 3 creative blog post titles, 3 catchy social media slogans, and 2 unique marketing campaign concepts.`;
+                const schema = { type: "OBJECT", properties: { blog_ideas: { type: "ARRAY", items: { type: "STRING" } }, social_media_slogans: { type: "ARRAY", items: { type: "STRING" } }, campaign_concepts: { type: "ARRAY", items: { type: "STRING" } } }, required: ["blog_ideas", "social_media_slogans", "campaign_concepts"] };
+                const ideas = await callGeminiForText(prompt, schema);
+                displayIdeas(ideas, container);
+            } catch (error) {
+                console.error("Error generating ideas:", error);
+                showError("Sorry, we couldn't generate ideas right now.", errorEl);
+            } finally {
+                setLoading(false, loader, container, errorEl);
+            }
+        };
+        const displayIdeas = (ideas, container) => {
+            const { blog_ideas, social_media_slogans, campaign_concepts } = ideas;
+            const createList = (title, items, icon, color) => `<div class="ai-card p-6 rounded-xl text-left"><h3 class="text-xl font-bold mb-4 ${color}">${title}</h3><ul class="space-y-3 text-gray-300">${items.map(item => `<li class="flex items-start gap-3"><i data-lucide="${icon}" class="w-5 h-5 ${color} mt-1 flex-shrink-0"></i><span>${item}</span></li>`).join('')}</ul></div>`;
+            container.innerHTML = `<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">${createList('Blog Post Ideas', blog_ideas, 'lightbulb', 'text-blue-400')}${createList('Social Media Slogans', social_media_slogans, 'thumbs-up', 'text-purple-400')}${createList('Campaign Concepts', campaign_concepts, 'rocket', 'text-pink-400')}</div>`;
+            lucide.createIcons();
+        };
+
+        // --- AI Video Pitch Logic ---
+        const handleVideoGeneration = async () => {
+            const input = document.getElementById('video-idea-input'), loader = document.getElementById('video-loader'), loaderText = document.getElementById('video-loader-text'), container = document.getElementById('video-results-container'), errorEl = document.getElementById('video-error-message');
+            if (!input.value.trim()) { showError("Please describe your video idea first.", errorEl); return; }
+            setLoading(true, loader, container, errorEl);
+            if (slideshowAbortController) slideshowAbortController.abort();
+            slideshowAbortController = new AbortController();
+
+            try {
+                loaderText.textContent = "Step 1/4: Directing your video script...";
+                const scriptPrompt = `You are a creative director. Create a short, punchy video script for: "${input.value.trim()}". The script must have a title and exactly 3 distinct scenes. For each scene, provide a visual description and a compelling voiceover.`;
+                const scriptSchema = { type: "OBJECT", properties: { title: { type: "STRING" }, scenes: { type: "ARRAY", items: { type: "OBJECT", properties: { visual: { type: "STRING" }, voiceover: { type: "STRING" } }, required: ["visual", "voiceover"] } } }, required: ["title", "scenes"] };
+                const pitch = await callGeminiForText(scriptPrompt, scriptSchema);
+                
+                loaderText.textContent = "Step 2/4: Generating visuals for each scene...";
+                const imagePrompts = pitch.scenes.map(scene => `A cinematic, professional, high-resolution marketing image for: ${pitch.title} - ${scene.visual}`);
+                const imageResults = await Promise.allSettled(imagePrompts.map(prompt => callImageGenerationAPI(prompt)));
+                const imageUrls = imageResults.map((result, index) => result.status === 'fulfilled' ? result.value : `https://placehold.co/1280x720/161b22/c9d1d9?text=Image+Generation+Failed`);
+
+                loaderText.textContent = "Step 3/4: Recording voiceover for each scene...";
+                const audioResults = await Promise.allSettled(pitch.scenes.map(scene => callTTSAPI(scene.voiceover)));
+                const audioUrls = audioResults.map(result => result.status === 'fulfilled' ? result.value : null);
+
+                loaderText.textContent = "Step 4/4: Assembling your video pitch...";
+                displayVideoPitch(pitch, imageUrls, audioUrls, slideshowAbortController.signal);
+
+                if (imageResults.some(r => r.status === 'rejected') || audioResults.some(r => r.status === 'rejected')) {
+                     showError("Note: Some AI elements could not be generated. Placeholders are being used.", errorEl, 'yellow');
+                }
+
+            } catch (error) {
+                console.error("Error generating video pitch:", error);
+                showError("Sorry, we couldn't generate a video pitch right now. Please try again.", errorEl);
+            } finally {
+                setLoading(false, loader, container, errorEl);
+            }
+        };
+
+        const displayVideoPitch = (pitch, imageUrls, audioUrls, signal) => {
+            const slideshowContainer = document.getElementById('video-slideshow-container');
+            const scriptContainer = document.getElementById('video-script-container');
+            const audioPlayer = document.getElementById('voiceover-audio');
+            
+            slideshowContainer.innerHTML = imageUrls.map((url, index) => `
+                <div class="slide ${index === 0 ? 'active' : ''}" data-index="${index}">
+                    <img src="${url}" alt="Scene ${index + 1}">
+                    <div class="slide-caption">
+                        <p>"${pitch.scenes[index].voiceover}"</p>
+                    </div>
+                </div>
+            `).join('') + '<audio id="voiceover-audio"></audio>';
+
+            scriptContainer.innerHTML = `<h3 class="text-xl font-bold mb-4 text-white">${pitch.title}</h3>` + pitch.scenes.map((scene, index) => `
+                <div class="mb-4 p-3 rounded-lg transition-all duration-300" id="script-scene-${index}">
+                    <h4 class="font-bold text-purple-400">Scene ${index + 1}</h4>
+                    <p class="text-sm text-gray-300 mt-1"><strong class="text-gray-400">Visual:</strong> ${scene.visual}</p>
+                </div>
+            `).join('');
+
+            const slides = slideshowContainer.querySelectorAll('.slide');
+            const scriptScenes = scriptContainer.querySelectorAll('[id^="script-scene-"]');
+            
+            let currentScene = 0;
+
+            function playScene(index) {
+                if (signal.aborted) return;
+                if (index >= slides.length) { // Loop back to start
+                    playScene(0);
+                    return;
+                }
+                
+                currentScene = index;
+                
+                slides.forEach(slide => slide.classList.remove('active'));
+                scriptScenes.forEach(scene => scene.style.backgroundColor = 'transparent');
+                
+                slides[index].classList.add('active');
+                scriptScenes[index].style.backgroundColor = 'rgba(88, 166, 255, 0.1)';
+
+                const audioUrl = audioUrls[index];
+                if (audioUrl) {
+                    const audioPlayer = document.getElementById('voiceover-audio');
+                    audioPlayer.src = audioUrl;
+                    audioPlayer.play();
+                    audioPlayer.onended = () => {
+                        playScene(currentScene + 1);
+                    };
+                } else {
+                    // If audio failed, wait 5 seconds before next scene
+                    setTimeout(() => playScene(currentScene + 1), 5000);
+                }
+            }
+            
+            playScene(0);
+        };
+
+        // --- General UI Helpers ---
+        const setLoading = (isLoading, loader, container, errorEl) => {
+            loader.classList.toggle('hidden', !isLoading);
+            container.classList.toggle('hidden', isLoading);
+            errorEl.classList.add('hidden');
+        };
+        const showError = (message, errorEl, color = 'red') => {
+            errorEl.textContent = message;
+            errorEl.classList.remove('hidden');
+            errorEl.classList.remove('text-red-400', 'bg-red-500/10', 'text-yellow-400', 'bg-yellow-500/10');
+            if (color === 'red') {
+                errorEl.classList.add('text-red-400', 'bg-red-500/10');
+            } else {
+                errorEl.classList.add('text-yellow-400', 'bg-yellow-500/10');
+            }
+        };
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEventListeners();
+            setupObservers();
+            lucide.createIcons();
+        });
+    </script>
 </body>
 </html>
