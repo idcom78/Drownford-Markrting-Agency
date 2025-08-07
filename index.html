@@ -54,6 +54,11 @@
                 radial-gradient(at 79% 53%, hsla(343, 68%, 79%, 0.1) 0px, transparent 50%);
             z-index: -1;
         }
+        .prose br {
+            content: "";
+            display: block;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -315,7 +320,8 @@
         async function handleAISolution() {
             const userPrompt = promptInput.value.trim();
             if (!userPrompt) {
-                alert('Kripya apna business problem likhein.');
+                // Using a custom modal instead of alert
+                showModal('Kripya apna business problem likhein.');
                 return;
             }
 
@@ -323,7 +329,6 @@
             setLoading(true);
             resultContainer.classList.add('hidden');
 
-            // Constructing the prompt for the Gemini API
             const fullPrompt = `Tum ek expert business aur marketing consultant ho jiska naam 'Drownford AI' hai. Ek user ne apna business problem bataya hai. Tumhara kaam hai ki ek detailed, well-researched, aur actionable solution do. Jawab ko professional, encouraging, aur step-by-step format mein do. Jawab Hindi (Devanagari script) mein hona chahiye.
             
             User ka problem hai: "${userPrompt}"
@@ -361,7 +366,7 @@
         }
 
         function displayResult(text) {
-            // Simple markdown-to-HTML conversion
+            // Convert markdown-like text to HTML
             let html = text
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
                 .replace(/\n/g, '<br>'); // New lines
@@ -369,51 +374,10 @@
             resultText.innerHTML = html;
             resultContainer.classList.remove('hidden');
         }
-
-        async function callGeminiAPI(prompt) {
-            // This is a placeholder for the actual API call.
-            // In a real environment, you would use the Gemini API key and endpoint.
-            console.log("Calling mock Gemini API with prompt:", prompt);
-            
-            // Simulating API call with a delay
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // Mock response based on a common query
-            if (prompt.includes("restaurant mein customers")) {
-                return `**Samasya ka Sankshipt Vishleshan:** Aap apne restaurant mein grahakon ki sankhya badhana chahte hain.
-                
-**Mukhya Karan:** Ho sakta hai aapki marketing sahi na ho, khane ki quality mein kami ho, ya customer service achhi na ho.
-                
-**Actionable Strategy (Step-by-Step Solution):**
-1.  **Online Presence Majboot Karein:** Google Maps par apni listing update karein. Achhe photos daalein. Instagram aur Facebook par 'Food Posts' daalein.
-2.  **Local Food Bloggers se Sampark Karein:** Unhein apne restaurant mein invite karein aur unse review likhwayein.
-3.  **Offer Chalayein:** 'Happy Hours', 'Combo Offers' ya 'Weekend Special' jaise offers shuru karein.
-4.  **Customer Feedback Lein:** Har customer se feedback lein aur uspar kaam karein. Ek chhota sa discount dekar feedback ke liye encourage karein.
-                
-**Anumanit Parinaam:** In steps se aapki online visibility badhegi, naye customers aayenge aur purane customers wapas aayenge.
-                
-**Pro Tip:** Ek 'Loyalty Program' shuru karein. Jaise, 5 baar aane par 1 dish free. Isse customer retention badhta hai.`;
-            }
-
-            // Generic mock response
-            return `**Samasya ka Sankshipt Vishleshan:** Aapne apne business ke liye ek mahatvapurna samasya pesh ki hai.
-            
-**Actionable Strategy (Step-by-Step Solution):**
-1.  **Bazaar ko Samjhein:** Apne target audience aur competitors ka aakalan karein.
-2.  **Apna USP Pehchanein:** Aap apne competitors se alag kya de rahe hain? Use highlight karein.
-3.  **Digital Marketing ka Sahyog Lein:** Social media, SEO, aur content marketing par focus karein.
-            
-**Anumanit Parinaam:** Ek saaf strategy se aapka business tezi se grow kar sakta hai.
-            
-**Pro Tip:** Chhote steps se shuruaat karein aur result ko track karte rahein. Data ke adhar par apne plan ko badalte rahein.`;
-        }
         
-        // NOTE: To make the AI feature work, you need to replace the `callGeminiAPI` function
-        // with a real fetch call to the Google Gemini API.
-        // You will need an API key for that.
-        /*
         async function callGeminiAPI(prompt) {
-             const apiKey = "YOUR_GEMINI_API_KEY"; // IMPORTANT: Replace with your actual API key
+             // The API key is an empty string. The Canvas environment will automatically provide it.
+             const apiKey = ""; 
              const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
              
              const payload = {
@@ -424,28 +388,47 @@
                  }]
              };
 
-             try {
-                const response = await fetch(apiUrl, {
-                     method: 'POST',
-                     headers: {
-                         'Content-Type': 'application/json'
-                     },
-                     body: JSON.stringify(payload)
-                 });
+             let response;
+             let delay = 1000; // Start with 1 second delay
+             
+             // Retry logic with exponential backoff
+             for (let i = 0; i < 5; i++) {
+                 try {
+                    response = await fetch(apiUrl, {
+                         method: 'POST',
+                         headers: {
+                             'Content-Type': 'application/json'
+                         },
+                         body: JSON.stringify(payload)
+                     });
 
-                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                     if (response.ok) {
+                         const data = await response.json();
+                         if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0) {
+                            return data.candidates[0].content.parts[0].text;
+                         } else {
+                            throw new Error("Invalid response structure from API.");
+                         }
+                     } else if (response.status === 429 || response.status >= 500) {
+                        // If throttled or server error, wait and retry
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2; // Increase delay for next retry
+                     } else {
+                        // For other errors, don't retry
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                     }
+
+                 } catch (error) {
+                    if (i === 4) { // If it's the last attempt, throw the error
+                        throw error;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
                  }
-
-                 const data = await response.json();
-                 return data.candidates[0].content.parts[0].text;
-
-             } catch (error) {
-                console.error("API call failed:", error);
-                throw error;
              }
+             
+             throw new Error("AI service is currently unavailable after multiple retries.");
         }
-        */
 
     </script>
 </body>
