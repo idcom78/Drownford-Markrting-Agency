@@ -115,7 +115,15 @@
         }
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased pt-16">
+
+    <!-- API Key Banner -->
+    <div id="api-key-banner" class="fixed top-0 left-0 right-0 bg-yellow-500 text-black p-3 text-center text-sm z-[100] hidden">
+        <span>AI features are disabled. Please</span>
+        <button id="banner-settings-btn" class="font-bold underline hover:text-gray-800">set your API Key</button>
+        <span>to enable them.</span>
+        <button id="close-banner-btn" class="absolute top-1/2 right-4 -translate-y-1/2">&times;</button>
+    </div>
 
     <!-- API Key Modal -->
     <div id="api-key-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[99] hidden">
@@ -131,7 +139,7 @@
     </div>
 
     <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 glass-nav">
+    <header class="fixed top-0 left-0 right-0 z-50 glass-nav" id="main-header">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="#home" class="flex items-center">
                 <img src="http://googleusercontent.com/file_content/1" alt="Drownford Logo" class="h-10 sm:h-12" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e293b/ffffff?text=D';">
@@ -171,7 +179,7 @@
         </div>
     </header>
 
-    <main>
+    <main class="mt-[-64px]">
         <!-- Hero Section -->
         <section id="home" class="min-h-screen flex items-center pt-28 md:pt-0 hero-bg relative">
             <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[#0d1117] z-10"></div>
@@ -325,19 +333,22 @@
             // API Key Modal listeners
             document.getElementById('settings-btn').addEventListener('click', () => apiKeyModal.classList.remove('hidden'));
             document.getElementById('mobile-settings-btn').addEventListener('click', () => apiKeyModal.classList.remove('hidden'));
+            document.getElementById('banner-settings-btn').addEventListener('click', () => apiKeyModal.classList.remove('hidden'));
+            document.getElementById('close-banner-btn').addEventListener('click', () => document.getElementById('api-key-banner').classList.add('hidden'));
+
             document.getElementById('save-api-key-btn').addEventListener('click', () => {
                 const key = document.getElementById('api-key-input').value;
                 if (key) {
                     localStorage.setItem('googleAiApiKey', key);
                     apiKeyModal.classList.add('hidden');
+                    document.getElementById('api-key-banner').classList.add('hidden');
+                    document.querySelector('body').style.paddingTop = '0';
+                    document.getElementById('main-header').style.top = '0';
                 }
             });
             
-            // Close modal if clicked outside
             apiKeyModal.addEventListener('click', (e) => {
-                if (e.target === apiKeyModal) {
-                    apiKeyModal.classList.add('hidden');
-                }
+                if (e.target === apiKeyModal) apiKeyModal.classList.add('hidden');
             });
         };
 
@@ -375,9 +386,7 @@
 
         // --- API Call Logic ---
         function getApiKey() {
-            // This environment automatically provides a key. 
-            // For GitHub deployment, we use the key from localStorage.
-            if (typeof __google_api_key !== 'undefined') {
+            if (typeof __google_api_key !== 'undefined' && __google_api_key) {
                 return __google_api_key;
             }
             return localStorage.getItem('googleAiApiKey');
@@ -399,7 +408,7 @@
             if (!response.ok) {
                 const errorBody = await response.text();
                 console.error("API Error Response:", errorBody);
-                throw new Error(`API call failed: ${response.status}`);
+                throw new Error(`API call failed: ${response.status}. Check if the API is enabled for your key.`);
             }
             return response.json();
         }
@@ -413,11 +422,16 @@
         }
 
         async function callImageGenerationAPI(prompt) {
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict`;
-            const payload = { instances: [{ prompt: `A cinematic, professional, high-resolution marketing image for: ${prompt}` }], parameters: { "sampleCount": 1 } };
+            // FIX: Using gemini-2.0-flash-preview-image-generation as it's more reliable with standard API keys.
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent`;
+            const payload = {
+                contents: [{ parts: [{ text: `A cinematic, professional, high-resolution marketing image for: ${prompt}` }] }],
+                generationConfig: { responseModalities: ['IMAGE'] },
+            };
             const result = await callApi(apiUrl, payload);
-            if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
-                return `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+            const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+            if (base64Data) {
+                return `data:image/png;base64,${base64Data}`;
             }
             throw new Error("No image generated from Imagen.");
         }
@@ -503,7 +517,7 @@
                 loaderText.textContent = "Step 2/4: Generating visuals for each scene...";
                 const imagePrompts = pitch.scenes.map(scene => `A cinematic, professional, high-resolution marketing image for: ${pitch.title} - ${scene.visual}`);
                 const imageResults = await Promise.allSettled(imagePrompts.map(prompt => callImageGenerationAPI(prompt)));
-                const imageUrls = imageResults.map((result, index) => result.status === 'fulfilled' ? result.value : `https://placehold.co/1280x720/161b22/c9d1d9?text=Image+Generation+Failed`);
+                const imageUrls = imageResults.map((result) => result.status === 'fulfilled' ? result.value : `https://placehold.co/1280x720/161b22/c9d1d9?text=Image+Generation+Failed`);
 
                 loaderText.textContent = "Step 3/4: Recording voiceover for each scene...";
                 const audioResults = await Promise.allSettled(pitch.scenes.map(scene => callTTSAPI(scene.voiceover)));
@@ -546,7 +560,6 @@
 
             const slides = slideshowContainer.querySelectorAll('.slide');
             const scriptScenes = scriptContainer.querySelectorAll('[id^="script-scene-"]');
-            
             let currentScene = 0;
 
             function playScene(index) {
@@ -554,10 +567,8 @@
                 if (index >= slides.length) { playScene(0); return; }
                 
                 currentScene = index;
-                
                 slides.forEach(slide => slide.classList.remove('active'));
                 scriptScenes.forEach(scene => scene.style.backgroundColor = 'transparent');
-                
                 slides[index].classList.add('active');
                 scriptScenes[index].style.backgroundColor = 'rgba(88, 166, 255, 0.1)';
 
@@ -565,13 +576,12 @@
                 const audioPlayer = document.getElementById('voiceover-audio');
                 if (audioUrl) {
                     audioPlayer.src = audioUrl;
-                    audioPlayer.play();
+                    audioPlayer.play().catch(e => console.error("Audio play failed:", e));
                     audioPlayer.onended = () => playScene(currentScene + 1);
                 } else {
                     setTimeout(() => playScene(currentScene + 1), 5000);
                 }
             }
-            
             playScene(0);
         };
 
@@ -597,10 +607,12 @@
             setupEventListeners();
             setupObservers();
             lucide.createIcons();
-            // Check for API key on load, especially for GitHub deployment
             if (!getApiKey()) {
                 setTimeout(() => {
-                    document.getElementById('api-key-modal').classList.remove('hidden');
+                    const banner = document.getElementById('api-key-banner');
+                    banner.classList.remove('hidden');
+                    document.querySelector('body').style.paddingTop = '40px';
+                    document.getElementById('main-header').style.top = '40px';
                 }, 1000);
             }
         });
