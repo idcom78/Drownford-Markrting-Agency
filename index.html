@@ -253,9 +253,15 @@
                         <p id="video-loader-text" class="mt-4 text-gray-400">Directing your video pitch...</p>
                     </div>
                     <div id="video-results-container" class="hidden grid lg:grid-cols-2 gap-8 items-start">
-                        <div id="video-slideshow-container" class="ai-card rounded-xl overflow-hidden">
-                            <!-- Slides will be injected here -->
-                            <audio id="voiceover-audio"></audio>
+                        <div class="relative">
+                            <div id="video-slideshow-container" class="ai-card rounded-xl overflow-hidden">
+                                <!-- Slides will be injected here -->
+                                <audio id="voiceover-audio"></audio>
+                            </div>
+                            <div id="video-controls" class="mt-4 flex justify-center gap-4 hidden">
+                                <button id="replay-video-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold px-6 py-2 rounded-lg flex items-center gap-2"><i data-lucide="rotate-cw" class="w-4 h-4"></i> Replay</button>
+                                <a id="download-video-btn" href="#" download="drownford-pitch.webm" class="btn-primary text-white font-semibold px-6 py-2 rounded-lg flex items-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Download Video</a>
+                            </div>
                         </div>
                         <div id="video-script-container" class="ai-card p-6 rounded-xl text-left">
                             <!-- Script will be injected here -->
@@ -314,6 +320,8 @@
     <script>
         // --- Global State ---
         let slideshowAbortController;
+        let mediaRecorder;
+        let recordedChunks = [];
 
         // --- Setup and Utils ---
         const setupEventListeners = () => {
@@ -334,16 +342,24 @@
             document.getElementById('settings-btn').addEventListener('click', () => apiKeyModal.classList.remove('hidden'));
             document.getElementById('mobile-settings-btn').addEventListener('click', () => apiKeyModal.classList.remove('hidden'));
             document.getElementById('banner-settings-btn').addEventListener('click', () => apiKeyModal.classList.remove('hidden'));
-            document.getElementById('close-banner-btn').addEventListener('click', () => document.getElementById('api-key-banner').classList.add('hidden'));
+            document.getElementById('close-banner-btn').addEventListener('click', () => {
+                const banner = document.getElementById('api-key-banner');
+                banner.classList.add('hidden');
+                document.querySelector('body').style.paddingTop = '0';
+                document.getElementById('main-header').style.top = '0';
+            });
 
             document.getElementById('save-api-key-btn').addEventListener('click', () => {
                 const key = document.getElementById('api-key-input').value;
                 if (key) {
                     localStorage.setItem('googleAiApiKey', key);
                     apiKeyModal.classList.add('hidden');
-                    document.getElementById('api-key-banner').classList.add('hidden');
-                    document.querySelector('body').style.paddingTop = '0';
-                    document.getElementById('main-header').style.top = '0';
+                    const banner = document.getElementById('api-key-banner');
+                    if (!banner.classList.contains('hidden')) {
+                         banner.classList.add('hidden');
+                         document.querySelector('body').style.paddingTop = '0';
+                         document.getElementById('main-header').style.top = '0';
+                    }
                 }
             });
             
@@ -422,18 +438,17 @@
         }
 
         async function callImageGenerationAPI(prompt) {
-            // FIX: Using gemini-2.0-flash-preview-image-generation as it's more reliable with standard API keys.
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent`;
             const payload = {
                 contents: [{ parts: [{ text: `A cinematic, professional, high-resolution marketing image for: ${prompt}` }] }],
-                generationConfig: { responseModalities: ['IMAGE'] },
+                generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
             };
             const result = await callApi(apiUrl, payload);
             const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
             if (base64Data) {
                 return `data:image/png;base64,${base64Data}`;
             }
-            throw new Error("No image generated from Imagen.");
+            throw new Error("No image generated from the API.");
         }
 
         async function callTTSAPI(text) {
@@ -452,7 +467,7 @@
                 const pcmData = base64ToArrayBuffer(audioData);
                 const pcm16 = new Int16Array(pcmData);
                 const wavBlob = pcmToWav(pcm16, sampleRate);
-                return URL.createObjectURL(wavBlob);
+                return { url: URL.createObjectURL(wavBlob), blob: wavBlob };
             }
             throw new Error("No audio data generated.");
         }
@@ -521,10 +536,10 @@
 
                 loaderText.textContent = "Step 3/4: Recording voiceover for each scene...";
                 const audioResults = await Promise.allSettled(pitch.scenes.map(scene => callTTSAPI(scene.voiceover)));
-                const audioUrls = audioResults.map(result => result.status === 'fulfilled' ? result.value : null);
+                const audioData = audioResults.map(result => result.status === 'fulfilled' ? result.value : null);
 
                 loaderText.textContent = "Step 4/4: Assembling your video pitch...";
-                displayVideoPitch(pitch, imageUrls, audioUrls, slideshowAbortController.signal);
+                await displayVideoPitch(pitch, imageUrls, audioData, slideshowAbortController.signal);
 
                 if (imageResults.some(r => r.status === 'rejected') || audioResults.some(r => r.status === 'rejected')) {
                      showError("Note: Some AI elements could not be generated. Placeholders are being used.", errorEl, 'yellow');
@@ -538,9 +553,11 @@
             }
         };
 
-        const displayVideoPitch = (pitch, imageUrls, audioUrls, signal) => {
+        async function displayVideoPitch(pitch, imageUrls, audioData, signal) {
             const slideshowContainer = document.getElementById('video-slideshow-container');
             const scriptContainer = document.getElementById('video-script-container');
+            const videoControls = document.getElementById('video-controls');
+            videoControls.classList.add('hidden');
             
             slideshowContainer.innerHTML = imageUrls.map((url, index) => `
                 <div class="slide ${index === 0 ? 'active' : ''}" data-index="${index}">
@@ -557,32 +574,59 @@
                     <p class="text-sm text-gray-300 mt-1"><strong class="text-gray-400">Visual:</strong> ${scene.visual}</p>
                 </div>
             `).join('');
-
-            const slides = slideshowContainer.querySelectorAll('.slide');
-            const scriptScenes = scriptContainer.querySelectorAll('[id^="script-scene-"]');
-            let currentScene = 0;
-
-            function playScene(index) {
-                if (signal.aborted) return;
-                if (index >= slides.length) { playScene(0); return; }
-                
-                currentScene = index;
-                slides.forEach(slide => slide.classList.remove('active'));
-                scriptScenes.forEach(scene => scene.style.backgroundColor = 'transparent');
-                slides[index].classList.add('active');
-                scriptScenes[index].style.backgroundColor = 'rgba(88, 166, 255, 0.1)';
-
-                const audioUrl = audioUrls[index];
+            
+            const playFullVideo = async () => {
+                const slides = slideshowContainer.querySelectorAll('.slide');
+                const scriptScenes = scriptContainer.querySelectorAll('[id^="script-scene-"]');
                 const audioPlayer = document.getElementById('voiceover-audio');
-                if (audioUrl) {
-                    audioPlayer.src = audioUrl;
-                    audioPlayer.play().catch(e => console.error("Audio play failed:", e));
-                    audioPlayer.onended = () => playScene(currentScene + 1);
-                } else {
-                    setTimeout(() => playScene(currentScene + 1), 5000);
+                
+                for (let i = 0; i < slides.length; i++) {
+                    if (signal.aborted) return;
+                    
+                    slides.forEach(slide => slide.classList.remove('active'));
+                    scriptScenes.forEach(scene => scene.style.backgroundColor = 'transparent');
+                    
+                    slides[i].classList.add('active');
+                    scriptScenes[i].style.backgroundColor = 'rgba(88, 166, 255, 0.1)';
+
+                    const audioInfo = audioData[i];
+                    if (audioInfo) {
+                        audioPlayer.src = audioInfo.url;
+                        await new Promise((resolve, reject) => {
+                            audioPlayer.onended = resolve;
+                            audioPlayer.onerror = reject;
+                            audioPlayer.play().catch(reject);
+                            if (signal.aborted) reject(new Error('Aborted'));
+                        });
+                    } else {
+                        await new Promise(resolve => setTimeout(resolve, 5000));
+                    }
                 }
-            }
-            playScene(0);
+            };
+
+            // Start recording and playing
+            const stream = slideshowContainer.captureStream(25); // 25 fps
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            recordedChunks = [];
+            mediaRecorder.ondataavailable = event => {
+                if (event.data.size > 0) recordedChunks.push(event.data);
+            };
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const downloadBtn = document.getElementById('download-video-btn');
+                downloadBtn.href = url;
+                videoControls.classList.remove('hidden');
+                lucide.createIcons();
+            };
+            
+            mediaRecorder.start();
+            await playFullVideo();
+            // Loop it one more time for a good recording length
+            await playFullVideo();
+            mediaRecorder.stop();
+
+            document.getElementById('replay-video-btn').onclick = playFullVideo;
         };
 
         // --- General UI Helpers ---
