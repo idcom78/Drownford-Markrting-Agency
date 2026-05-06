@@ -1,2204 +1,1337 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CineEdit Ultra — Pro Video Editor</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
-:root {
-  --bg0: #040608;
-  --bg1: #080c12;
-  --bg2: #0d1320;
-  --bg3: #12192a;
-  --bg4: #1a2438;
-  --gold: #ffc940;
-  --gold2: #ff9a00;
-  --cyan: #00f5ff;
-  --cyan2: #00a8ff;
-  --purple: #c060ff;
-  --red: #ff2d55;
-  --green: #00ff88;
-  --orange: #ff6b35;
-  --white: #e8f0ff;
-  --gray: #5a6880;
-  --dim: #2a3548;
-  --border: rgba(255,255,255,0.06);
-  --border2: rgba(255,255,255,0.12);
-  --glow-g: 0 0 20px rgba(255,201,64,0.5);
-  --glow-c: 0 0 20px rgba(0,245,255,0.5);
-  --glow-p: 0 0 20px rgba(192,96,255,0.5);
-  --glow-r: 0 0 20px rgba(255,45,85,0.4);
-  --r: 10px;
-  --r2: 6px;
-  --r3: 3px;
-}
-
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
-
-body{
-  background:var(--bg0);
-  color:var(--white);
-  font-family:'Rajdhani',sans-serif;
-  height:100dvh;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  position:relative;
-}
-
-/* GRAIN */
-body::after{
-  content:'';position:fixed;inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events:none;z-index:9998;
-}
-
-/* ═══════════════ TOPBAR ═══════════════ */
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 14px;
-  background:linear-gradient(to right, var(--bg1), var(--bg2));
-  border-bottom:1px solid var(--border2);
-  flex-shrink:0;z-index:200;
-  position:relative;
-}
-.topbar::after{
-  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
-  background:linear-gradient(to right, transparent, var(--gold), var(--cyan), transparent);
-  opacity:0.4;
-}
-
-.logo{
-  font-family:'Orbitron',sans-serif;
-  font-weight:900;font-size:15px;letter-spacing:2px;
-  background:linear-gradient(135deg, var(--gold), var(--cyan));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  display:flex;align-items:center;gap:6px;
-}
-.logo-dot{
-  width:8px;height:8px;border-radius:50%;
-  background:var(--red);box-shadow:var(--glow-r);
-  animation:pulse 1.5s ease-in-out infinite;
-}
-@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.3);}}
-
-.topbar-center{
-  display:flex;align-items:center;gap:6px;
-}
-.project-name{
-  font-size:12px;color:var(--gray);font-family:'JetBrains Mono',monospace;
-  max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
-.project-name.editing{color:var(--gold);}
-
-.topbar-right{display:flex;gap:6px;align-items:center;}
-
-.tbtn{
-  width:34px;height:34px;border-radius:var(--r2);
-  background:var(--bg3);border:1px solid var(--border);
-  color:var(--gray);font-size:15px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all 0.18s;
-}
-.tbtn:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:var(--glow-c);}
-.tbtn.active{border-color:var(--gold);color:var(--gold);box-shadow:var(--glow-g);}
-.tbtn:disabled{opacity:0.3;cursor:not-allowed;}
-
-.btn-export{
-  display:flex;align-items:center;gap:5px;
-  padding:7px 12px;
-  background:linear-gradient(135deg, var(--gold), var(--gold2));
-  border:none;border-radius:var(--r2);
-  color:#000;font-family:'Orbitron',monospace;font-weight:700;font-size:10px;
-  cursor:pointer;letter-spacing:1px;transition:all 0.2s;
-  text-transform:uppercase;
-}
-.btn-export:hover{box-shadow:var(--glow-g);transform:translateY(-1px);}
-
-/* ═══════════════ PREVIEW ═══════════════ */
-.preview-area{
-  flex:1;position:relative;background:#000;
-  display:flex;align-items:center;justify-content:center;
-  overflow:hidden;min-height:0;
-}
-
-.preview-video{
-  width:100%;height:100%;
-  object-fit:contain;
-  display:block;
-  filter:var(--active-filter, none);
-  transition:filter 0.3s ease;
-}
-
-.preview-placeholder{
-  width:100%;height:100%;
-  background:linear-gradient(135deg, #060e1a 0%, #12042a 50%, #040e18 100%);
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  position:relative;overflow:hidden;
-}
-
-/* Cinematic bars */
-.cine-bar-top,.cine-bar-bot{
-  position:absolute;left:0;right:0;height:10%;
-  background:#000;z-index:5;
-}
-.cine-bar-top{top:0;} .cine-bar-bot{bottom:0;}
-
-.scene-bg{
-  position:absolute;inset:0;
-  background:
-    radial-gradient(ellipse at 25% 65%, rgba(192,96,255,0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 75% 25%, rgba(0,245,255,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(255,201,64,0.04) 0%, transparent 70%);
-  animation:bgPulse 6s ease-in-out infinite alternate;
-}
-@keyframes bgPulse{from{opacity:.7;}to{opacity:1;}}
-
-.scene-grid{
-  position:absolute;inset:0;
-  background-image:
-    linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
-  background-size:40px 40px;
-  animation:gridMove 20s linear infinite;
-}
-@keyframes gridMove{from{transform:translateY(0);}to{transform:translateY(40px);}}
-
-.drop-zone-content{
-  position:relative;z-index:10;
-  display:flex;flex-direction:column;align-items:center;gap:12px;
-  padding:20px;text-align:center;
-}
-.drop-icon{
-  width:60px;height:60px;border-radius:50%;
-  background:rgba(255,201,64,0.1);
-  border:2px dashed var(--gold);
-  display:flex;align-items:center;justify-content:center;
-  font-size:24px;
-  animation:dropPulse 2s ease-in-out infinite;
-}
-@keyframes dropPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,201,64,0.3);}50%{box-shadow:0 0 0 12px transparent;}}
-
-.drop-text{font-size:14px;font-weight:600;color:var(--white);}
-.drop-sub{font-size:11px;color:var(--gray);}
-
-.btn-import-main{
-  padding:10px 20px;
-  background:linear-gradient(135deg, var(--gold), var(--gold2));
-  border:none;border-radius:var(--r2);
-  color:#000;font-family:'Orbitron',sans-serif;font-weight:700;font-size:10px;
-  cursor:pointer;letter-spacing:1px;text-transform:uppercase;
-  transition:all 0.2s;
-}
-.btn-import-main:hover{box-shadow:var(--glow-g);}
-
-/* Preview overlays */
-.preview-overlay-controls{
-  position:absolute;bottom:12%;left:50%;transform:translateX(-50%);
-  z-index:20;display:flex;align-items:center;gap:10px;
-  pointer-events:all;
-}
-
-.pbtn{
-  width:44px;height:44px;border-radius:50%;
-  background:rgba(0,0,0,0.65);backdrop-filter:blur(12px);
-  border:1.5px solid rgba(255,255,255,0.2);
-  color:#fff;font-size:16px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all 0.18s;
-}
-.pbtn:hover{border-color:var(--gold);box-shadow:var(--glow-g);}
-.pbtn.main{
-  width:52px;height:52px;font-size:20px;
-  background:rgba(255,201,64,0.15);border-color:var(--gold);
-}
-
-.time-disp{
-  font-family:'JetBrains Mono',monospace;font-size:11px;
-  color:rgba(255,255,255,0.8);
-  background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);
-  padding:5px 10px;border-radius:4px;border:1px solid var(--border2);
-}
-
-.quality-badge{
-  position:absolute;top:12%;right:12px;z-index:20;
-  background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);
-  border:1px solid var(--gold);color:var(--gold);
-  font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;
-  padding:3px 8px;border-radius:3px;letter-spacing:2px;
-}
-
-/* Keyframe indicator */
-.kf-indicator{
-  position:absolute;top:12%;left:12px;z-index:20;
-  display:none;
-  background:rgba(192,96,255,0.2);border:1px solid var(--purple);
-  padding:3px 8px;border-radius:3px;
-  font-size:9px;color:var(--purple);font-family:'JetBrains Mono',monospace;
-  letter-spacing:1px;
-}
-.kf-indicator.show{display:block;}
-
-/* Motion tracking crosshair */
-.tracking-overlay{
-  position:absolute;inset:0;z-index:15;
-  display:none;pointer-events:none;
-}
-.tracking-overlay.active{display:block;}
-.tracking-box{
-  position:absolute;top:35%;left:40%;
-  width:80px;height:80px;
-  border:2px solid var(--red);
-  animation:trackPulse 1s ease-in-out infinite;
-}
-.tracking-box::before,.tracking-box::after{
-  content:'';position:absolute;
-  background:var(--red);
-}
-.tracking-box::before{width:10px;height:2px;top:-5px;left:50%;transform:translateX(-50%);}
-.tracking-box::after{width:2px;height:10px;left:-5px;top:50%;transform:translateY(-50%);}
-@keyframes trackPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,45,85,0.4);}50%{box-shadow:0 0 0 8px transparent;}}
-
-/* BG Remove overlay */
-.bgremove-overlay{
-  position:absolute;inset:0;z-index:14;
-  display:none;pointer-events:none;
-  background:repeating-linear-gradient(
-    45deg,
-    rgba(0,255,136,0.03) 0px, rgba(0,255,136,0.03) 4px,
-    transparent 4px, transparent 8px
-  );
-}
-.bgremove-overlay.active{display:block;}
-
-/* Filter overlay */
-.filter-fx{
-  position:absolute;inset:0;z-index:12;
-  pointer-events:none;transition:all 0.4s ease;
-}
-
-/* ═══════════════ SCRUBBER ═══════════════ */
-.scrubber-bar{
-  background:var(--bg1);border-top:1px solid var(--border);
-  padding:6px 12px;flex-shrink:0;
-  display:flex;align-items:center;gap:8px;
-}
-.scrubber-track{
-  flex:1;height:4px;background:var(--bg4);border-radius:2px;
-  position:relative;cursor:pointer;
-}
-.scrubber-fill{
-  height:100%;background:linear-gradient(to right, var(--gold), var(--cyan));
-  border-radius:2px;width:0%;transition:width 0.1s linear;
-}
-.scrubber-thumb{
-  width:14px;height:14px;border-radius:50%;
-  background:var(--gold);box-shadow:var(--glow-g);
-  position:absolute;top:50%;transform:translate(-50%,-50%);
-  left:0%;cursor:grab;transition:left 0.1s linear;
-}
-
-/* ═══════════════ TABS ═══════════════ */
-.tabs-bar{
-  display:flex;background:var(--bg1);
-  border-bottom:1px solid var(--border);
-  overflow-x:auto;scrollbar-width:none;flex-shrink:0;
-}
-.tabs-bar::-webkit-scrollbar{display:none;}
-.tab{
-  flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;
-  padding:7px 11px;cursor:pointer;position:relative;
-  transition:all 0.18s;border-bottom:2px solid transparent;min-width:52px;
-}
-.tab .ti{font-size:16px;}
-.tab .tl{font-size:8px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--gray);white-space:nowrap;}
-.tab.active{border-bottom-color:var(--gold);}
-.tab.active .ti{filter:drop-shadow(0 0 4px var(--gold));}
-.tab.active .tl{color:var(--gold);}
-
-/* ═══════════════ BOTTOM PANEL ═══════════════ */
-.bottom-panel{
-  background:var(--bg1);flex-shrink:0;
-  overflow:hidden;max-height:250px;
-}
-.panel{display:none;height:230px;overflow-y:auto;
-  scrollbar-width:thin;scrollbar-color:var(--bg4) transparent;
-  padding:10px 12px;
-}
-.panel.active{display:block;}
-.panel::-webkit-scrollbar{width:3px;}
-.panel::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
-
-/* Section labels */
-.sec-label{
-  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;
-  color:var(--gray);margin-bottom:8px;
-  display:flex;align-items:center;gap:6px;
-}
-.sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
-
-/* ═══════════════ TIMELINE ═══════════════ */
-#panel-timeline{padding:6px 8px;}
-
-.tl-header{
-  display:flex;align-items:center;gap:6px;margin-bottom:6px;padding:0 4px;
-}
-.tl-zoom-btn{
-  width:24px;height:24px;border-radius:4px;
-  background:var(--bg3);border:1px solid var(--border);
-  color:var(--gray);font-size:13px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all 0.18s;
-}
-.tl-zoom-btn:hover{border-color:var(--cyan);color:var(--cyan);}
-.tl-zoom-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gray);}
-
-.add-track-btn{
-  margin-left:auto;
-  padding:4px 10px;background:transparent;
-  border:1px dashed var(--dim);border-radius:4px;
-  color:var(--gray);font-size:10px;font-weight:600;cursor:pointer;
-  transition:all 0.18s;
-}
-.add-track-btn:hover{border-color:var(--cyan);color:var(--cyan);}
-
-.tl-body{overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--bg4) transparent;}
-.tl-body::-webkit-scrollbar{height:3px;}
-.tl-body::-webkit-scrollbar-thumb{background:var(--bg4);}
-
-.timeline-inner{min-width:700px;position:relative;}
-
-.tl-ruler{
-  display:flex;height:18px;margin-bottom:4px;
-  padding-left:56px;
-  position:relative;
-}
-.tl-ruler-bg{
-  position:absolute;left:56px;right:0;top:0;bottom:0;
-  background:repeating-linear-gradient(
-    to right,
-    var(--border) 0px, var(--border) 1px,
-    transparent 1px, transparent 60px
-  );
-}
-.ruler-mark{
-  font-family:'JetBrains Mono',monospace;font-size:7px;
-  color:var(--gray);min-width:60px;text-align:center;
-}
-
-.tl-track{display:flex;align-items:center;gap:0;margin-bottom:4px;}
-.tl-track-head{
-  width:52px;flex-shrink:0;
-  display:flex;align-items:center;gap:4px;
-  padding-right:4px;
-}
-.tl-track-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
-.tl-track-mute{
-  width:16px;height:16px;border-radius:3px;
-  background:var(--bg3);border:none;
-  font-size:8px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;color:var(--gray);
-  transition:all 0.15s;
-}
-.tl-track-mute:hover{background:var(--bg4);color:var(--white);}
-
-.tl-track-body{
-  flex:1;height:38px;position:relative;
-  background:var(--bg2);border-radius:4px;border:1px solid var(--border);
-  overflow:hidden;
-}
-
-/* Clips */
-.tl-clip{
-  position:absolute;top:3px;height:32px;
-  border-radius:4px;display:flex;align-items:center;
-  padding:0 8px;font-size:8px;font-weight:700;
-  white-space:nowrap;overflow:hidden;cursor:pointer;
-  transition:filter 0.15s, box-shadow 0.15s;
-  touch-action:none;
-}
-.tl-clip:hover{filter:brightness(1.25);}
-.tl-clip.selected{box-shadow:0 0 0 2px var(--gold);filter:brightness(1.2);}
-
-/* Resize handles */
-.tl-clip-handle{
-  position:absolute;top:0;bottom:0;width:6px;
-  cursor:ew-resize;z-index:5;
-  background:rgba(255,255,255,0.15);
-  transition:background 0.15s;
-}
-.tl-clip-handle:hover{background:rgba(255,255,255,0.35);}
-.tl-clip-handle.left{left:0;border-radius:4px 0 0 4px;}
-.tl-clip-handle.right{right:0;border-radius:0 4px 4px 0;}
-
-/* Keyframe dots on clips */
-.kf-dot{
-  position:absolute;top:50%;transform:translate(-50%,-50%);
-  width:6px;height:6px;border-radius:50%;
-  background:var(--gold);box-shadow:0 0 4px var(--gold);z-index:3;pointer-events:none;
-}
-
-/* Clip colors */
-.clip-v1{background:linear-gradient(135deg,#0f2a4a,#193a6a);border:1px solid rgba(0,245,255,0.25);color:var(--cyan);}
-.clip-v2{background:linear-gradient(135deg,#2a0f4a,#3a1a6a);border:1px solid rgba(192,96,255,0.25);color:var(--purple);}
-.clip-v3{background:linear-gradient(135deg,#2a1a0f,#4a2a0f);border:1px solid rgba(255,201,64,0.25);color:var(--gold);}
-.clip-a{background:linear-gradient(135deg,#0a2a18,#0a3a20);border:1px solid rgba(0,255,136,0.25);color:var(--green);}
-.clip-fx{background:linear-gradient(135deg,#2a0a0f,#3a0a15);border:1px solid rgba(255,45,85,0.25);color:var(--red);}
-.clip-text{background:linear-gradient(135deg,#1a1a0a,#2a2a0a);border:1px solid rgba(255,150,50,0.25);color:var(--orange);}
-
-/* Playhead */
-.tl-playhead{
-  position:absolute;top:0;bottom:0;width:1.5px;
-  background:var(--red);box-shadow:0 0 6px rgba(255,45,85,0.6);
-  z-index:20;left:0%;pointer-events:none;
-  transition:left 0.1s linear;
-}
-.tl-playhead::before{
-  content:'';position:absolute;
-  top:-3px;left:50%;transform:translateX(-50%);
-  width:7px;height:7px;
-  background:var(--red);clip-path:polygon(50% 100%, 0 0, 100% 0);
-}
-
-/* ═══════════════ FILTERS ═══════════════ */
-.filters-scroll{
-  display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;
-  scrollbar-width:none;
-}
-.filters-scroll::-webkit-scrollbar{display:none;}
-
-.filter-item{
-  flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;
-  cursor:pointer;
-}
-.filter-thumb{
-  width:56px;aspect-ratio:9/16;
-  border-radius:var(--r2);border:2px solid var(--border);
-  position:relative;overflow:hidden;
-  transition:all 0.2s;
-}
-.filter-thumb::after{
-  content:attr(data-label);
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  font-size:8px;font-weight:700;letter-spacing:0.5px;
-  text-transform:uppercase;
-  color:rgba(255,255,255,0.9);
-  text-shadow:0 1px 3px rgba(0,0,0,0.8);
-}
-.filter-item.active .filter-thumb{border-color:var(--gold);box-shadow:var(--glow-g);}
-.filter-name{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--gray);white-space:nowrap;}
-.filter-item.active .filter-name{color:var(--gold);}
-
-/* Filter previews */
-.ft-none{background:linear-gradient(135deg,#1a2030,#0d1018);}
-.ft-cinema{background:linear-gradient(135deg,#0a0a14,#14080a);filter:contrast(1.1) saturate(0.7);}
-.ft-golden{background:linear-gradient(135deg,#2a1800,#3a2200);}
-.ft-teal{background:linear-gradient(135deg,#001820,#002030);}
-.ft-neon{background:linear-gradient(135deg,#000810,#100020);}
-.ft-bw{background:linear-gradient(135deg,#141414,#0a0a0a);}
-.ft-drama{background:radial-gradient(ellipse,#141428 0%,#000 100%);}
-.ft-moody{background:linear-gradient(135deg,#0a0018,#180028);}
-.ft-vintage{background:linear-gradient(135deg,#2a1a0a,#3a2010);}
-.ft-bleach{background:linear-gradient(135deg,#181820,#101018);}
-.ft-dusk{background:linear-gradient(135deg,#1a0820,#200810);}
-.ft-arctic{background:linear-gradient(135deg,#001830,#002040);}
-.ft-ember{background:linear-gradient(135deg,#250800,#180800);}
-.ft-jade{background:linear-gradient(135deg,#001808,#001810);}
-.ft-fuji{background:linear-gradient(135deg,#0a1020,#180820);}
-
-/* Custom filter sliders */
-.custom-filter-area{
-  margin-top:10px;
-  background:var(--bg2);border-radius:var(--r2);border:1px solid var(--border);
-  padding:10px;
-}
-
-/* ═══════════════ COLOR GRADE ═══════════════ */
-.wheels-row{display:flex;gap:8px;margin-bottom:12px;}
-.wheel-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
-.color-wheel{
-  width:50px;height:50px;border-radius:50%;
-  background:conic-gradient(
-    hsl(0,80%,55%),hsl(30,80%,55%),hsl(60,80%,55%),
-    hsl(90,80%,55%),hsl(120,80%,55%),hsl(150,80%,55%),
-    hsl(180,80%,55%),hsl(210,80%,55%),hsl(240,80%,55%),
-    hsl(270,80%,55%),hsl(300,80%,55%),hsl(330,80%,55%),hsl(360,80%,55%)
-  );
-  border:2px solid var(--border2);cursor:pointer;
-  position:relative;transition:all 0.2s;box-shadow:0 3px 12px rgba(0,0,0,0.5);
-}
-.color-wheel::after{
-  content:'';position:absolute;inset:7px;border-radius:50%;
-  background:rgba(0,0,0,0.55);backdrop-filter:blur(2px);
-}
-.color-wheel:hover{transform:scale(1.07);border-color:var(--gold);}
-.wheel-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gray);}
-
-.curves-canvas{
-  width:100%;height:80px;border-radius:var(--r2);
-  background:var(--bg2);border:1px solid var(--border);
-  position:relative;cursor:crosshair;margin-bottom:10px;
-}
-.curves-canvas canvas{width:100%;height:100%;border-radius:var(--r2);}
-
-/* ═══════════════ SLIDERS ═══════════════ */
-.sl-row{display:flex;align-items:center;gap:6px;margin-bottom:8px;}
-.sl-label{font-size:10px;color:var(--gray);width:78px;flex-shrink:0;font-weight:500;}
-.sl-input{
-  flex:1;height:3px;
-  -webkit-appearance:none;appearance:none;
-  background:var(--bg4);border-radius:2px;cursor:pointer;outline:none;border:none;
-}
-.sl-input::-webkit-slider-thumb{
-  -webkit-appearance:none;
-  width:12px;height:12px;border-radius:50%;
-  background:var(--gold);cursor:pointer;
-  box-shadow:0 0 6px rgba(255,201,64,0.5);
-  transition:transform 0.1s;
-}
-.sl-input::-webkit-slider-thumb:active{transform:scale(1.4);}
-.sl-val{
-  font-family:'JetBrains Mono',monospace;font-size:9px;
-  color:var(--gold);width:36px;text-align:right;
-}
-.sl-cyan .sl-input::-webkit-slider-thumb{background:var(--cyan);box-shadow:0 0 6px rgba(0,245,255,0.4);}
-.sl-cyan .sl-val{color:var(--cyan);}
-.sl-purple .sl-input::-webkit-slider-thumb{background:var(--purple);}
-.sl-purple .sl-val{color:var(--purple);}
-.sl-green .sl-input::-webkit-slider-thumb{background:var(--green);}
-.sl-green .sl-val{color:var(--green);}
-
-/* ═══════════════ EFFECTS ═══════════════ */
-.effects-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
-.eff-card{
-  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);
-  padding:8px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;
-}
-.eff-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1.5px;
-  background:var(--cyan);opacity:0;transition:opacity 0.2s;
-}
-.eff-card:hover{border-color:var(--border2);transform:translateY(-1px);}
-.eff-card.active{border-color:var(--cyan);background:rgba(0,245,255,0.05);}
-.eff-card.active::before{opacity:1;}
-.eff-icon{font-size:18px;margin-bottom:4px;display:block;}
-.eff-name{font-size:10px;font-weight:700;color:var(--white);margin-bottom:2px;}
-.eff-desc{font-size:8px;color:var(--gray);}
-.eff-badge{
-  position:absolute;top:5px;right:5px;
-  font-size:7px;font-weight:700;padding:2px 4px;border-radius:2px;letter-spacing:0.5px;
-}
-.badge-ai{background:linear-gradient(135deg,var(--purple),var(--cyan));color:#000;}
-.badge-pro{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;}
-
-/* ═══════════════ ANIMATIONS ═══════════════ */
-.anim-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
-.anim-card{
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:var(--r2);padding:10px 6px;
-  cursor:pointer;text-align:center;transition:all 0.2s;
-  position:relative;overflow:hidden;
-}
-.anim-card:hover{border-color:var(--purple);}
-.anim-card.active{border-color:var(--purple);background:rgba(192,96,255,0.08);}
-.anim-preview{
-  height:28px;display:flex;align-items:center;justify-content:center;
-  font-size:18px;margin-bottom:5px;
-  position:relative;
-}
-.anim-name{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gray);}
-.anim-card.active .anim-name{color:var(--purple);}
-
-/* Text animation specific */
-.text-preview{
-  font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;
-  color:var(--white);letter-spacing:1px;
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  overflow:hidden;
-}
-
-/* ═══════════════ ENHANCE ═══════════════ */
-.enhance-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
-.enh-btn{
-  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);
-  padding:10px 6px;cursor:pointer;text-align:center;transition:all 0.2s;
-  position:relative;overflow:hidden;
-}
-.enh-btn:hover{border-color:var(--green);}
-.enh-btn.active{border-color:var(--green);background:rgba(0,255,136,0.06);box-shadow:0 0 14px rgba(0,255,136,0.15);}
-.enh-btn.running{animation:enhRunning 1s ease-in-out infinite;}
-@keyframes enhRunning{0%,100%{border-color:var(--green);}50%{border-color:var(--cyan);box-shadow:var(--glow-c);}}
-.enh-icon{font-size:20px;margin-bottom:4px;display:block;}
-.enh-label{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--gray);}
-.enh-btn.active .enh-label{color:var(--green);}
-
-/* AI badge */
-.ai-tag{
-  position:absolute;top:4px;right:4px;
-  font-size:6px;font-weight:700;padding:1px 3px;border-radius:2px;
-  background:linear-gradient(135deg,var(--purple),var(--cyan));color:#000;
-}
-
-/* ═══════════════ KEYFRAMES PANEL ═══════════════ */
-.kf-timeline{
-  position:relative;height:60px;
-  background:var(--bg2);border-radius:var(--r2);border:1px solid var(--border);
-  margin-bottom:8px;overflow:hidden;cursor:crosshair;
-}
-.kf-axis{
-  position:absolute;left:0;right:0;top:50%;height:1px;
-  background:var(--border2);
-}
-.kf-marker{
-  position:absolute;top:50%;transform:translate(-50%,-50%);
-  width:10px;height:10px;
-  background:var(--gold);border-radius:50%;
-  box-shadow:var(--glow-g);cursor:pointer;z-index:5;
-  transition:transform 0.1s;
-}
-.kf-marker:hover{transform:translate(-50%,-50%) scale(1.4);}
-.kf-marker.selected{background:var(--red);box-shadow:var(--glow-r);}
-
-.kf-props{display:flex;flex-direction:column;gap:5px;}
-.kf-prop-row{display:flex;align-items:center;gap:6px;}
-.kf-prop-label{font-size:9px;color:var(--gray);width:60px;}
-.kf-add-btn{
-  width:18px;height:18px;border-radius:3px;
-  background:var(--bg3);border:1px solid var(--border);
-  color:var(--gold);font-size:11px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:all 0.15s;
-}
-.kf-add-btn:hover{background:rgba(255,201,64,0.1);border-color:var(--gold);}
-
-/* ═══════════════ TEXT TOOL ═══════════════ */
-.text-presets{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin-bottom:10px;}
-.text-presets::-webkit-scrollbar{display:none;}
-.text-preset{
-  flex-shrink:0;padding:6px 10px;
-  border-radius:var(--r2);border:1px solid var(--border);
-  background:var(--bg2);cursor:pointer;
-  font-size:10px;font-weight:600;transition:all 0.2s;white-space:nowrap;
-}
-.text-preset:hover{border-color:var(--gold);}
-.text-preset.active{border-color:var(--gold);background:rgba(255,201,64,0.08);color:var(--gold);}
-
-.text-input-area{
-  width:100%;padding:8px;border-radius:var(--r2);
-  background:var(--bg2);border:1px solid var(--border2);
-  color:var(--white);font-family:'Rajdhani',sans-serif;font-size:13px;
-  resize:none;outline:none;margin-bottom:8px;
-}
-.text-input-area:focus{border-color:var(--gold);}
-
-/* ═══════════════ AUDIO ═══════════════ */
-.waveform-big{
-  height:44px;background:var(--bg2);border:1px solid var(--border);
-  border-radius:var(--r2);display:flex;align-items:center;
-  gap:1.5px;padding:0 8px;overflow:hidden;margin-bottom:8px;
-}
-.wb{
-  width:2.5px;background:linear-gradient(to top,var(--green),rgba(0,255,136,0.3));
-  border-radius:1px;animation:wbAnim 0.6s ease-in-out infinite alternate;
-}
-@keyframes wbAnim{from{transform:scaleY(0.25);}to{transform:scaleY(1);}}
-
-.audio-btns{display:flex;gap:6px;flex-wrap:wrap;}
-.audio-btn{
-  flex:1;min-width:70px;padding:7px 5px;
-  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);
-  color:var(--gray);font-size:9px;font-weight:700;text-transform:uppercase;
-  letter-spacing:0.5px;cursor:pointer;text-align:center;transition:all 0.18s;
-  display:flex;flex-direction:column;align-items:center;gap:3px;
-}
-.audio-btn span{font-size:15px;}
-.audio-btn:hover{border-color:var(--green);color:var(--green);}
-
-/* ═══════════════ PROJECTS ═══════════════ */
-.project-list{display:flex;flex-direction:column;gap:6px;}
-.proj-item{
-  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);
-  padding:10px;display:flex;align-items:center;gap:10px;cursor:pointer;
-  transition:all 0.18s;position:relative;
-}
-.proj-item:hover{border-color:var(--border2);}
-.proj-item.current{border-color:var(--gold);background:rgba(255,201,64,0.05);}
-.proj-thumb{
-  width:44px;height:28px;border-radius:3px;overflow:hidden;flex-shrink:0;
-  background:var(--bg3);
-}
-.proj-info{flex:1;}
-.proj-name{font-size:11px;font-weight:700;color:var(--white);margin-bottom:2px;}
-.proj-meta{font-size:9px;color:var(--gray);}
-.proj-status{
-  font-size:8px;padding:2px 6px;border-radius:10px;font-weight:700;
-  letter-spacing:0.5px;
-}
-.st-draft{background:rgba(255,107,53,0.15);color:var(--orange);}
-.st-done{background:rgba(0,255,136,0.1);color:var(--green);}
-.st-current{background:rgba(255,201,64,0.15);color:var(--gold);}
-.proj-actions{display:flex;gap:4px;}
-.proj-act-btn{
-  width:24px;height:24px;border-radius:4px;
-  background:var(--bg3);border:1px solid var(--border);
-  color:var(--gray);font-size:11px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all 0.15s;
-}
-.proj-act-btn:hover{border-color:var(--red);color:var(--red);}
-
-.new-proj-btn{
-  width:100%;padding:10px;
-  background:transparent;border:1.5px dashed var(--dim);border-radius:var(--r2);
-  color:var(--gray);font-size:11px;font-weight:600;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  transition:all 0.18s;
-}
-.new-proj-btn:hover{border-color:var(--gold);color:var(--gold);}
-
-/* ═══════════════ MODALS ═══════════════ */
-.modal-bg{
-  position:fixed;inset:0;background:rgba(0,0,0,0.85);
-  backdrop-filter:blur(10px);z-index:1000;
-  display:none;align-items:flex-end;justify-content:center;
-  padding-bottom:0;
-}
-.modal-bg.open{display:flex;}
-
-.modal{
-  background:var(--bg1);
-  border:1px solid var(--border2);border-radius:16px 16px 0 0;
-  padding:16px;width:100%;max-width:500px;
-  max-height:90dvh;overflow-y:auto;
-  animation:slideUp 0.3s cubic-bezier(0.32,0.72,0,1);
-}
-@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
-
-.modal-handle{
-  width:36px;height:3px;border-radius:2px;background:var(--dim);
-  margin:0 auto 14px;
-}
-.modal-title{
-  font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;
-  margin-bottom:14px;
-  background:linear-gradient(135deg,var(--gold),var(--cyan));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-
-.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;}
-.res-btn{
-  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);
-  padding:8px 4px;text-align:center;cursor:pointer;transition:all 0.18s;
-}
-.res-btn:hover{border-color:var(--border2);}
-.res-btn.active{border-color:var(--gold);background:rgba(255,201,64,0.08);}
-.res-name{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--white);}
-.res-sub{font-size:8px;color:var(--gray);}
-.res-8k{
-  border-color:rgba(192,96,255,0.4);
-  background:rgba(192,96,255,0.05);
-}
-.res-8k .res-name{color:var(--purple);}
-
-.fmt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
-.fmt-btn{
-  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);
-  padding:8px 4px;text-align:center;cursor:pointer;transition:all 0.18s;
-}
-.fmt-btn:hover{border-color:var(--border2);}
-.fmt-btn.active{border-color:var(--cyan);background:rgba(0,245,255,0.06);}
-.fmt-name{font-size:11px;font-weight:700;color:var(--white);}
-.fmt-sub{font-size:8px;color:var(--gray);}
-
-.export-progress-track{
-  height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin:10px 0;
-  display:none;
-}
-.export-progress-fill{
-  height:100%;border-radius:3px;width:0%;
-  background:linear-gradient(to right, var(--gold), var(--cyan));
-  transition:width 0.3s ease;box-shadow:0 0 8px rgba(0,245,255,0.4);
-}
-.export-status{font-size:10px;color:var(--gray);text-align:center;min-height:14px;font-family:'JetBrains Mono',monospace;}
-
-.modal-btns{display:flex;gap:8px;margin-top:12px;}
-.mbtn-cancel{
-  flex:1;padding:10px;background:var(--bg2);border:1px solid var(--border);
-  border-radius:var(--r2);color:var(--gray);font-size:12px;font-weight:600;cursor:pointer;
-  transition:all 0.18s;
-}
-.mbtn-cancel:hover{border-color:var(--border2);color:var(--white);}
-.mbtn-start{
-  flex:2;padding:10px;
-  background:linear-gradient(135deg,var(--gold),var(--gold2));
-  border:none;border-radius:var(--r2);
-  color:#000;font-family:'Orbitron',sans-serif;font-weight:700;font-size:11px;
-  cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all 0.2s;
-}
-.mbtn-start:hover{box-shadow:var(--glow-g);}
-.mbtn-start:disabled{opacity:0.5;cursor:not-allowed;}
-
-/* Motion tracking modal */
-.tracking-btn-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
-.track-opt-btn{
-  flex:1;min-width:80px;padding:8px;
-  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);
-  color:var(--gray);font-size:10px;font-weight:600;cursor:pointer;text-align:center;
-  transition:all 0.18s;
-}
-.track-opt-btn:hover{border-color:var(--red);}
-.track-opt-btn.active{border-color:var(--red);color:var(--red);background:rgba(255,45,85,0.06);}
-
-/* ═══════════════ TOAST ═══════════════ */
-.toast{
-  position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
-  background:var(--bg3);border:1px solid var(--border2);
-  color:var(--white);padding:8px 16px;border-radius:20px;
-  font-size:12px;font-weight:600;
-  z-index:9999;pointer-events:none;
-  opacity:0;transition:all 0.25s cubic-bezier(0.32,0.72,0,1);
-  white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;
-}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
-/* ═══════════════ AI PROCESSING RING ═══════════════ */
-.ai-ring{
-  position:absolute;inset:0;z-index:30;
-  display:none;align-items:center;justify-content:center;
-  background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);
-  flex-direction:column;gap:12px;
-}
-.ai-ring.show{display:flex;}
-.ai-spinner{
-  width:56px;height:56px;border-radius:50%;
-  border:3px solid var(--bg4);
-  border-top-color:var(--cyan);
-  border-right-color:var(--purple);
-  animation:spin 0.8s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg);}}
-.ai-msg{font-size:12px;color:var(--white);font-weight:600;letter-spacing:0.5px;}
-
-/* Undo/Redo active state */
-.tbtn.can-do{color:var(--white);border-color:var(--border2);}
-
-/* import hint */
-.import-hint{
-  display:none;
-  font-size:9px;color:var(--gray);text-align:center;padding:4px 0;
-}
-
-/* progress bar in topbar */
-.topbar-progress{
-  position:absolute;bottom:0;left:0;height:1.5px;
-  background:linear-gradient(to right, var(--gold), var(--cyan));
-  transition:width 0.3s;pointer-events:none;
-}
-</style>
-</head>
-<body>
-
-<!-- ═══════════════ TOPBAR ═══════════════ -->
-<div class="topbar" id="topbar">
-  <div class="logo">
-    <div class="logo-dot" id="recDot"></div>
-    CINEEDIT
-  </div>
-
-  <div class="topbar-center">
-    <span class="project-name" id="projectNameDisplay" onclick="renameProject()">Untitled_01</span>
-  </div>
-
-  <div class="topbar-right">
-    <button class="tbtn" id="undoBtn" onclick="doUndo()" title="Undo" disabled>↩</button>
-    <button class="tbtn" id="redoBtn" onclick="doRedo()" title="Redo" disabled>↪</button>
-    <button class="tbtn" onclick="openProjects()" title="Projects">📁</button>
-    <button class="btn-export" onclick="openExport()">⬆ Export</button>
-  </div>
-  <div class="topbar-progress" id="topbarProgress" style="width:0%"></div>
-</div>
-
-<!-- ═══════════════ PREVIEW ═══════════════ -->
-<div class="preview-area" id="previewArea">
-
-  <!-- Placeholder (shown when no video) -->
-  <div class="preview-placeholder" id="previewPlaceholder">
-    <div class="cine-bar-top"></div>
-    <div class="cine-bar-bot"></div>
-    <div class="scene-bg"></div>
-    <div class="scene-grid"></div>
-    <div class="drop-zone-content">
-      <div class="drop-icon">🎬</div>
-      <div class="drop-text">Import Your Video</div>
-      <div class="drop-sub">Tap to import or drag & drop<br>MP4 · MOV · MKV · HEVC · ProRes</div>
-      <button class="btn-import-main" onclick="importVideo()">⚡ FAST IMPORT</button>
-    </div>
-  </div>
-
-  <!-- Actual video element -->
-  <video id="mainVideo" class="preview-video" style="display:none" playsinline></video>
-
-  <!-- Filter FX layer -->
-  <div class="filter-fx" id="filterFx"></div>
-
-  <!-- BG remove overlay -->
-  <div class="bgremove-overlay" id="bgRemoveOverlay"></div>
-
-  <!-- Motion tracking overlay -->
-  <div class="tracking-overlay" id="trackingOverlay">
-    <div class="tracking-box" id="trackingBox" style="top:35%;left:40%;"></div>
-  </div>
-
-  <!-- AI ring -->
-  <div class="ai-ring" id="aiRing">
-    <div class="ai-spinner"></div>
-    <div class="ai-msg" id="aiMsg">Processing...</div>
-  </div>
-
-  <!-- Quality badge -->
-  <div class="quality-badge" id="qualityBadge">4K HDR</div>
-
-  <!-- KF indicator -->
-  <div class="kf-indicator" id="kfIndicator">⬦ KEYFRAME</div>
-
-  <!-- Playback controls -->
-  <div class="preview-overlay-controls" id="playbackControls" style="display:none">
-    <button class="pbtn" onclick="skipBack()" title="-10s">⏮</button>
-    <button class="pbtn main" id="playBtn" onclick="togglePlay()">▶</button>
-    <button class="pbtn" onclick="skipFwd()" title="+10s">⏭</button>
-    <div class="time-disp" id="timeDisplay">00:00 / 00:00</div>
-    <button class="pbtn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
-  </div>
-</div>
-
-<!-- ═══════════════ SCRUBBER ═══════════════ -->
-<div class="scrubber-bar" id="scrubberBar">
-  <span style="font-size:9px;color:var(--gray);font-family:'JetBrains Mono',monospace" id="scrubTime">00:00</span>
-  <div class="scrubber-track" id="scrubberTrack" ontouchstart="scrubStart(event)" ontouchmove="scrubMove(event)" onmousedown="scrubStart(event)" onmousemove="scrubMove(event)">
-    <div class="scrubber-fill" id="scrubFill"></div>
-    <div class="scrubber-thumb" id="scrubThumb"></div>
-  </div>
-  <span style="font-size:9px;color:var(--gray);font-family:'JetBrains Mono',monospace" id="scrubDur">00:00</span>
-</div>
-
-<!-- ═══════════════ TABS ═══════════════ -->
-<div class="tabs-bar">
-  <div class="tab active" onclick="switchTab('timeline',this)"><div class="ti">🎞</div><div class="tl">Timeline</div></div>
-  <div class="tab" onclick="switchTab('filters',this)"><div class="ti">🎨</div><div class="tl">Filters</div></div>
-  <div class="tab" onclick="switchTab('grade',this)"><div class="ti">🌈</div><div class="tl">Grade</div></div>
-  <div class="tab" onclick="switchTab('effects',this)"><div class="ti">✨</div><div class="tl">FX</div></div>
-  <div class="tab" onclick="switchTab('anim',this)"><div class="ti">💫</div><div class="tl">Motion</div></div>
-  <div class="tab" onclick="switchTab('text',this)"><div class="ti">✏️</div><div class="tl">Text</div></div>
-  <div class="tab" onclick="switchTab('keyframes',this)"><div class="ti">⬦</div><div class="tl">Keys</div></div>
-  <div class="tab" onclick="switchTab('enhance',this)"><div class="ti">🪄</div><div class="tl">AI</div></div>
-  <div class="tab" onclick="switchTab('audio',this)"><div class="ti">🎵</div><div class="tl">Audio</div></div>
-</div>
-
-<!-- ═══════════════ BOTTOM PANELS ═══════════════ -->
-<div class="bottom-panel">
-
-  <!-- TIMELINE -->
-  <div class="panel active" id="panel-timeline">
-    <div class="tl-header">
-      <button class="tl-zoom-btn" onclick="tlZoom(-1)">−</button>
-      <span class="tl-zoom-label" id="tlZoomLabel">1×</span>
-      <button class="tl-zoom-btn" onclick="tlZoom(1)">+</button>
-      <button class="tl-zoom-btn" onclick="addTrack()" style="width:auto;padding:0 8px;font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--cyan)">+ TRACK</button>
-      <button class="tl-zoom-btn" onclick="splitClip()" style="width:auto;padding:0 8px;font-size:9px;color:var(--gold)">✂ SPLIT</button>
-      <button class="tl-zoom-btn" onclick="deleteClip()" style="width:auto;padding:0 8px;font-size:9px;color:var(--red)">🗑 DEL</button>
-    </div>
-    <div class="tl-body" id="tlBody">
-      <div class="timeline-inner" id="tlInner">
-        <div class="tl-ruler" id="tlRuler">
-          <div class="tl-ruler-bg"></div>
-        </div>
-        <div id="tlTracks"></div>
-        <div class="tl-playhead" id="tlPlayhead"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- FILTERS -->
-  <div class="panel" id="panel-filters">
-    <div class="sec-label">Cinematic Filters</div>
-    <div class="filters-scroll" id="filtersScroll"></div>
-    <div class="custom-filter-area">
-      <div class="sec-label">Custom Mix</div>
-      <div class="sl-row">
-        <span class="sl-label">Intensity</span>
-        <input type="range" class="sl-input" min="0" max="100" value="80" oninput="updateFilterIntensity(this)">
-        <span class="sl-val" id="val-intensity">80%</span>
-      </div>
-      <div class="sl-row sl-cyan">
-        <span class="sl-label">Grain</span>
-        <input type="range" class="sl-input" min="0" max="100" value="15" oninput="updateVal(this,'grain','%')">
-        <span class="sl-val" id="val-grain">15%</span>
-      </div>
-      <div class="sl-row sl-purple">
-        <span class="sl-label">Vignette</span>
-        <input type="range" class="sl-input" min="0" max="100" value="30" oninput="updateVal(this,'vignette','%')">
-        <span class="sl-val" id="val-vignette">30%</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- COLOR GRADE -->
-  <div class="panel" id="panel-grade">
-    <div class="wheels-row">
-      <div class="wheel-item"><div class="color-wheel" onclick="wheelTap('Shadows')"></div><div class="wheel-label">Shadows</div></div>
-      <div class="wheel-item"><div class="color-wheel" onclick="wheelTap('Midtones')"></div><div class="wheel-label">Midtones</div></div>
-      <div class="wheel-item"><div class="color-wheel" onclick="wheelTap('Highlights')"></div><div class="wheel-label">Highlights</div></div>
-      <div class="wheel-item"><div class="color-wheel" onclick="wheelTap('All')"></div><div class="wheel-label">All</div></div>
-    </div>
-    <div class="sec-label">Primary Correction</div>
-    <div class="sl-row"><span class="sl-label">Exposure</span><input type="range" class="sl-input" min="-100" max="100" value="0" oninput="applyGrade(this,'exposure')"><span class="sl-val" id="val-exposure">0</span></div>
-    <div class="sl-row"><span class="sl-label">Contrast</span><input type="range" class="sl-input" min="-100" max="100" value="0" oninput="applyGrade(this,'contrast')"><span class="sl-val" id="val-contrast">0</span></div>
-    <div class="sl-row"><span class="sl-label">Highlights</span><input type="range" class="sl-input" min="-100" max="100" value="0" oninput="applyGrade(this,'highlights')"><span class="sl-val" id="val-highlights">0</span></div>
-    <div class="sl-row"><span class="sl-label">Shadows</span><input type="range" class="sl-input" min="-100" max="100" value="0" oninput="applyGrade(this,'shadows')"><span class="sl-val" id="val-shadows">0</span></div>
-    <div class="sl-row sl-cyan"><span class="sl-label">Temperature</span><input type="range" class="sl-input" min="-100" max="100" value="0" oninput="applyGrade(this,'temp')"><span class="sl-val" id="val-temp">0</span></div>
-    <div class="sl-row sl-purple"><span class="sl-label">Tint</span><input type="range" class="sl-input" min="-100" max="100" value="0" oninput="applyGrade(this,'tint')"><span class="sl-val" id="val-tint">0</span></div>
-    <div class="sl-row sl-green"><span class="sl-label">Saturation</span><input type="range" class="sl-input" min="-100" max="100" value="0" oninput="applyGrade(this,'sat')"><span class="sl-val" id="val-sat">0</span></div>
-    <div class="sl-row"><span class="sl-label">Vibrance</span><input type="range" class="sl-input" min="-100" max="100" value="0" oninput="applyGrade(this,'vibrance')"><span class="sl-val" id="val-vibrance">0</span></div>
-    <div class="sl-row"><span class="sl-label">Sharpness</span><input type="range" class="sl-input" min="0" max="100" value="0" oninput="applyGrade(this,'sharp')"><span class="sl-val" id="val-sharp">0</span></div>
-    <div class="sl-row sl-cyan"><span class="sl-label">Fade</span><input type="range" class="sl-input" min="0" max="100" value="0" oninput="applyGrade(this,'fade')"><span class="sl-val" id="val-fade">0</span></div>
-    <div class="sl-row sl-purple"><span class="sl-label">HSL Hue</span><input type="range" class="sl-input" min="-180" max="180" value="0" oninput="applyGrade(this,'hue')"><span class="sl-val" id="val-hue">0°</span></div>
-  </div>
-
-  <!-- EFFECTS -->
-  <div class="panel" id="panel-effects">
-    <div class="sec-label">Video Effects</div>
-    <div class="effects-grid" id="effectsGrid"></div>
-  </div>
-
-  <!-- ANIMATIONS -->
-  <div class="panel" id="panel-anim">
-    <div class="sec-label">Transitions</div>
-    <div class="anim-grid" id="animGrid"></div>
-    <div class="sec-label" style="margin-top:10px">Clip Motion</div>
-    <div class="sl-row"><span class="sl-label">Speed</span><input type="range" class="sl-input" min="10" max="400" value="100" oninput="updateVal(this,'speed','',v=>(v/100).toFixed(1)+'x')"><span class="sl-val" id="val-speed">1.0x</span></div>
-    <div class="sl-row sl-cyan"><span class="sl-label">Stabilize</span><input type="range" class="sl-input" min="0" max="100" value="0" oninput="updateVal(this,'stabilize','%')"><span class="sl-val" id="val-stabilize">0%</span></div>
-  </div>
-
-  <!-- TEXT -->
-  <div class="panel" id="panel-text">
-    <div class="text-presets" id="textPresets"></div>
-    <textarea class="text-input-area" id="textInput" rows="2" placeholder="Enter text...">YOUR TITLE</textarea>
-    <div class="sec-label">Font Style</div>
-    <div class="sl-row"><span class="sl-label">Size</span><input type="range" class="sl-input" min="8" max="120" value="36" oninput="updateVal(this,'fsize','pt')"><span class="sl-val" id="val-fsize">36pt</span></div>
-    <div class="sl-row sl-cyan"><span class="sl-label">Letter Spc</span><input type="range" class="sl-input" min="-5" max="20" value="2" oninput="updateVal(this,'letterspacing','px')"><span class="sl-val" id="val-letterspacing">2px</span></div>
-    <div class="sl-row sl-purple"><span class="sl-label">Opacity</span><input type="range" class="sl-input" min="0" max="100" value="100" oninput="updateVal(this,'textopacity','%')"><span class="sl-val" id="val-textopacity">100%</span></div>
-  </div>
-
-  <!-- KEYFRAMES -->
-  <div class="panel" id="panel-keyframes">
-    <div class="sec-label">Keyframe Timeline</div>
-    <div class="kf-timeline" id="kfTimeline" onclick="addKeyframe(event)">
-      <div class="kf-axis"></div>
-    </div>
-    <div class="sec-label">Animated Properties</div>
-    <div class="kf-props">
-      <div class="kf-prop-row">
-        <span class="kf-prop-label">Position X</span>
-        <input type="range" class="sl-input" style="flex:1" min="-200" max="200" value="0" oninput="updateVal(this,'kf-x','px')">
-        <span class="sl-val" id="val-kf-x">0px</span>
-        <button class="kf-add-btn" onclick="addKfDiamond('posX')">⬦</button>
-      </div>
-      <div class="kf-prop-row">
-        <span class="kf-prop-label">Position Y</span>
-        <input type="range" class="sl-input" style="flex:1" min="-200" max="200" value="0" oninput="updateVal(this,'kf-y','px')">
-        <span class="sl-val" id="val-kf-y">0px</span>
-        <button class="kf-add-btn" onclick="addKfDiamond('posY')">⬦</button>
-      </div>
-      <div class="kf-prop-row">
-        <span class="kf-prop-label">Scale</span>
-        <input type="range" class="sl-input" style="flex:1" min="10" max="300" value="100" oninput="updateVal(this,'kf-scale','%')">
-        <span class="sl-val" id="val-kf-scale">100%</span>
-        <button class="kf-add-btn" onclick="addKfDiamond('scale')">⬦</button>
-      </div>
-      <div class="kf-prop-row">
-        <span class="kf-prop-label">Rotation</span>
-        <input type="range" class="sl-input" style="flex:1" min="-360" max="360" value="0" oninput="updateVal(this,'kf-rot','°')">
-        <span class="sl-val" id="val-kf-rot">0°</span>
-        <button class="kf-add-btn" onclick="addKfDiamond('rotation')">⬦</button>
-      </div>
-      <div class="kf-prop-row">
-        <span class="kf-prop-label">Opacity</span>
-        <input type="range" class="sl-input" style="flex:1" min="0" max="100" value="100" oninput="updateVal(this,'kf-opacity','%')">
-        <span class="sl-val" id="val-kf-opacity">100%</span>
-        <button class="kf-add-btn" onclick="addKfDiamond('opacity')">⬦</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- AI ENHANCE -->
-  <div class="panel" id="panel-enhance">
-    <div class="sec-label">AI-Powered Tools</div>
-    <div class="enhance-grid" id="enhanceGrid"></div>
-  </div>
-
-  <!-- AUDIO -->
-  <div class="panel" id="panel-audio">
-    <div class="sec-label">Waveform</div>
-    <div class="waveform-big" id="waveformBig"></div>
-    <div class="audio-btns">
-      <button class="audio-btn" onclick="audioAction('Noise Reduce')"><span>🎙</span>Denoise</button>
-      <button class="audio-btn" onclick="audioAction('Auto Level')"><span>📊</span>Auto Level</button>
-      <button class="audio-btn" onclick="audioAction('Bass Boost')"><span>🔊</span>Bass+</button>
-      <button class="audio-btn" onclick="audioAction('Fade In')"><span>📈</span>Fade In</button>
-      <button class="audio-btn" onclick="audioAction('Fade Out')"><span>📉</span>Fade Out</button>
-      <button class="audio-btn" onclick="audioAction('Detach')"><span>✂️</span>Detach</button>
-    </div>
-    <div class="sec-label" style="margin-top:8px">EQ & Mix</div>
-    <div class="sl-row"><span class="sl-label">Volume</span><input type="range" class="sl-input" min="0" max="200" value="100" oninput="updateVal(this,'vol','%')"><span class="sl-val" id="val-vol">100%</span></div>
-    <div class="sl-row sl-cyan"><span class="sl-label">Bass</span><input type="range" class="sl-input" min="-12" max="12" value="0" oninput="updateVal(this,'bass','dB',v=>(v>0?'+':'')+v+'dB')"><span class="sl-val" id="val-bass">0dB</span></div>
-    <div class="sl-row sl-purple"><span class="sl-label">Treble</span><input type="range" class="sl-input" min="-12" max="12" value="0" oninput="updateVal(this,'treble','dB',v=>(v>0?'+':'')+v+'dB')"><span class="sl-val" id="val-treble">0dB</span></div>
-    <div class="sl-row sl-green"><span class="sl-label">Pitch</span><input type="range" class="sl-input" min="-12" max="12" value="0" oninput="updateVal(this,'pitch','st',v=>(v>0?'+':'')+v+'st')"><span class="sl-val" id="val-pitch">0st</span></div>
-  </div>
-
-</div><!-- end bottom-panel -->
-
-<!-- ═══════════════ EXPORT MODAL ═══════════════ -->
-<div class="modal-bg" id="exportModal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">⬆ EXPORT VIDEO</div>
-
-    <div class="sec-label">Resolution</div>
-    <div class="res-grid">
-      <div class="res-btn" onclick="selRes(this,'720p')"><div class="res-name">720p</div><div class="res-sub">HD · Fast</div></div>
-      <div class="res-btn active" onclick="selRes(this,'1080p')"><div class="res-name">1080p</div><div class="res-sub">Full HD</div></div>
-      <div class="res-btn" onclick="selRes(this,'4K')"><div class="res-name">4K</div><div class="res-sub">UHD · Best</div></div>
-      <div class="res-btn res-8k" onclick="selRes(this,'8K')"><div class="res-name">8K</div><div class="res-sub">⚡ Ultra</div></div>
-      <div class="res-btn" onclick="selRes(this,'2.7K')"><div class="res-name">2.7K</div><div class="res-sub">GoPro</div></div>
-      <div class="res-btn" onclick="selRes(this,'Vertical')"><div class="res-name">9:16</div><div class="res-sub">Reels</div></div>
-    </div>
-
-    <div class="sec-label">Format</div>
-    <div class="fmt-grid">
-      <div class="fmt-btn active" onclick="selFmt(this,'MP4')"><div class="fmt-name">MP4</div><div class="fmt-sub">H.265</div></div>
-      <div class="fmt-btn" onclick="selFmt(this,'MOV')"><div class="fmt-name">MOV</div><div class="fmt-sub">ProRes</div></div>
-      <div class="fmt-btn" onclick="selFmt(this,'HEVC')"><div class="fmt-name">HEVC</div><div class="fmt-sub">HDR</div></div>
-      <div class="fmt-btn" onclick="selFmt(this,'WebM')"><div class="fmt-name">WebM</div><div class="fmt-sub">Web</div></div>
-    </div>
-
-    <div class="sec-label">Quality</div>
-    <div class="sl-row"><span class="sl-label">Bitrate</span><input type="range" class="sl-input" min="1" max="100" value="85" oninput="updateBitrate(this)"><span class="sl-val" id="val-bitrate">85 Mbps</span></div>
-    <div class="sl-row sl-cyan"><span class="sl-label">Frame Rate</span>
-      <select style="flex:1;background:var(--bg2);border:1px solid var(--border);color:var(--white);padding:4px;border-radius:4px;font-size:11px;outline:none;font-family:'Rajdhani',sans-serif;">
-        <option>24fps — Cinematic</option>
-        <option>30fps — Standard</option>
-        <option selected>60fps — Smooth</option>
-        <option>120fps — Slow-Mo</option>
-        <option>240fps — Ultra Slow</option>
-      </select>
-    </div>
-
-    <div class="export-progress-track" id="exportTrack">
-      <div class="export-progress-fill" id="exportFill"></div>
-    </div>
-    <div class="export-status" id="exportStatus"></div>
-
-    <div class="modal-btns">
-      <button class="mbtn-cancel" onclick="closeModal('exportModal')">Cancel</button>
-      <button class="mbtn-start" id="exportStartBtn" onclick="startExport()">🚀 START EXPORT</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════ PROJECTS MODAL ═══════════════ -->
-<div class="modal-bg" id="projectsModal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">📁 MY PROJECTS</div>
-    <div class="project-list" id="projectList"></div>
-    <button class="new-proj-btn" onclick="createNewProject()" style="margin-top:8px">
-      ＋ New Project
-    </button>
-    <div class="modal-btns">
-      <button class="mbtn-cancel" onclick="closeModal('projectsModal')">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════ MOTION TRACKING MODAL ═══════════════ -->
-<div class="modal-bg" id="trackingModal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">🎯 MOTION TRACKING</div>
-    <div class="sec-label">Tracking Mode</div>
-    <div class="tracking-btn-row">
-      <div class="track-opt-btn active" onclick="selTrackMode(this,'Object')">Object Track</div>
-      <div class="track-opt-btn" onclick="selTrackMode(this,'Face')">Face Track</div>
-      <div class="track-opt-btn" onclick="selTrackMode(this,'Point')">Point Track</div>
-      <div class="track-opt-btn" onclick="selTrackMode(this,'Camera')">Camera Track</div>
-    </div>
-    <div class="sec-label">Options</div>
-    <div class="sl-row"><span class="sl-label">Search Radius</span><input type="range" class="sl-input" min="10" max="200" value="80" oninput="updateVal(this,'track-radius','px')"><span class="sl-val" id="val-track-radius">80px</span></div>
-    <div class="sl-row sl-cyan"><span class="sl-label">Confidence</span><input type="range" class="sl-input" min="50" max="100" value="85" oninput="updateVal(this,'track-conf','%')"><span class="sl-val" id="val-track-conf">85%</span></div>
-    <div style="font-size:10px;color:var(--gray);line-height:1.5;margin:8px 0;padding:8px;background:var(--bg2);border-radius:var(--r2);">
-      Tap on the preview to set a tracking point. The AI engine will follow the selected subject through the clip.
-    </div>
-    <div class="modal-btns">
-      <button class="mbtn-cancel" onclick="closeModal('trackingModal')">Cancel</button>
-      <button class="mbtn-start" onclick="startTracking()">🎯 START TRACKING</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════ TOAST ═══════════════ -->
-<div class="toast" id="toast"></div>
-
-<!-- ═══════════════ HIDDEN FILE INPUT ═══════════════ -->
-<input type="file" id="fileInput" accept="video/*,image/*" style="display:none" onchange="handleFileImport(event)">
-
-<script>
-// ═══════════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════════
-const STATE = {
-  hasVideo: false,
-  isPlaying: false,
-  currentTime: 0,
-  duration: 0,
-  zoomLevel: 1,
-  selectedClip: null,
-  activeFilter: 'none',
-  gradeValues: {},
-  undoStack: [],
-  redoStack: [],
-  keyframes: [],
-  trackingActive: false,
-  bgRemoveActive: false,
-  projects: [
-    {id:1, name:'Untitled_01', status:'current', duration:'02:47', modified:'Just now'},
-    {id:2, name:'Wedding_Edit', status:'draft', duration:'05:32', modified:'2h ago'},
-    {id:3, name:'Travel_Vlog', status:'done', duration:'08:15', modified:'Yesterday'},
+import { useState, useEffect, useRef, useCallback } from "react";
+
+// ===================== STYLES =====================
+const GlobalStyle = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --primary: #1a237e;
+      --primary-light: #283593;
+      --accent: #ff6f00;
+      --accent2: #00bcd4;
+      --success: #2e7d32;
+      --danger: #c62828;
+      --warn: #f9a825;
+      --bg: #f0f4ff;
+      --card: #ffffff;
+      --text: #1a1a2e;
+      --text2: #5c6bc0;
+      --shadow: 0 4px 24px rgba(26,35,126,0.10);
+      --radius: 18px;
+    }
+    
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); }
+    
+    .app-root {
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Header */
+    .app-header {
+      background: linear-gradient(135deg, var(--primary) 0%, #3949ab 100%);
+      color: white;
+      padding: 16px 20px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(26,35,126,0.25);
+    }
+    .header-logo { display:flex; align-items:center; gap:10px; }
+    .logo-icon { 
+      width:40px; height:40px; background:var(--accent); border-radius:12px;
+      display:flex; align-items:center; justify-content:center; font-size:22px;
+      box-shadow: 0 2px 8px rgba(255,111,0,0.4);
+    }
+    .logo-text { font-family:'Baloo 2',cursive; font-size:20px; font-weight:800; letter-spacing:0.5px; }
+    .logo-sub { font-size:10px; opacity:0.8; font-weight:600; letter-spacing:1px; }
+    .header-right { display:flex; gap:8px; align-items:center; }
+    .icon-btn {
+      width:36px; height:36px; border-radius:10px; border:none; cursor:pointer;
+      background:rgba(255,255,255,0.15); color:white; font-size:18px;
+      display:flex; align-items:center; justify-content:center;
+      transition: background 0.2s;
+    }
+    .icon-btn:hover { background:rgba(255,255,255,0.25); }
+
+    /* Bottom Nav */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      background: white; display: flex; border-top: 1px solid #e3e8ff;
+      box-shadow: 0 -4px 20px rgba(26,35,126,0.10);
+      z-index: 100; padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      padding: 10px 0 8px; cursor: pointer; border: none; background: none;
+      transition: color 0.2s;
+    }
+    .nav-item .nav-icon { font-size: 22px; margin-bottom: 2px; }
+    .nav-item .nav-label { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; }
+    .nav-item.active { color: var(--accent); }
+    .nav-item:not(.active) { color: #9e9e9e; }
+    .nav-item.active .nav-icon { transform: scale(1.15); }
+
+    /* Content area */
+    .content { padding: 16px 16px 90px; }
+
+    /* Cards */
+    .card {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 18px; margin-bottom: 14px;
+    }
+    .card-title {
+      font-family: 'Baloo 2', cursive; font-size: 17px; font-weight: 700;
+      color: var(--primary); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Buttons */
+    .btn {
+      border: none; cursor: pointer; border-radius: 12px; font-family: 'Nunito', sans-serif;
+      font-weight: 700; transition: all 0.18s; display: inline-flex; align-items: center;
+      justify-content: center; gap: 6px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #3949ab);
+      color: white; padding: 13px 22px; font-size: 15px;
+      box-shadow: 0 4px 14px rgba(26,35,126,0.28);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(26,35,126,0.35); }
+    .btn-accent {
+      background: linear-gradient(135deg, var(--accent), #ff8f00);
+      color: white; padding: 13px 22px; font-size: 15px;
+      box-shadow: 0 4px 14px rgba(255,111,0,0.28);
+    }
+    .btn-accent:hover { transform: translateY(-1px); }
+    .btn-outline {
+      background: transparent; color: var(--primary);
+      border: 2px solid var(--primary); padding: 11px 20px; font-size: 14px;
+    }
+    .btn-sm { padding: 8px 16px; font-size: 13px; border-radius: 9px; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-full { width: 100%; }
+
+    /* Input */
+    .input-group { margin-bottom: 14px; }
+    .input-label { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 6px; display: block; }
+    .input-field {
+      width: 100%; padding: 12px 14px; border-radius: 11px;
+      border: 2px solid #e3e8ff; font-family: 'Nunito', sans-serif;
+      font-size: 14px; color: var(--text); background: #f8f9ff;
+      outline: none; transition: border 0.2s;
+    }
+    .input-field:focus { border-color: var(--primary); background: white; }
+
+    /* Badge */
+    .badge {
+      display: inline-flex; align-items: center; padding: 3px 10px;
+      border-radius: 20px; font-size: 11px; font-weight: 700;
+    }
+    .badge-blue { background: #e8eaf6; color: var(--primary); }
+    .badge-orange { background: #fff3e0; color: var(--accent); }
+    .badge-green { background: #e8f5e9; color: var(--success); }
+    .badge-red { background: #ffebee; color: var(--danger); }
+
+    /* Progress bar */
+    .progress-bar-bg { background: #e3e8ff; border-radius: 100px; height: 10px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 100px; transition: width 0.6s ease; }
+
+    /* Divider */
+    .divider { height: 1px; background: #e3e8ff; margin: 12px 0; }
+
+    /* Alert */
+    .alert {
+      border-radius: 12px; padding: 12px 14px; margin-bottom: 12px;
+      font-size: 13px; font-weight: 600; display: flex; align-items: flex-start; gap: 8px;
+    }
+    .alert-info { background: #e8eaf6; color: var(--primary); }
+    .alert-warn { background: #fffde7; color: #f57f17; border: 1px solid #ffe082; }
+    .alert-success { background: #e8f5e9; color: var(--success); }
+    .alert-danger { background: #ffebee; color: var(--danger); }
+
+    /* Modal overlay */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+      z-index: 200; display: flex; align-items: flex-end; justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+    .modal-sheet {
+      background: white; border-radius: 22px 22px 0 0;
+      width: 100%; max-width: 430px; max-height: 90vh; overflow-y: auto;
+      padding: 20px 20px 40px; animation: slideUp 0.3s ease;
+    }
+    .modal-handle { width: 40px; height: 4px; background: #e0e0e0; border-radius: 2px; margin: 0 auto 18px; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* Home screen */
+    .hero-banner {
+      background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #3949ab 100%);
+      border-radius: var(--radius); padding: 22px 20px; color: white; margin-bottom: 14px;
+      position: relative; overflow: hidden;
+    }
+    .hero-banner::after {
+      content: '🎓'; position: absolute; right: 20px; bottom: 10px;
+      font-size: 64px; opacity: 0.15;
+    }
+    .hero-greeting { font-size: 13px; opacity: 0.8; font-weight: 600; }
+    .hero-name { font-family: 'Baloo 2', cursive; font-size: 24px; font-weight: 800; margin: 2px 0; }
+    .hero-stat { font-size: 13px; opacity: 0.85; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+    .stat-card {
+      background: white; border-radius: 14px; padding: 14px 10px; text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .stat-num { font-family: 'Baloo 2', cursive; font-size: 24px; font-weight: 800; color: var(--primary); }
+    .stat-label { font-size: 11px; color: #9e9e9e; font-weight: 600; margin-top: 2px; }
+
+    /* Exam screen */
+    .exam-timer {
+      background: linear-gradient(135deg, #c62828, #e53935);
+      color: white; border-radius: 12px; padding: 10px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: 'Baloo 2', cursive; font-size: 22px; font-weight: 800;
+      margin-bottom: 14px; box-shadow: 0 4px 14px rgba(198,40,40,0.3);
+    }
+    .timer-warn { animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+
+    .question-card {
+      background: white; border-radius: var(--radius); padding: 20px;
+      box-shadow: var(--shadow); margin-bottom: 14px;
+    }
+    .q-number { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 1px; margin-bottom: 8px; }
+    .q-text { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.5; }
+
+    .option-btn {
+      width: 100%; text-align: left; padding: 14px 16px; margin-bottom: 10px;
+      border-radius: 12px; border: 2px solid #e3e8ff; background: #f8f9ff;
+      font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.18s; display: flex; align-items: center; gap: 10px;
+    }
+    .option-btn:hover { border-color: var(--primary); background: #eef0ff; }
+    .option-btn.selected { border-color: var(--primary); background: #e8eaf6; color: var(--primary); }
+    .option-btn.correct { border-color: var(--success); background: #e8f5e9; color: var(--success); }
+    .option-btn.wrong { border-color: var(--danger); background: #ffebee; color: var(--danger); }
+    .option-label {
+      min-width: 28px; height: 28px; border-radius: 8px;
+      background: var(--primary); color: white; font-size: 13px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .option-btn.selected .option-label { background: var(--primary); }
+    .option-btn.correct .option-label { background: var(--success); }
+    .option-btn.wrong .option-label { background: var(--danger); }
+
+    /* Result screen */
+    .result-circle {
+      width: 130px; height: 130px; border-radius: 50%; margin: 0 auto 18px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-family: 'Baloo 2', cursive;
+      position: relative;
+    }
+    .result-score { font-size: 36px; font-weight: 800; }
+    .result-label { font-size: 12px; font-weight: 700; opacity: 0.85; }
+
+    /* Dashboard charts */
+    .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; margin: 12px 0; }
+    .bar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .bar { width: 100%; border-radius: 6px 6px 0 0; transition: height 0.5s ease; }
+    .bar-label { font-size: 10px; color: #9e9e9e; font-weight: 600; }
+
+    /* Game screen */
+    .game-header {
+      background: linear-gradient(135deg, #004d40, #00695c);
+      border-radius: var(--radius); padding: 16px 20px; color: white; margin-bottom: 14px;
+    }
+    .game-title { font-family: 'Baloo 2', cursive; font-size: 20px; font-weight: 800; }
+    .game-meta { display: flex; gap: 14px; margin-top: 8px; }
+    .game-badge {
+      background: rgba(255,255,255,0.15); border-radius: 8px;
+      padding: 4px 10px; font-size: 13px; font-weight: 700;
+    }
+
+    .game-question {
+      background: white; border-radius: var(--radius); padding: 22px 20px;
+      box-shadow: var(--shadow); margin-bottom: 14px; text-align: center;
+    }
+    .game-q-text { font-size: 22px; font-weight: 800; color: var(--text); line-height: 1.4; }
+    .game-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .game-opt {
+      padding: 16px; border-radius: 14px; border: none; cursor: pointer;
+      font-family: 'Baloo 2', cursive; font-size: 18px; font-weight: 700;
+      transition: all 0.2s; background: #f0f4ff; color: var(--primary);
+    }
+    .game-opt:hover { transform: scale(1.03); background: #e8eaf6; }
+    .game-opt.correct { background: #e8f5e9; color: var(--success); border: 2px solid var(--success); }
+    .game-opt.wrong { background: #ffebee; color: var(--danger); border: 2px solid var(--danger); }
+    .game-opt.reveal-correct { background: #e8f5e9; color: var(--success); border: 2px solid var(--success); }
+
+    .level-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, var(--warn), #ffca28);
+      color: #5d4037; padding: 6px 14px; border-radius: 20px;
+      font-size: 13px; font-weight: 800;
+    }
+
+    /* Teacher panel */
+    .teacher-panel { padding: 16px; }
+    .json-textarea {
+      width: 100%; min-height: 200px; padding: 12px; border-radius: 12px;
+      border: 2px solid #e3e8ff; font-family: monospace; font-size: 12px;
+      background: #1a1a2e; color: #a5d6a7; outline: none; resize: vertical;
+    }
+    
+    /* Anti-cheat overlay */
+    .anti-cheat-msg {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      z-index: 300; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; color: white; text-align: center;
+      padding: 30px;
+    }
+    .anti-cheat-icon { font-size: 64px; margin-bottom: 16px; }
+    .anti-cheat-title { font-family: 'Baloo 2', cursive; font-size: 24px; font-weight: 800; color: #ff5252; }
+    .anti-cheat-text { font-size: 14px; color: #ffcc80; margin: 10px 0 20px; line-height: 1.6; }
+
+    .scroll-x { overflow-x: auto; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    
+    .chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .chip {
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+      cursor: pointer; border: 2px solid transparent; transition: all 0.18s;
+    }
+    .chip-active { background: var(--primary); color: white; }
+    .chip-inactive { background: #e8eaf6; color: var(--primary); }
+    
+    .empty-state { text-align: center; padding: 40px 20px; color: #9e9e9e; }
+    .empty-icon { font-size: 48px; margin-bottom: 10px; }
+    .empty-text { font-size: 14px; font-weight: 600; }
+    
+    .fade-in { animation: fadeIn 0.4s ease; }
+    
+    textarea { font-family: 'Nunito', sans-serif; }
+  `}</style>
+);
+
+// ===================== DATA =====================
+const SAMPLE_EXAM = {
+  id: "exam_001",
+  title: "Maths Chapter 1 Test",
+  subject: "Maths",
+  duration: 600, // 10 min
+  totalMarks: 20,
+  questions: [
+    { id: 1, text: "यदि 2x + 3 = 11, तो x का मान क्या है?", options: ["2", "3", "4", "5"], correct: 2, marks: 2 },
+    { id: 2, text: "एक त्रिभुज के सभी कोणों का योग कितना होता है?", options: ["90°", "180°", "270°", "360°"], correct: 1, marks: 2 },
+    { id: 3, text: "25 का वर्गमूल क्या है?", options: ["3", "4", "5", "6"], correct: 2, marks: 2 },
+    { id: 4, text: "यदि किसी संख्या का 20% = 40 है, तो वह संख्या क्या है?", options: ["160", "200", "220", "180"], correct: 1, marks: 2 },
+    { id: 5, text: "LCM(12, 18) क्या है?", options: ["6", "36", "72", "216"], correct: 1, marks: 2 },
+  ]
+};
+
+const QUIZ_QUESTIONS = {
+  maths: [
+    { q: "15 × 8 = ?", opts: ["100", "120", "115", "125"], ans: 1, level: 1 },
+    { q: "√144 = ?", opts: ["10", "11", "12", "13"], ans: 2, level: 1 },
+    { q: "यदि 3x = 27, तो x = ?", opts: ["7", "8", "9", "10"], ans: 2, level: 2 },
+    { q: "72 ÷ 8 + 4 × 3 = ?", opts: ["18", "21", "24", "27"], ans: 1, level: 2 },
+    { q: "0.5 × 0.4 = ?", opts: ["0.2", "0.02", "2.0", "0.22"], ans: 0, level: 2 },
+    { q: "एक संख्या का 15% = 45 है। संख्या = ?", opts: ["200", "250", "300", "350"], ans: 2, level: 3 },
+    { q: "LCM(6,8,12) = ?", opts: ["24", "48", "96", "12"], ans: 0, level: 3 },
+    { q: "sin 30° = ?", opts: ["1/2", "√3/2", "1/√2", "1"], ans: 0, level: 3 },
+    { q: "2³ × 2² = ?", opts: ["2⁵", "2⁶", "4⁵", "4⁶"], ans: 0, level: 3 },
+    { q: "एक ट्रेन 60 km/h की गति से 3 घंटे चलती है। दूरी = ?", opts: ["160", "180", "200", "220"], ans: 1, level: 2 },
   ],
-  currentProjectId: 1,
-  scrubbing: false,
-  tlZoom: 1,
-  effects: {},
+  reasoning: [
+    { q: "A, B का पुत्र है। C, A की माँ है। B का C से क्या संबंध है?", opts: ["पुत्री", "माँ", "पत्नी", "बहन"], ans: 2, level: 1 },
+    { q: "अगला पद: 2, 4, 8, 16, ?", opts: ["24", "28", "30", "32"], ans: 3, level: 1 },
+    { q: "MANGO को OCPIQ लिखते हैं। APPLE को क्या लिखेंगे?", opts: ["CRRNG", "CRRNF", "CRRNE", "CRRNG"], ans: 1, level: 2 },
+    { q: "यदि 5 + 3 = 28, 7 + 2 = 63, तो 4 + 6 = ?", opts: ["24", "48", "−24", "−10"], ans: 3, level: 3 },
+    { q: "अगला: 3, 6, 11, 18, 27, ?", opts: ["36", "38", "40", "42"], ans: 1, level: 2 },
+  ]
 };
 
-// ═══════════════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════════════
-window.onload = () => {
-  buildTimeline();
-  buildFilters();
-  buildEffects();
-  buildAnimations();
-  buildEnhance();
-  buildTextPresets();
-  buildWaveform();
-  buildRuler();
-  updateUndoRedo();
-};
+// ===================== STORAGE HELPERS =====================
+const saveData = (key, val) => { try { localStorage.setItem("csc_"+key, JSON.stringify(val)); } catch(e){} };
+const loadData = (key, def) => { try { const v = localStorage.getItem("csc_"+key); return v ? JSON.parse(v) : def; } catch(e){ return def; } };
 
-// ═══════════════════════════════════════════════════
-//  IMPORT
-// ═══════════════════════════════════════════════════
-function importVideo() {
-  document.getElementById('fileInput').click();
-}
+// ===================== MAIN APP =====================
+export default function CSCCampus() {
+  const [tab, setTab] = useState("home");
+  const [user, setUser] = useState(() => loadData("user", null));
+  const [examResults, setExamResults] = useState(() => loadData("results", []));
+  const [gameStats, setGameStats] = useState(() => loadData("gamestats", { totalPlayed: 0, totalCorrect: 0, level: 1, streak: 0 }));
+  const [showLogin, setShowLogin] = useState(!loadData("user", null));
+  const [modal, setModal] = useState(null); // { type, data }
 
-function handleFileImport(e) {
-  const file = e.target.files[0];
-  if(!file) return;
-  const url = URL.createObjectURL(file);
-  const vid = document.getElementById('mainVideo');
-  vid.src = url;
-  vid.style.display = 'block';
-  document.getElementById('previewPlaceholder').style.display = 'none';
-  document.getElementById('playbackControls').style.display = 'flex';
-  STATE.hasVideo = true;
+  useEffect(() => { saveData("results", examResults); }, [examResults]);
+  useEffect(() => { saveData("gamestats", gameStats); }, [gameStats]);
+  useEffect(() => { if (user) saveData("user", user); }, [user]);
 
-  vid.onloadedmetadata = () => {
-    STATE.duration = vid.duration;
-    document.getElementById('scrubDur').textContent = fmt(vid.duration);
-    document.getElementById('timeDisplay').textContent = '00:00 / ' + fmt(vid.duration);
-    document.getElementById('qualityBadge').textContent = vid.videoWidth >= 3840 ? '4K HDR' : vid.videoWidth >= 1920 ? '1080p' : '720p';
-    addToTimeline(file.name);
-    pushUndo('Import: ' + file.name);
-    toast('⚡ ' + file.name + ' imported!');
-    animateProgress();
+  const handleLogin = (userData) => { setUser(userData); setShowLogin(false); };
+  const handleExamComplete = (result) => {
+    const newResult = { ...result, date: new Date().toLocaleDateString("hi-IN"), id: Date.now() };
+    setExamResults(prev => [newResult, ...prev]);
+    setModal({ type: "result", data: newResult });
   };
-  e.target.value = '';
-}
-
-function animateProgress() {
-  const bar = document.getElementById('topbarProgress');
-  let p = 0;
-  const iv = setInterval(() => {
-    p += Math.random() * 15 + 5;
-    bar.style.width = Math.min(p, 95) + '%';
-    if(p >= 95) { clearInterval(iv); setTimeout(() => bar.style.width = '0%', 400); }
-  }, 80);
-}
-
-// ═══════════════════════════════════════════════════
-//  PLAYBACK
-// ═══════════════════════════════════════════════════
-function togglePlay() {
-  if(!STATE.hasVideo) { importVideo(); return; }
-  const vid = document.getElementById('mainVideo');
-  const btn = document.getElementById('playBtn');
-  STATE.isPlaying = !STATE.isPlaying;
-  if(STATE.isPlaying) { vid.play(); btn.textContent = '⏸'; } 
-  else { vid.pause(); btn.textContent = '▶'; }
-}
-
-function skipBack() {
-  const vid = document.getElementById('mainVideo');
-  if(vid) { vid.currentTime = Math.max(0, vid.currentTime - 10); toast('⏮ −10s'); }
-}
-function skipFwd() {
-  const vid = document.getElementById('mainVideo');
-  if(vid) { vid.currentTime = Math.min(STATE.duration, vid.currentTime + 10); toast('⏭ +10s'); }
-}
-function toggleFullscreen() {
-  const area = document.getElementById('previewArea');
-  if(!document.fullscreenElement) area.requestFullscreen?.();
-  else document.exitFullscreen?.();
-}
-
-// Video time updates
-const mainVid = document.getElementById('mainVideo');
-mainVid.addEventListener('timeupdate', () => {
-  const t = mainVid.currentTime;
-  const d = mainVid.duration || 1;
-  const pct = t / d * 100;
-  document.getElementById('scrubFill').style.width = pct + '%';
-  document.getElementById('scrubThumb').style.left = pct + '%';
-  document.getElementById('scrubTime').textContent = fmt(t);
-  document.getElementById('timeDisplay').textContent = fmt(t) + ' / ' + fmt(d);
-  // move playhead
-  const ph = document.getElementById('tlPlayhead');
-  const tlW = document.getElementById('tlInner').offsetWidth - 52;
-  ph.style.left = (52 + pct/100 * tlW) + 'px';
-});
-mainVid.addEventListener('ended', () => {
-  STATE.isPlaying = false;
-  document.getElementById('playBtn').textContent = '▶';
-});
-
-// ═══════════════════════════════════════════════════
-//  SCRUBBER
-// ═══════════════════════════════════════════════════
-let isScrubbing = false;
-function scrubStart(e) { isScrubbing = true; scrubSeek(e); }
-function scrubMove(e) { if(isScrubbing) scrubSeek(e); }
-document.addEventListener('touchend', () => isScrubbing = false);
-document.addEventListener('mouseup', () => isScrubbing = false);
-
-function scrubSeek(e) {
-  const track = document.getElementById('scrubberTrack');
-  const rect = track.getBoundingClientRect();
-  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-  const pct = Math.max(0, Math.min(1, x / rect.width));
-  if(STATE.hasVideo) {
-    const vid = document.getElementById('mainVideo');
-    vid.currentTime = pct * (vid.duration || 0);
-  }
-  document.getElementById('scrubFill').style.width = (pct*100) + '%';
-  document.getElementById('scrubThumb').style.left = (pct*100) + '%';
-  document.getElementById('scrubTime').textContent = fmt(pct * (STATE.duration || 0));
-}
-
-function fmt(s) {
-  if(isNaN(s)) return '00:00';
-  const m = Math.floor(s/60), sec = Math.floor(s%60);
-  return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
-}
-
-// ═══════════════════════════════════════════════════
-//  TIMELINE
-// ═══════════════════════════════════════════════════
-const TRACKS_DEFAULT = [
-  {id:'V1', label:'V1', color:'clip-v1', type:'video', clips:[{name:'Main Clip', left:'2%', width:'60%', kfs:[25,60]}]},
-  {id:'V2', label:'V2', color:'clip-v2', type:'video', clips:[{name:'B-Roll', left:'65%', width:'30%', kfs:[]}]},
-  {id:'FX', label:'FX', color:'clip-fx', type:'fx', clips:[{name:'Grade', left:'10%', width:'40%', kfs:[]}]},
-  {id:'TXT', label:'TXT', color:'clip-text', type:'text', clips:[{name:'Title', left:'5%', width:'25%', kfs:[15]}]},
-  {id:'A1', label:'A1', color:'clip-a', type:'audio', clips:[{name:'Music', left:'1%', width:'90%', kfs:[]}]},
-];
-
-let customTracks = [...TRACKS_DEFAULT];
-
-function buildTimeline() {
-  const container = document.getElementById('tlTracks');
-  container.innerHTML = '';
-  customTracks.forEach(t => renderTrack(t, container));
-}
-
-function renderTrack(track, container) {
-  const row = document.createElement('div');
-  row.className = 'tl-track';
-  row.dataset.trackId = track.id;
-
-  const head = document.createElement('div');
-  head.className = 'tl-track-head';
-  const colorMap = {video:'var(--cyan)', fx:'var(--red)', text:'var(--orange)', audio:'var(--green)'};
-  head.innerHTML = `
-    <button class="tl-track-mute" onclick="toggleMute('${track.id}',this)" title="Mute">🔊</button>
-    <span class="tl-track-label" style="color:${colorMap[track.type]||'var(--gray)'}">${track.label}</span>
-  `;
-
-  const body = document.createElement('div');
-  body.className = 'tl-track-body';
-  body.dataset.trackId = track.id;
-  body.style.position = 'relative';
-
-  // Playhead cover
-  body.addEventListener('click', (e) => {
-    const rect = body.getBoundingClientRect();
-    const pct = (e.clientX - rect.left) / rect.width;
-    if(STATE.hasVideo) document.getElementById('mainVideo').currentTime = pct * STATE.duration;
-  });
-
-  track.clips.forEach((clip, ci) => {
-    const el = document.createElement('div');
-    el.className = 'tl-clip ' + track.color;
-    el.style.left = clip.left;
-    el.style.width = clip.width;
-    el.textContent = clip.name;
-    el.dataset.clipId = track.id + '_' + ci;
-    el.onclick = () => selectClip(el, track, ci);
-
-    // Left resize handle
-    const lh = document.createElement('div');
-    lh.className = 'tl-clip-handle left';
-    el.appendChild(lh);
-    // Right resize handle
-    const rh = document.createElement('div');
-    rh.className = 'tl-clip-handle right';
-    el.appendChild(rh);
-
-    // Keyframe dots
-    clip.kfs.forEach(kfPct => {
-      const dot = document.createElement('div');
-      dot.className = 'kf-dot';
-      dot.style.left = kfPct + '%';
-      el.appendChild(dot);
+  const handleGameStatsUpdate = (correct) => {
+    setGameStats(prev => {
+      const totalCorrect = prev.totalCorrect + (correct ? 1 : 0);
+      const totalPlayed = prev.totalPlayed + 1;
+      const accuracy = totalPlayed > 0 ? totalCorrect / totalPlayed : 0;
+      const level = accuracy >= 0.8 ? 3 : accuracy >= 0.5 ? 2 : 1;
+      const streak = correct ? prev.streak + 1 : 0;
+      return { totalPlayed, totalCorrect, level, streak };
     });
+  };
 
-    setupClipDrag(el, body, clip);
-    body.appendChild(el);
-  });
+  if (showLogin) return <><GlobalStyle /><LoginScreen onLogin={handleLogin} /></>;
 
-  row.appendChild(head);
-  row.appendChild(body);
-  container.appendChild(row);
+  return (
+    <div className="app-root">
+      <GlobalStyle />
+      <AppHeader user={user} tab={tab} />
+      <div className="fade-in">
+        {tab === "home" && <HomeScreen user={user} examResults={examResults} gameStats={gameStats} setTab={setTab} />}
+        {tab === "exam" && <ExamScreen user={user} onComplete={handleExamComplete} />}
+        {tab === "dashboard" && <DashboardScreen user={user} examResults={examResults} gameStats={gameStats} />}
+        {tab === "game" && <GameScreen gameStats={gameStats} onUpdate={handleGameStatsUpdate} />}
+        {tab === "teacher" && <TeacherPanel />}
+      </div>
+      <BottomNav tab={tab} setTab={setTab} user={user} />
+      {modal?.type === "result" && <ResultModal data={modal.data} onClose={() => setModal(null)} />}
+    </div>
+  );
 }
 
-function setupClipDrag(el, body, clip) {
-  let startX, startLeft, startW, isDragging = false, isResizing = false, resizeSide = '';
+// ===================== LOGIN =====================
+function LoginScreen({ onLogin }) {
+  const [mode, setMode] = useState("login"); // login | register
+  const [name, setName] = useState("");
+  const [rollNo, setRollNo] = useState("");
+  const [pin, setPin] = useState("");
+  const [batch, setBatch] = useState("Morning");
+  const [err, setErr] = useState("");
 
-  const getX = e => e.touches ? e.touches[0].clientX : e.clientX;
-
-  el.addEventListener('touchstart', startDrag, {passive:true});
-  el.addEventListener('mousedown', startDrag);
-
-  function startDrag(e) {
-    const target = e.target;
-    if(target.classList.contains('tl-clip-handle')) {
-      isResizing = true;
-      resizeSide = target.classList.contains('left') ? 'left' : 'right';
+  const handleSubmit = () => {
+    if (!name.trim() || !rollNo.trim() || !pin.trim()) { setErr("सभी fields भरें।"); return; }
+    if (pin.length < 4) { setErr("PIN कम से कम 4 अंक का होना चाहिए।"); return; }
+    const users = loadData("allUsers", []);
+    if (mode === "register") {
+      if (users.find(u => u.rollNo === rollNo)) { setErr("यह Roll No पहले से registered है।"); return; }
+      const newUser = { name: name.trim(), rollNo: rollNo.trim(), pin, batch, role: "student" };
+      saveData("allUsers", [...users, newUser]);
+      onLogin(newUser);
     } else {
-      isDragging = true;
+      if (rollNo === "TEACHER" && pin === "1234") { onLogin({ name: "Teacher", rollNo: "TEACHER", role: "teacher" }); return; }
+      const found = users.find(u => u.rollNo === rollNo && u.pin === pin);
+      if (!found) { setErr("गलत Roll No या PIN।"); return; }
+      onLogin(found);
     }
-    startX = getX(e);
-    const pct = parseFloat(el.style.left);
-    const wPct = parseFloat(el.style.width);
-    startLeft = pct;
-    startW = wPct;
-    e.stopPropagation();
-  }
-
-  document.addEventListener('touchmove', onMove, {passive:true});
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('touchend', endDrag);
-  document.addEventListener('mouseup', endDrag);
-
-  function onMove(e) {
-    if(!isDragging && !isResizing) return;
-    const dx = getX(e) - startX;
-    const bodyW = body.offsetWidth;
-    const dPct = (dx / bodyW) * 100;
-
-    if(isDragging) {
-      const newLeft = Math.max(0, Math.min(100 - startW, startLeft + dPct));
-      el.style.left = newLeft + '%';
-    } else if(isResizing) {
-      if(resizeSide === 'right') {
-        const newW = Math.max(5, Math.min(100 - startLeft, startW + dPct));
-        el.style.width = newW + '%';
-      } else {
-        const newLeft = Math.max(0, Math.min(startLeft + startW - 5, startLeft + dPct));
-        const newW = startLeft + startW - newLeft;
-        el.style.left = newLeft + '%';
-        el.style.width = newW + '%';
-      }
-    }
-  }
-
-  function endDrag() {
-    if(isDragging || isResizing) {
-      pushUndo('Move clip');
-      isDragging = false; isResizing = false;
-    }
-  }
-}
-
-function selectClip(el, track, ci) {
-  document.querySelectorAll('.tl-clip').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  STATE.selectedClip = {el, track, ci};
-  toast(`Selected: ${track.clips[ci].name}`);
-}
-
-function addTrack() {
-  const types = ['video','fx','text','audio'];
-  const colors = ['clip-v3','clip-fx','clip-text','clip-a'];
-  const labels = ['V3','FX2','T2','A2'];
-  const i = Math.floor(Math.random() * 4);
-  const newTrack = {
-    id: 'T'+Date.now(), label: labels[i], color: colors[i],
-    type: types[i],
-    clips: [{name:'New Clip', left:'10%', width:'40%', kfs:[]}]
   };
-  customTracks.push(newTrack);
-  buildTimeline();
-  pushUndo('Add track');
-  toast('➕ Track added');
-}
 
-function splitClip() {
-  if(!STATE.selectedClip) { toast('⚠ Select a clip first'); return; }
-  toast('✂ Clip split at playhead');
-  pushUndo('Split clip');
-}
-
-function deleteClip() {
-  if(!STATE.selectedClip) { toast('⚠ Select a clip first'); return; }
-  const {track, ci} = STATE.selectedClip;
-  track.clips.splice(ci, 1);
-  buildTimeline();
-  STATE.selectedClip = null;
-  pushUndo('Delete clip');
-  toast('🗑 Clip deleted');
-}
-
-function toggleMute(id, btn) {
-  btn.textContent = btn.textContent === '🔊' ? '🔇' : '🔊';
-  toast(btn.textContent === '🔇' ? `🔇 ${id} muted` : `🔊 ${id} unmuted`);
-}
-
-function addToTimeline(name) {
-  const shortName = name.replace(/\.[^.]+$/, '').substring(0, 12);
-  customTracks[0].clips.push({name: shortName, left:'5%', width:'55%', kfs:[]});
-  buildTimeline();
-}
-
-function buildRuler() {
-  const ruler = document.getElementById('tlRuler');
-  ['0:00','0:10','0:20','0:30','0:40','0:50','1:00','1:10','1:20'].forEach(t => {
-    const m = document.createElement('div');
-    m.className = 'ruler-mark';
-    m.textContent = t;
-    ruler.appendChild(m);
-  });
-}
-
-function tlZoom(dir) {
-  STATE.tlZoom = Math.max(0.5, Math.min(4, STATE.tlZoom + dir * 0.5));
-  document.getElementById('tlZoomLabel').textContent = STATE.tlZoom + '×';
-  document.getElementById('tlInner').style.minWidth = (700 * STATE.tlZoom) + 'px';
-  toast(`🔍 ${STATE.tlZoom}× zoom`);
-}
-
-// ═══════════════════════════════════════════════════
-//  FILTERS
-// ═══════════════════════════════════════════════════
-const FILTERS = [
-  {id:'none', name:'Original', cls:'ft-none', css:'none'},
-  {id:'cinema', name:'Cinema', cls:'ft-cinema', css:'contrast(1.1) saturate(0.75) brightness(0.95)'},
-  {id:'golden', name:'Golden Hr', cls:'ft-golden', css:'sepia(0.3) saturate(1.4) hue-rotate(-10deg)'},
-  {id:'teal', name:'Teal', cls:'ft-teal', css:'saturate(1.2) hue-rotate(160deg) brightness(0.95)'},
-  {id:'neon', name:'Neon', cls:'ft-neon', css:'saturate(1.8) contrast(1.15) brightness(1.05)'},
-  {id:'bw', name:'B&W', cls:'ft-bw', css:'grayscale(1) contrast(1.1)'},
-  {id:'drama', name:'Drama', cls:'ft-drama', css:'contrast(1.25) saturate(0.85)'},
-  {id:'moody', name:'Moody', cls:'ft-moody', css:'contrast(1.1) saturate(0.6) brightness(0.9)'},
-  {id:'vintage', name:'Vintage', cls:'ft-vintage', css:'sepia(0.4) contrast(0.9) saturate(1.1)'},
-  {id:'bleach', name:'Bleach', cls:'ft-bleach', css:'contrast(1.3) saturate(0.5) brightness(1.1)'},
-  {id:'dusk', name:'Dusk', cls:'ft-dusk', css:'hue-rotate(280deg) saturate(1.3) brightness(0.9)'},
-  {id:'arctic', name:'Arctic', cls:'ft-arctic', css:'hue-rotate(195deg) saturate(0.8) brightness(1.05)'},
-  {id:'ember', name:'Ember', cls:'ft-ember', css:'sepia(0.6) saturate(1.8) hue-rotate(-15deg) contrast(1.1)'},
-  {id:'jade', name:'Jade', cls:'ft-jade', css:'hue-rotate(120deg) saturate(1.2) brightness(0.95)'},
-  {id:'fuji', name:'Fuji', cls:'ft-fuji', css:'contrast(0.95) saturate(1.1) brightness(0.95) hue-rotate(10deg)'},
-];
-
-function buildFilters() {
-  const container = document.getElementById('filtersScroll');
-  FILTERS.forEach(f => {
-    const item = document.createElement('div');
-    item.className = 'filter-item' + (f.id === 'none' ? ' active' : '');
-    item.dataset.filterId = f.id;
-    item.onclick = () => applyFilter(f, item);
-    item.innerHTML = `<div class="filter-thumb ${f.cls}" data-label="${f.name.toUpperCase()}"></div><div class="filter-name">${f.name}</div>`;
-    container.appendChild(item);
-  });
-}
-
-function applyFilter(f, item) {
-  document.querySelectorAll('.filter-item').forEach(i => i.classList.remove('active'));
-  item.classList.add('active');
-  STATE.activeFilter = f.id;
-  const vid = document.getElementById('mainVideo');
-  vid.style.filter = f.css;
-  pushUndo('Filter: ' + f.name);
-  toast('🎨 ' + f.name + ' filter applied');
-}
-
-function updateFilterIntensity(el) {
-  document.getElementById('val-intensity').textContent = el.value + '%';
-  const vid = document.getElementById('mainVideo');
-  // blend between no filter and active filter using opacity trick on overlay
-  toast('Intensity: ' + el.value + '%');
-}
-
-// ═══════════════════════════════════════════════════
-//  COLOR GRADING (real CSS filter on video)
-// ═══════════════════════════════════════════════════
-const gradeMap = {};
-
-function applyGrade(el, key) {
-  const v = parseInt(el.value);
-  gradeMap[key] = v;
-
-  let label;
-  if(key === 'hue') label = (v>0?'+':'')+v+'°';
-  else label = (v>0?'+':'')+v;
-  document.getElementById('val-'+key).textContent = label;
-
-  // Build combined CSS filter
-  const exposure = gradeMap.exposure || 0;
-  const contrast = gradeMap.contrast || 0;
-  const sat = gradeMap.sat || 0;
-  const temp = gradeMap.temp || 0;
-  const hue = gradeMap.hue || 0;
-  const sharp = gradeMap.sharp || 0;
-  const fade = gradeMap.fade || 0;
-
-  const brightness = 1 + exposure / 200;
-  const contrastV = 1 + contrast / 150;
-  const satV = 1 + sat / 100;
-  const hueV = hue;
-
-  const vid = document.getElementById('mainVideo');
-  const existingFilter = STATE.activeFilter !== 'none'
-    ? (FILTERS.find(f=>f.id===STATE.activeFilter)?.css || '') + ' '
-    : '';
-
-  vid.style.filter = `${existingFilter}brightness(${brightness}) contrast(${contrastV}) saturate(${satV}) hue-rotate(${hueV}deg) blur(${sharp > 0 ? 0 : 0}px)`;
-
-  pushUndo('Color: ' + key);
-}
-
-function wheelTap(label) {
-  toast('🌈 ' + label + ' wheel — tap to adjust');
-}
-
-// ═══════════════════════════════════════════════════
-//  EFFECTS
-// ═══════════════════════════════════════════════════
-const EFFECTS = [
-  {icon:'🌟', name:'Lens Flare', desc:'Cinematic light burst', badge:'pro'},
-  {icon:'📷', name:'Film Grain', desc:'Analog texture', badge:''},
-  {icon:'💨', name:'Motion Blur', desc:'Speed & direction', badge:''},
-  {icon:'🔭', name:'Zoom Blur', desc:'Radial zoom effect', badge:''},
-  {icon:'⚡', name:'Glitch', desc:'Digital distortion', badge:'new'},
-  {icon:'🎭', name:'Letterbox', desc:'2.39:1 cinematic', badge:''},
-  {icon:'🌊', name:'Ripple', desc:'Liquid wave distort', badge:'pro'},
-  {icon:'❄', name:'Freeze Frame', desc:'Pause on frame', badge:''},
-  {icon:'🔥', name:'Burn Edge', desc:'Dark vignette burn', badge:''},
-  {icon:'🎯', name:'Rack Focus', desc:'Depth of field blur', badge:'ai'},
-];
-
-function buildEffects() {
-  const g = document.getElementById('effectsGrid');
-  EFFECTS.forEach(ef => {
-    const c = document.createElement('div');
-    c.className = 'eff-card';
-    c.innerHTML = `
-      ${ef.badge ? `<span class="eff-badge badge-${ef.badge==='ai'?'ai':'pro'}">${ef.badge.toUpperCase()}</span>` : ''}
-      <span class="eff-icon">${ef.icon}</span>
-      <div class="eff-name">${ef.name}</div>
-      <div class="eff-desc">${ef.desc}</div>
-    `;
-    c.onclick = () => toggleEffect(c, ef.name);
-    g.appendChild(c);
-  });
-}
-
-function toggleEffect(card, name) {
-  card.classList.toggle('active');
-  const on = card.classList.contains('active');
-  pushUndo((on?'Enable':'Disable') + ': ' + name);
-  toast((on ? '✅ ' : '❌ ') + name + (on ? ' ON' : ' OFF'));
-}
-
-// ═══════════════════════════════════════════════════
-//  ANIMATIONS / TRANSITIONS
-// ═══════════════════════════════════════════════════
-const ANIMS = [
-  {icon:'▶', name:'Cut', preview:''},
-  {icon:'🌊', name:'Dissolve', preview:''},
-  {icon:'↔', name:'Slide', preview:''},
-  {icon:'↕', name:'Wipe Up', preview:''},
-  {icon:'🔆', name:'Flash', preview:''},
-  {icon:'🌀', name:'Spin', preview:''},
-  {icon:'📐', name:'Zoom In', preview:''},
-  {icon:'🔍', name:'Zoom Out', preview:''},
-  {icon:'💎', name:'Diamond', preview:''},
-  {icon:'🎲', name:'Cube', preview:''},
-  {icon:'✨', name:'Glitter', preview:''},
-  {icon:'⚡', name:'Lightning', preview:''},
-];
-
-function buildAnimations() {
-  const g = document.getElementById('animGrid');
-  ANIMS.forEach(a => {
-    const c = document.createElement('div');
-    c.className = 'anim-card';
-    c.innerHTML = `<div class="anim-preview">${a.icon}</div><div class="anim-name">${a.name}</div>`;
-    c.onclick = () => {
-      document.querySelectorAll('.anim-card').forEach(x => x.classList.remove('active'));
-      c.classList.add('active');
-      pushUndo('Transition: ' + a.name);
-      toast('🎬 ' + a.name + ' transition');
-    };
-    g.appendChild(c);
-  });
-}
-
-// ═══════════════════════════════════════════════════
-//  TEXT TOOL
-// ═══════════════════════════════════════════════════
-const TEXT_PRESETS = [
-  {label:'Title', style:'font-family:Orbitron;font-size:20px;font-weight:900;letter-spacing:3px;'},
-  {label:'Subtitle', style:'font-size:12px;letter-spacing:2px;color:#aaa;'},
-  {label:'Caption', style:'font-size:10px;background:rgba(0,0,0,.5);padding:2px 6px;'},
-  {label:'Neon', style:'color:#00f5ff;text-shadow:0 0 10px #00f5ff;font-weight:700;'},
-  {label:'Gold', style:'color:#ffc940;text-shadow:0 0 8px rgba(255,201,64,0.6);'},
-  {label:'Glitch', style:'letter-spacing:2px;text-shadow:2px 0 #ff2d55,-2px 0 #00f5ff;'},
-  {label:'Minimal', style:'font-weight:300;letter-spacing:5px;text-transform:uppercase;'},
-  {label:'Bold', style:'font-weight:900;font-size:18px;text-transform:uppercase;'},
-];
-
-function buildTextPresets() {
-  const c = document.getElementById('textPresets');
-  TEXT_PRESETS.forEach((p,i) => {
-    const btn = document.createElement('div');
-    btn.className = 'text-preset' + (i===0?' active':'');
-    btn.textContent = p.label;
-    btn.onclick = () => {
-      document.querySelectorAll('.text-preset').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      toast('✏ ' + p.label + ' style applied');
-    };
-    c.appendChild(btn);
-  });
-}
-
-// ═══════════════════════════════════════════════════
-//  KEYFRAMES
-// ═══════════════════════════════════════════════════
-let kfCount = 0;
-
-function addKeyframe(e) {
-  const timeline = document.getElementById('kfTimeline');
-  const rect = timeline.getBoundingClientRect();
-  const pct = ((e.clientX - rect.left) / rect.width) * 100;
-
-  const dot = document.createElement('div');
-  dot.className = 'kf-marker';
-  dot.style.left = pct + '%';
-  dot.title = 'KF ' + (++kfCount);
-  dot.onclick = (ev) => {
-    ev.stopPropagation();
-    document.querySelectorAll('.kf-marker').forEach(d => d.classList.remove('selected'));
-    dot.classList.add('selected');
-    toast('⬦ Keyframe ' + kfCount + ' selected');
-  };
-  timeline.appendChild(dot);
-
-  STATE.keyframes.push({pct, id: kfCount});
-  pushUndo('Add keyframe');
-
-  const kfInd = document.getElementById('kfIndicator');
-  kfInd.classList.add('show');
-  setTimeout(() => kfInd.classList.remove('show'), 1500);
-
-  toast('⬦ Keyframe added at ' + Math.round(pct) + '%');
-}
-
-function addKfDiamond(prop) {
-  const t = STATE.hasVideo ? (document.getElementById('mainVideo').currentTime / (STATE.duration||1)*100) : 50;
-  const timeline = document.getElementById('kfTimeline');
-  const dot = document.createElement('div');
-  dot.className = 'kf-marker';
-  dot.style.left = t + '%';
-  dot.style.background = 'var(--purple)';
-  dot.style.boxShadow = 'var(--glow-p)';
-  timeline.appendChild(dot);
-  pushUndo('Keyframe: ' + prop);
-  toast('⬦ ' + prop + ' keyframe at ' + Math.round(t) + '%');
-}
-
-// ═══════════════════════════════════════════════════
-//  AI ENHANCE
-// ═══════════════════════════════════════════════════
-const ENHANCE_TOOLS = [
-  {icon:'🖼', label:'Upscale', ai:true, time:3000, msg:'AI Upscaling...'},
-  {icon:'✨', label:'Denoise', ai:true, time:2000, msg:'Removing noise...'},
-  {icon:'🎨', label:'Auto Grade', ai:true, time:2500, msg:'Grading...'},
-  {icon:'🔇', label:'BG Remove', ai:true, time:4000, msg:'Removing BG...', special:'bgremove'},
-  {icon:'🎯', label:'Track', ai:true, time:0, msg:'', special:'tracking'},
-  {icon:'⚡', label:'Stabilize', ai:false, time:3000, msg:'Stabilizing...'},
-  {icon:'💡', label:'HDR', ai:true, time:2000, msg:'HDR mapping...'},
-  {icon:'🔍', label:'Super Res', ai:true, time:5000, msg:'Super resolution...'},
-  {icon:'🎭', label:'BG Blur', ai:false, time:1500, msg:'Blurring BG...'},
-  {icon:'🌈', label:'Sky Replace', ai:true, time:4000, msg:'Sky AI...'},
-  {icon:'😊', label:'Face Enhance', ai:true, time:3000, msg:'Face AI...'},
-  {icon:'🏃', label:'Object Remove', ai:true, time:5000, msg:'Removing...'},
-];
-
-function buildEnhance() {
-  const g = document.getElementById('enhanceGrid');
-  ENHANCE_TOOLS.forEach(e => {
-    const btn = document.createElement('div');
-    btn.className = 'enh-btn';
-    btn.innerHTML = `${e.ai?'<div class="ai-tag">AI</div>':''}<span class="enh-icon">${e.icon}</span><div class="enh-label">${e.label}</div>`;
-    btn.onclick = () => runEnhanceTool(btn, e);
-    g.appendChild(btn);
-  });
-}
-
-function runEnhanceTool(btn, tool) {
-  if(tool.special === 'tracking') { openTracking(); return; }
-  if(tool.special === 'bgremove') {
-    STATE.bgRemoveActive = !STATE.bgRemoveActive;
-    btn.classList.toggle('active');
-    document.getElementById('bgRemoveOverlay').classList.toggle('active');
-    toast(STATE.bgRemoveActive ? '🔇 BG Remove ON (AI)' : '🔇 BG Remove OFF');
-    return;
-  }
-
-  if(btn.classList.contains('running')) return;
-  btn.classList.add('running');
-
-  const ring = document.getElementById('aiRing');
-  const msg = document.getElementById('aiMsg');
-  ring.classList.add('show');
-  msg.textContent = tool.msg;
-
-  setTimeout(() => {
-    ring.classList.remove('show');
-    btn.classList.remove('running');
-    btn.classList.add('active');
-    pushUndo('Enhance: ' + tool.label);
-    toast('✅ ' + tool.label + ' complete!');
-  }, tool.time);
-}
-
-// ═══════════════════════════════════════════════════
-//  AUDIO
-// ═══════════════════════════════════════════════════
-function buildWaveform() {
-  const c = document.getElementById('waveformBig');
-  for(let i=0;i<60;i++){
-    const b = document.createElement('div');
-    b.className = 'wb';
-    const h = 5 + Math.random() * 32;
-    b.style.cssText = `height:${h}px;animation-delay:${Math.random()*0.8}s;animation-duration:${0.3+Math.random()*0.7}s;`;
-    c.appendChild(b);
-  }
-}
-
-function audioAction(name) {
-  pushUndo('Audio: ' + name);
-  toast('🎵 ' + name);
-}
-
-// ═══════════════════════════════════════════════════
-//  UNDO / REDO
-// ═══════════════════════════════════════════════════
-const MAX_HISTORY = 50;
-
-function pushUndo(action) {
-  STATE.undoStack.push({action, time: Date.now()});
-  if(STATE.undoStack.length > MAX_HISTORY) STATE.undoStack.shift();
-  STATE.redoStack = [];
-  updateUndoRedo();
-}
-
-function doUndo() {
-  if(STATE.undoStack.length === 0) return;
-  const item = STATE.undoStack.pop();
-  STATE.redoStack.push(item);
-  updateUndoRedo();
-  toast('↩ Undo: ' + item.action);
-}
-
-function doRedo() {
-  if(STATE.redoStack.length === 0) return;
-  const item = STATE.redoStack.pop();
-  STATE.undoStack.push(item);
-  updateUndoRedo();
-  toast('↪ Redo: ' + item.action);
-}
-
-function updateUndoRedo() {
-  const u = document.getElementById('undoBtn');
-  const r = document.getElementById('redoBtn');
-  u.disabled = STATE.undoStack.length === 0;
-  r.disabled = STATE.redoStack.length === 0;
-  u.title = STATE.undoStack.length ? 'Undo: ' + STATE.undoStack[STATE.undoStack.length-1]?.action : 'Nothing to undo';
-  r.title = STATE.redoStack.length ? 'Redo: ' + STATE.redoStack[STATE.redoStack.length-1]?.action : 'Nothing to redo';
-}
-
-// ═══════════════════════════════════════════════════
-//  PROJECTS
-// ═══════════════════════════════════════════════════
-function openProjects() {
-  buildProjectList();
-  openModal('projectsModal');
-}
-
-function buildProjectList() {
-  const list = document.getElementById('projectList');
-  list.innerHTML = '';
-  STATE.projects.forEach(p => {
-    const item = document.createElement('div');
-    item.className = 'proj-item' + (p.id === STATE.currentProjectId ? ' current' : '');
-    const statusClass = {current:'st-current', draft:'st-draft', done:'st-done'}[p.status] || 'st-draft';
-    item.innerHTML = `
-      <div class="proj-thumb" style="background:linear-gradient(135deg,hsl(${p.id*60},40%,15%),hsl(${p.id*80},40%,10%))"></div>
-      <div class="proj-info">
-        <div class="proj-name">${p.name}</div>
-        <div class="proj-meta">${p.duration} · ${p.modified}</div>
+  return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #1a237e 0%, #283593 60%, #e8eaf6 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+      <div style={{ marginBottom: 24, textAlign: "center", color: "white" }}>
+        <div style={{ fontSize: 56, marginBottom: 8 }}>🎓</div>
+        <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: 30, fontWeight: 800, letterSpacing: 1 }}>CSC Campus</div>
+        <div style={{ fontSize: 13, opacity: 0.8, fontWeight: 600, letterSpacing: 2 }}>MATHS & REASONING COACHING</div>
       </div>
-      <span class="proj-status ${statusClass}">${p.status}</span>
-      <div class="proj-actions">
-        <button class="proj-act-btn" onclick="deleteProject(${p.id},event)" title="Delete">🗑</button>
+      <div style={{ background: "white", borderRadius: 22, padding: "24px 20px", width: "100%", maxWidth: 370, boxShadow: "0 8px 40px rgba(0,0,0,0.18)" }}>
+        <div style={{ display: "flex", marginBottom: 20, background: "#f0f4ff", borderRadius: 12, padding: 4 }}>
+          {["login","register"].map(m => (
+            <button key={m} onClick={() => { setMode(m); setErr(""); }} style={{
+              flex: 1, padding: "9px 0", borderRadius: 10, border: "none", cursor: "pointer",
+              fontWeight: 700, fontSize: 14, fontFamily: "'Nunito',sans-serif",
+              background: mode === m ? "var(--primary)" : "transparent",
+              color: mode === m ? "white" : "#9e9e9e", transition: "all 0.2s"
+            }}>
+              {m === "login" ? "Login" : "Register"}
+            </button>
+          ))}
+        </div>
+
+        {mode === "register" && (
+          <div className="input-group">
+            <label className="input-label">👤 Full Name</label>
+            <input className="input-field" placeholder="अपना नाम लिखें" value={name} onChange={e => setName(e.target.value)} />
+          </div>
+        )}
+        <div className="input-group">
+          <label className="input-label">🎫 Roll Number</label>
+          <input className="input-field" placeholder="Roll No. / TEACHER" value={rollNo} onChange={e => setRollNo(e.target.value)} />
+        </div>
+        {mode === "register" && (
+          <>
+            <div className="input-group">
+              <label className="input-label">👤 Student Name</label>
+              <input className="input-field" placeholder="पूरा नाम" value={name} onChange={e => setName(e.target.value)} />
+            </div>
+            <div className="input-group">
+              <label className="input-label">🕐 Batch</label>
+              <select className="input-field" value={batch} onChange={e => setBatch(e.target.value)}>
+                {["Morning","Evening","Weekend"].map(b => <option key={b}>{b}</option>)}
+              </select>
+            </div>
+          </>
+        )}
+        <div className="input-group">
+          <label className="input-label">🔒 PIN (4+ digits)</label>
+          <input className="input-field" type="password" placeholder="अपना PIN" value={pin} onChange={e => setPin(e.target.value)} maxLength={6} />
+        </div>
+        {err && <div className="alert alert-danger" style={{ marginBottom: 12 }}>⚠️ {err}</div>}
+        <button className="btn btn-primary btn-full" onClick={handleSubmit}>
+          {mode === "login" ? "🚀 Login करें" : "✅ Register करें"}
+        </button>
+        {mode === "login" && (
+          <div style={{ textAlign: "center", marginTop: 12, fontSize: 12, color: "#9e9e9e" }}>
+            Teacher login: ID = <b>TEACHER</b>, PIN = <b>1234</b>
+          </div>
+        )}
       </div>
-    `;
-    item.onclick = () => switchProject(p);
-    list.appendChild(item);
-  });
+    </div>
+  );
 }
 
-function switchProject(p) {
-  STATE.currentProjectId = p.id;
-  document.getElementById('projectNameDisplay').textContent = p.name;
-  closeModal('projectsModal');
-  toast('📁 Switched to: ' + p.name);
+// ===================== HEADER =====================
+function AppHeader({ user, tab }) {
+  const titles = { home: "CSC Campus", exam: "परीक्षा", dashboard: "Progress", game: "Quiz Game", teacher: "Teacher Panel" };
+  return (
+    <div className="app-header">
+      <div className="header-logo">
+        <div className="logo-icon">🎓</div>
+        <div>
+          <div className="logo-text">{titles[tab] || "CSC Campus"}</div>
+          <div className="logo-sub">MATHS & REASONING</div>
+        </div>
+      </div>
+      <div className="header-right">
+        {user && <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>
+          👤 {user.name?.split(" ")[0]}
+        </div>}
+      </div>
+    </div>
+  );
 }
 
-function createNewProject() {
-  const name = 'Project_' + String(STATE.projects.length + 1).padStart(2,'0');
-  const proj = {id: Date.now(), name, status:'draft', duration:'00:00', modified:'Just now'};
-  STATE.projects.unshift(proj);
-  buildProjectList();
-  toast('✅ Created: ' + name);
-}
-
-function deleteProject(id, e) {
-  e.stopPropagation();
-  STATE.projects = STATE.projects.filter(p => p.id !== id);
-  buildProjectList();
-  toast('🗑 Project deleted');
-}
-
-function renameProject() {
-  const el = document.getElementById('projectNameDisplay');
-  const curr = el.textContent;
-  const newName = prompt('Rename project:', curr);
-  if(newName && newName.trim()) {
-    el.textContent = newName.trim();
-    const p = STATE.projects.find(x => x.id === STATE.currentProjectId);
-    if(p) p.name = newName.trim();
-    pushUndo('Rename: ' + newName);
-    toast('✏ Renamed to: ' + newName.trim());
-  }
-}
-
-// ═══════════════════════════════════════════════════
-//  EXPORT
-// ═══════════════════════════════════════════════════
-let exportRes = '1080p', exportFmt = 'MP4';
-
-function selRes(el, res) {
-  el.closest('.res-grid').querySelectorAll('.res-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  exportRes = res;
-  document.getElementById('qualityBadge').textContent = res === '8K' ? '8K ULTRA' : res + ' HDR';
-}
-function selFmt(el, fmt) {
-  el.closest('.fmt-grid').querySelectorAll('.fmt-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  exportFmt = fmt;
-}
-function updateBitrate(el) {
-  document.getElementById('val-bitrate').textContent = el.value + ' Mbps';
-}
-
-function openExport() { openModal('exportModal'); }
-
-function startExport() {
-  const btn = document.getElementById('exportStartBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ Exporting...';
-  const track = document.getElementById('exportTrack');
-  const fill = document.getElementById('exportFill');
-  const status = document.getElementById('exportStatus');
-  track.style.display = 'block';
-
-  const msgs = [
-    `Analyzing ${exportRes} timeline...`,
-    'Applying color grade...',
-    'Rendering effects & filters...',
-    `Encoding ${exportRes} ${exportFmt}...`,
-    `${exportRes === '8K' ? 'Ultra HD processing...' : 'Optimizing bitrate...'}`,
-    '✅ Export complete!'
+// ===================== BOTTOM NAV =====================
+function BottomNav({ tab, setTab, user }) {
+  const items = [
+    { id: "home", icon: "🏠", label: "Home" },
+    { id: "exam", icon: "📝", label: "Exam" },
+    { id: "dashboard", icon: "📊", label: "Progress" },
+    { id: "game", icon: "🎮", label: "Quiz" },
+    ...(user?.role === "teacher" ? [{ id: "teacher", icon: "👨‍🏫", label: "Teacher" }] : []),
   ];
-
-  let pct = 0, mi = 0;
-  status.textContent = msgs[0];
-
-  const iv = setInterval(() => {
-    pct += Math.random() * 5 + 2;
-    if(pct >= 100) {
-      pct = 100;
-      clearInterval(iv);
-      status.textContent = msgs[5];
-      btn.textContent = '✅ Done!';
-      toast(`🎉 ${exportRes} ${exportFmt} export complete!`);
-      setTimeout(() => closeModal('exportModal'), 1800);
-    } else {
-      const newMi = Math.min(Math.floor(pct/20), msgs.length-2);
-      if(newMi > mi) { mi = newMi; status.textContent = msgs[mi]; }
-    }
-    fill.style.width = pct + '%';
-  }, exportRes === '8K' ? 350 : 220);
+  return (
+    <div className="bottom-nav">
+      {items.map(item => (
+        <button key={item.id} className={`nav-item ${tab === item.id ? "active" : ""}`} onClick={() => setTab(item.id)}>
+          <span className="nav-icon">{item.icon}</span>
+          <span className="nav-label">{item.label}</span>
+        </button>
+      ))}
+    </div>
+  );
 }
 
-// ═══════════════════════════════════════════════════
-//  MOTION TRACKING
-// ═══════════════════════════════════════════════════
-function openTracking() { openModal('trackingModal'); }
+// ===================== HOME SCREEN =====================
+function HomeScreen({ user, examResults, gameStats, setTab }) {
+  const avg = examResults.length > 0
+    ? Math.round(examResults.reduce((s, r) => s + (r.score / r.total * 100), 0) / examResults.length)
+    : 0;
+  const levelLabel = gameStats.level === 1 ? "Beginner" : gameStats.level === 2 ? "Intermediate" : "Advanced";
+  const tips = [
+    "रोज़ कम से कम 1 Quiz जरूर खेलें!",
+    "Exam देने के बाद Explanation जरूर पढ़ें।",
+    "Practice से ही Perfection आती है।",
+    "Dashboard में अपनी weak topics देखें।"
+  ];
+  const tip = tips[new Date().getDate() % tips.length];
 
-function selTrackMode(el, mode) {
-  el.closest('.tracking-btn-row').querySelectorAll('.track-opt-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  toast('🎯 Mode: ' + mode);
+  return (
+    <div className="content fade-in">
+      <div className="hero-banner">
+        <div className="hero-greeting">नमस्ते,</div>
+        <div className="hero-name">{user?.name} 🙏</div>
+        <div className="hero-stat">Roll: {user?.rollNo} • {user?.batch || "Student"}</div>
+        <div style={{ marginTop: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ background: "rgba(255,255,255,0.2)", borderRadius: 8, padding: "4px 10px", fontSize: 12, fontWeight: 700 }}>
+            🏆 Level: {levelLabel}
+          </span>
+          <span style={{ background: "rgba(255,255,255,0.2)", borderRadius: 8, padding: "4px 10px", fontSize: 12, fontWeight: 700 }}>
+            🔥 Streak: {gameStats.streak}
+          </span>
+        </div>
+      </div>
+
+      <div className="stats-row">
+        <div className="stat-card">
+          <div className="stat-num" style={{ color: "#1a237e" }}>{examResults.length}</div>
+          <div className="stat-label">परीक्षा दी</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-num" style={{ color: avg >= 60 ? "#2e7d32" : "#c62828" }}>{avg}%</div>
+          <div className="stat-label">Avg Score</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-num" style={{ color: "#ff6f00" }}>{gameStats.totalPlayed}</div>
+          <div className="stat-label">Quiz खेले</div>
+        </div>
+      </div>
+
+      <div className="alert alert-info">💡 {tip}</div>
+
+      <div className="card">
+        <div className="card-title">⚡ Quick Access</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {[
+            { icon: "📝", label: "Exam दें", tab: "exam", color: "#1a237e" },
+            { icon: "📊", label: "Progress", tab: "dashboard", color: "#2e7d32" },
+            { icon: "🎮", label: "Quiz Game", tab: "game", color: "#ff6f00" },
+            { icon: "📚", label: "Results", tab: "dashboard", color: "#7b1fa2" },
+          ].map(item => (
+            <button key={item.label} onClick={() => setTab(item.tab)} style={{
+              background: item.color + "15", border: `2px solid ${item.color}22`,
+              borderRadius: 14, padding: "16px 12px", cursor: "pointer",
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 6
+            }}>
+              <span style={{ fontSize: 28 }}>{item.icon}</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: item.color }}>{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {examResults.length > 0 && (
+        <div className="card">
+          <div className="card-title">📋 Recent Results</div>
+          {examResults.slice(0, 3).map(r => (
+            <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14 }}>{r.title}</div>
+                <div style={{ fontSize: 12, color: "#9e9e9e" }}>{r.date}</div>
+              </div>
+              <span className={`badge ${r.score/r.total >= 0.6 ? "badge-green" : "badge-red"}`}>
+                {r.score}/{r.total}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
-function startTracking() {
-  closeModal('trackingModal');
-  STATE.trackingActive = true;
-  document.getElementById('trackingOverlay').classList.add('active');
-  const ring = document.getElementById('aiRing');
-  const msg = document.getElementById('aiMsg');
-  ring.classList.add('show');
-  msg.textContent = 'AI Tracking subject...';
-  pushUndo('Motion Tracking');
+// ===================== EXAM SCREEN =====================
+function ExamScreen({ user, onComplete }) {
+  const [phase, setPhase] = useState("load"); // load | running | done
+  const [jsonText, setJsonText] = useState("");
+  const [exam, setExam] = useState(null);
+  const [answers, setAnswers] = useState({});
+  const [current, setCurrent] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [flagged, setFlagged] = useState([]);
+  const [violations, setViolations] = useState(0);
+  const [showWarning, setShowWarning] = useState(false);
+  const timerRef = useRef(null);
+  const warningShown = useRef(false);
 
-  // Animate tracking box
-  const box = document.getElementById('trackingBox');
-  let x = 40, y = 35, dir = 1;
-  const iv = setInterval(() => {
-    x += (Math.random() - 0.5) * 3 * dir;
-    y += (Math.random() - 0.5) * 2;
-    x = Math.max(10, Math.min(70, x));
-    y = Math.max(10, Math.min(60, y));
-    box.style.left = x + '%';
-    box.style.top = y + '%';
-  }, 150);
+  // Anti-cheat: detect visibility change
+  useEffect(() => {
+    if (phase !== "running") return;
+    const handleBlur = () => {
+      setViolations(v => v + 1);
+      setShowWarning(true);
+      setTimeout(() => setShowWarning(false), 3000);
+    };
+    document.addEventListener("visibilitychange", handleBlur);
+    window.addEventListener("blur", handleBlur);
+    return () => { document.removeEventListener("visibilitychange", handleBlur); window.removeEventListener("blur", handleBlur); };
+  }, [phase]);
 
-  setTimeout(() => {
-    clearInterval(iv);
-    ring.classList.remove('show');
-    toast('✅ Motion tracking complete!');
-  }, 4000);
+  // Timer
+  useEffect(() => {
+    if (phase !== "running" || timeLeft <= 0) return;
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) { clearInterval(timerRef.current); submitExam(); return 0; }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [phase]);
+
+  const loadExam = () => {
+    try {
+      const data = jsonText.trim() ? JSON.parse(jsonText) : SAMPLE_EXAM;
+      // Remove answers from questions for display
+      const safeQ = data.questions.map(q => ({ ...q }));
+      setExam({ ...data, questions: safeQ });
+      setAnswers({});
+      setFlagged([]);
+      setViolations(0);
+      setTimeLeft(data.duration || 600);
+      setCurrent(0);
+      setPhase("running");
+    } catch (e) { alert("Invalid JSON format!"); }
+  };
+
+  const submitExam = () => {
+    clearInterval(timerRef.current);
+    if (!exam) return;
+    let score = 0;
+    const details = exam.questions.map(q => {
+      const chosen = answers[q.id];
+      const isCorrect = chosen === q.correct;
+      if (isCorrect) score += (q.marks || 1);
+      return { ...q, chosen, isCorrect };
+    });
+    const result = {
+      title: exam.title, subject: exam.subject,
+      score, total: exam.totalMarks || exam.questions.length,
+      totalQ: exam.questions.length,
+      correct: details.filter(d => d.isCorrect).length,
+      wrong: details.filter(d => !d.isCorrect && d.chosen !== undefined).length,
+      skipped: details.filter(d => d.chosen === undefined).length,
+      violations, details, studentName: user?.name, rollNo: user?.rollNo
+    };
+    setPhase("done");
+    onComplete(result);
+  };
+
+  const fmt = (s) => `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+  const q = exam?.questions[current];
+  const progress = exam ? ((current + 1) / exam.questions.length) * 100 : 0;
+
+  if (phase === "load") return (
+    <div className="content">
+      <div className="card">
+        <div className="card-title">📥 JSON से Exam Load करें</div>
+        <div className="alert alert-info">Teacher द्वारा मिला JSON file यहाँ paste करें। बिना paste किए Sample Exam शुरू होगा।</div>
+        <textarea className="json-textarea" placeholder='{"id":"exam_001","title":"Test Name","duration":600,"totalMarks":20,"questions":[...]}' value={jsonText} onChange={e => setJsonText(e.target.value)} />
+      </div>
+      <div className="card">
+        <div className="card-title">⚠️ Exam Rules</div>
+        {["Exam शुरू होने के बाद app बंद ना करें।","दूसरा app खोलने पर Warning मिलेगी।","सभी questions attempt करें।","Time खत्म होने पर auto submit होगा।","Cheating पकड़ी जाने पर teacher को report होगा।"].map((r, i) => (
+          <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8, fontSize: 14, alignItems: "flex-start" }}>
+            <span style={{ color: "#c62828", fontWeight: 700 }}>•</span> {r}
+          </div>
+        ))}
+      </div>
+      <button className="btn btn-primary btn-full" style={{ fontSize: 16, padding: 16 }} onClick={loadExam}>
+        🚀 Exam शुरू करें
+      </button>
+    </div>
+  );
+
+  if (phase === "done") return (
+    <div className="content">
+      <div className="empty-state">
+        <div className="empty-icon">✅</div>
+        <div className="empty-text" style={{ fontSize: 18, color: "#2e7d32", fontWeight: 800 }}>Exam Submit हो गया!</div>
+        <div style={{ fontSize: 14, color: "#9e9e9e", marginTop: 8 }}>आपका result dashboard में दिख रहा है।</div>
+        <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={() => setPhase("load")}>🔄 नई Exam</button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="content" style={{ userSelect: "none" }}>
+      {showWarning && (
+        <div className="anti-cheat-msg">
+          <div className="anti-cheat-icon">⚠️</div>
+          <div className="anti-cheat-title">Warning!</div>
+          <div className="anti-cheat-text">App छोड़ना cheating माना जाएगा।<br />यह घटना record हो रही है।<br />Violations: {violations}</div>
+        </div>
+      )}
+
+      <div className={`exam-timer ${timeLeft < 60 ? "timer-warn" : ""}`}>
+        <span>⏱ Time Left</span>
+        <span>{fmt(timeLeft)}</span>
+        {violations > 0 && <span style={{ fontSize: 13, background: "rgba(255,255,255,0.2)", padding: "2px 8px", borderRadius: 8 }}>⚠️ {violations}</span>}
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "#5c6bc0" }}>Q {current+1} of {exam?.questions.length}</span>
+        <span className={`badge ${Object.keys(answers).length === exam?.questions.length ? "badge-green" : "badge-orange"}`}>
+          {Object.keys(answers).length}/{exam?.questions.length} Answered
+        </span>
+      </div>
+      <div className="progress-bar-bg" style={{ marginBottom: 14 }}>
+        <div className="progress-bar-fill" style={{ width: progress+"%", background: "linear-gradient(90deg, #1a237e, #3949ab)" }} />
+      </div>
+
+      {q && (
+        <div className="question-card">
+          <div className="q-number">QUESTION {current + 1} • {q.marks || 1} Mark{q.marks > 1 ? "s" : ""}</div>
+          <div className="q-text">{q.text}</div>
+          {q.image && <img src={q.image} alt="question" style={{ width: "100%", borderRadius: 10, marginTop: 12 }} />}
+        </div>
+      )}
+
+      {q?.options?.map((opt, i) => (
+        <button key={i} className={`option-btn ${answers[q.id] === i ? "selected" : ""}`}
+          onClick={() => setAnswers(prev => ({ ...prev, [q.id]: i }))}>
+          <span className="option-label">{String.fromCharCode(65+i)}</span>
+          {opt}
+        </button>
+      ))}
+
+      <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
+        <button className="btn btn-outline btn-sm" onClick={() => setCurrent(c => Math.max(0, c-1))} disabled={current === 0}>
+          ◀ Prev
+        </button>
+        <button className="btn btn-outline btn-sm" style={{ flex: 1 }}
+          onClick={() => setFlagged(f => f.includes(q.id) ? f.filter(x => x !== q.id) : [...f, q.id])}>
+          {flagged.includes(q?.id) ? "🚩 Flagged" : "🏳️ Flag"}
+        </button>
+        {current < exam?.questions.length - 1
+          ? <button className="btn btn-primary btn-sm" onClick={() => setCurrent(c => c+1)}>Next ▶</button>
+          : <button className="btn btn-accent btn-sm" onClick={submitExam}>Submit ✅</button>
+        }
+      </div>
+
+      <div style={{ marginTop: 14 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#9e9e9e", marginBottom: 8 }}>Question Navigator</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {exam?.questions.map((qn, i) => (
+            <button key={i} onClick={() => setCurrent(i)} style={{
+              width: 34, height: 34, borderRadius: 8, border: "none", cursor: "pointer",
+              fontWeight: 700, fontSize: 13,
+              background: current === i ? "#1a237e" : answers[qn.id] !== undefined ? "#c8e6c9" : flagged.includes(qn.id) ? "#fff9c4" : "#e8eaf6",
+              color: current === i ? "white" : answers[qn.id] !== undefined ? "#2e7d32" : "#1a237e"
+            }}>{i+1}</button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
-// ═══════════════════════════════════════════════════
-//  TABS
-// ═══════════════════════════════════════════════════
-function switchTab(id, el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  const panel = document.getElementById('panel-' + id);
-  if(panel) { panel.classList.add('active'); }
+// ===================== RESULT MODAL =====================
+function ResultModal({ data, onClose }) {
+  const pct = Math.round((data.score / data.total) * 100);
+  const grade = pct >= 90 ? "A+" : pct >= 75 ? "A" : pct >= 60 ? "B" : pct >= 45 ? "C" : "D";
+  const color = pct >= 60 ? "#2e7d32" : "#c62828";
+  const msg = pct >= 75 ? "शानदार! बहुत अच्छे!" : pct >= 50 ? "अच्छा, और बेहतर करें!" : "मेहनत बढ़ाइए!";
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+        <div className="modal-handle" />
+        <div style={{ textAlign: "center" }}>
+          <div className="result-circle" style={{ background: color+"18", border: `4px solid ${color}` }}>
+            <div className="result-score" style={{ color }}>{pct}%</div>
+            <div className="result-label" style={{ color }}>{grade}</div>
+          </div>
+          <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: 22, fontWeight: 800, marginBottom: 4 }}>
+            {data.studentName} का Result
+          </div>
+          <div style={{ fontSize: 14, color: "#9e9e9e", marginBottom: 16 }}>{data.title}</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color, marginBottom: 6 }}>{msg}</div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, margin: "16px 0" }}>
+          {[
+            { label: "Score", val: `${data.score}/${data.total}`, color: "#1a237e" },
+            { label: "Correct", val: data.correct, color: "#2e7d32" },
+            { label: "Wrong", val: data.wrong, color: "#c62828" },
+          ].map(s => (
+            <div key={s.label} style={{ background: s.color+"12", borderRadius: 12, padding: "12px 8px", textAlign: "center" }}>
+              <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: 24, fontWeight: 800, color: s.color }}>{s.val}</div>
+              <div style={{ fontSize: 11, color: "#9e9e9e", fontWeight: 600 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+        {data.violations > 0 && (
+          <div className="alert alert-warn">⚠️ Exam में {data.violations} बार app बदला गया। Teacher को report किया गया।</div>
+        )}
+        <div style={{ marginTop: 16 }}>
+          <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 15 }}>📋 Question-wise Review</div>
+          {data.details?.map((d, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #f0f0f0", fontSize: 13 }}>
+              <span>Q{i+1}: {d.text?.substring(0,30)}...</span>
+              <span style={{ fontWeight: 700, color: d.isCorrect ? "#2e7d32" : "#c62828" }}>
+                {d.isCorrect ? "✅" : d.chosen === undefined ? "⏭️" : "❌"}
+              </span>
+            </div>
+          ))}
+        </div>
+        <button className="btn btn-primary btn-full" style={{ marginTop: 20 }} onClick={onClose}>✅ Close</button>
+      </div>
+    </div>
+  );
 }
 
-// ═══════════════════════════════════════════════════
-//  MODALS
-// ═══════════════════════════════════════════════════
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+// ===================== DASHBOARD =====================
+function DashboardScreen({ user, examResults, gameStats }) {
+  const [activeTab, setActiveTab] = useState("overview");
 
-// Close on backdrop tap
-document.querySelectorAll('.modal-bg').forEach(bg => {
-  bg.addEventListener('click', e => { if(e.target === bg) bg.classList.remove('open'); });
-});
+  const avg = examResults.length ? Math.round(examResults.reduce((s,r) => s + (r.score/r.total*100), 0) / examResults.length) : 0;
+  const best = examResults.length ? Math.max(...examResults.map(r => Math.round(r.score/r.total*100))) : 0;
+  const gameAcc = gameStats.totalPlayed ? Math.round(gameStats.totalCorrect / gameStats.totalPlayed * 100) : 0;
 
-// ═══════════════════════════════════════════════════
-//  GENERIC HELPERS
-// ═══════════════════════════════════════════════════
-function updateVal(el, key, suffix, customFmt) {
-  const v = parseInt(el.value);
-  const display = customFmt ? customFmt(v) : v + suffix;
-  const valEl = document.getElementById('val-' + key);
-  if(valEl) valEl.textContent = display;
+  const recentScores = examResults.slice(0, 6).reverse().map(r => Math.round(r.score/r.total*100));
+  const maxBarH = 70;
+
+  const suggestion = avg < 40 ? "बेसिक concepts पर ध्यान दें। रोज़ quiz खेलें।"
+    : avg < 60 ? "Practice बढ़ाइए। Weak topics पर focus करें।"
+    : avg < 80 ? "अच्छा! Speed और accuracy दोनों सुधारें।"
+    : "बेहतरीन! Advanced questions solve करें।";
+
+  return (
+    <div className="content fade-in">
+      <div className="chip-row">
+        {["overview","results","game"].map(t => (
+          <button key={t} className={`chip ${activeTab===t?"chip-active":"chip-inactive"}`} onClick={() => setActiveTab(t)}>
+            {t==="overview"?"📊 Overview":t==="results"?"📝 Exam Results":"🎮 Game Stats"}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === "overview" && (
+        <>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+            {[
+              { label: "Avg Score", val: avg+"%", icon: "📈", color: "#1a237e" },
+              { label: "Best Score", val: best+"%", icon: "🏆", color: "#ff6f00" },
+              { label: "Exams Given", val: examResults.length, icon: "📝", color: "#7b1fa2" },
+              { label: "Game Accuracy", val: gameAcc+"%", icon: "🎯", color: "#2e7d32" },
+            ].map(s => (
+              <div key={s.label} className="card" style={{ padding: 14, margin: 0 }}>
+                <div style={{ fontSize: 22, marginBottom: 4 }}>{s.icon}</div>
+                <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: 26, fontWeight: 800, color: s.color }}>{s.val}</div>
+                <div style={{ fontSize: 11, color: "#9e9e9e", fontWeight: 600 }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="card">
+            <div className="card-title">🔥 Game Stats</div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+              <div>
+                <div style={{ fontSize: 13, color: "#9e9e9e", fontWeight: 600 }}>Current Level</div>
+                <div className="level-badge" style={{ marginTop: 4 }}>
+                  ⭐ {gameStats.level === 1 ? "Beginner" : gameStats.level === 2 ? "Intermediate" : "Advanced"}
+                </div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 13, color: "#9e9e9e", fontWeight: 600 }}>Best Streak</div>
+                <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: 22, fontWeight: 800, color: "#ff6f00" }}>🔥 {gameStats.streak}</div>
+              </div>
+            </div>
+            <div className="progress-bar-bg">
+              <div className="progress-bar-fill" style={{ width: gameAcc+"%", background: "linear-gradient(90deg, #ff6f00, #ffca28)" }} />
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#9e9e9e", marginTop: 6 }}>
+              <span>0%</span><span>{gameAcc}% accuracy</span><span>100%</span>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-title">💡 Improvement Suggestion</div>
+            <div style={{ fontSize: 14, lineHeight: 1.7, color: "#444" }}>{suggestion}</div>
+            {avg < 60 && <div className="alert alert-warn" style={{ marginTop: 10 }}>Weak Areas: Practice more Maths formulas & Reasoning shortcuts</div>}
+          </div>
+
+          {recentScores.length > 0 && (
+            <div className="card">
+              <div className="card-title">📈 Score Trend</div>
+              <div className="bar-chart">
+                {recentScores.map((s, i) => (
+                  <div key={i} className="bar-item">
+                    <div className="bar" style={{
+                      height: Math.max(8, (s/100)*maxBarH)+"px",
+                      background: s >= 60 ? "linear-gradient(0deg,#2e7d32,#66bb6a)" : "linear-gradient(0deg,#c62828,#ef5350)"
+                    }} />
+                    <div className="bar-label">{s}%</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: "flex", gap: 12, fontSize: 11, color: "#9e9e9e" }}>
+                <span>🟢 Pass (≥60%)</span><span>🔴 Fail (&lt;60%)</span>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {activeTab === "results" && (
+        <>
+          {examResults.length === 0
+            ? <div className="empty-state"><div className="empty-icon">📝</div><div className="empty-text">अभी तक कोई exam नहीं दिया।</div></div>
+            : examResults.map(r => (
+              <div key={r.id} className="card" style={{ padding: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: 15 }}>{r.title}</div>
+                    <div style={{ fontSize: 12, color: "#9e9e9e" }}>{r.date}</div>
+                  </div>
+                  <span className={`badge ${r.score/r.total >= 0.6 ? "badge-green" : "badge-red"}`} style={{ fontSize: 14, padding: "5px 12px" }}>
+                    {Math.round(r.score/r.total*100)}%
+                  </span>
+                </div>
+                <div style={{ display: "flex", gap: 12, marginTop: 10, fontSize: 13 }}>
+                  <span>✅ {r.correct}</span><span>❌ {r.wrong}</span><span>⏭️ {r.skipped}</span>
+                  {r.violations > 0 && <span style={{ color: "#c62828" }}>⚠️ {r.violations} violations</span>}
+                </div>
+                <div className="progress-bar-bg" style={{ marginTop: 10 }}>
+                  <div className="progress-bar-fill" style={{
+                    width: (r.score/r.total*100)+"%",
+                    background: r.score/r.total >= 0.6 ? "linear-gradient(90deg,#2e7d32,#66bb6a)" : "linear-gradient(90deg,#c62828,#ef5350)"
+                  }} />
+                </div>
+              </div>
+            ))
+          }
+        </>
+      )}
+
+      {activeTab === "game" && (
+        <div className="card">
+          <div className="card-title">🎮 Quiz Performance</div>
+          {[
+            { label: "Total Played", val: gameStats.totalPlayed, icon: "🎯" },
+            { label: "Correct", val: gameStats.totalCorrect, icon: "✅" },
+            { label: "Accuracy", val: gameAcc+"%", icon: "📊" },
+            { label: "Current Streak", val: gameStats.streak, icon: "🔥" },
+            { label: "Level", val: gameStats.level === 1 ? "Beginner" : gameStats.level === 2 ? "Intermediate" : "Advanced", icon: "⭐" },
+          ].map(s => (
+            <div key={s.label} style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid #f0f0f0" }}>
+              <span style={{ fontWeight: 600 }}>{s.icon} {s.label}</span>
+              <span style={{ fontWeight: 800, color: "#1a237e" }}>{s.val}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
-// ═══════════════════════════════════════════════════
-//  TOAST
-// ═══════════════════════════════════════════════════
-let toastTimer;
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+// ===================== GAME SCREEN =====================
+function GameScreen({ gameStats, onUpdate }) {
+  const [mode, setMode] = useState("menu"); // menu | playing | done
+  const [category, setCategory] = useState("maths");
+  const [questions, setQuestions] = useState([]);
+  const [current, setCurrent] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [score, setScore] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(15);
+  const [revealed, setRevealed] = useState(false);
+  const timerRef = useRef(null);
+
+  const levelLabel = gameStats.level === 1 ? "Beginner" : gameStats.level === 2 ? "Intermediate" : "Advanced";
+  const levelColor = gameStats.level === 1 ? "#004d40" : gameStats.level === 2 ? "#1a237e" : "#880e4f";
+
+  const startGame = () => {
+    const pool = QUIZ_QUESTIONS[category].filter(q => q.level <= gameStats.level);
+    const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 7);
+    setQuestions(shuffled.length ? shuffled : QUIZ_QUESTIONS[category]);
+    setCurrent(0); setScore(0); setStreak(0); setSelected(null); setRevealed(false);
+    setTimeLeft(15);
+    setMode("playing");
+  };
+
+  useEffect(() => {
+    if (mode !== "playing" || revealed) return;
+    setTimeLeft(15);
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) { clearInterval(timerRef.current); handleAnswer(null); return 0; }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [current, mode]);
+
+  const handleAnswer = (idx) => {
+    clearInterval(timerRef.current);
+    setSelected(idx);
+    setRevealed(true);
+    const q = questions[current];
+    const correct = idx === q.ans;
+    if (correct) { setScore(s => s + 1); setStreak(s => s + 1); }
+    else { setStreak(0); }
+    onUpdate(correct);
+    setTimeout(() => {
+      if (current + 1 >= questions.length) setMode("done");
+      else { setCurrent(c => c + 1); setSelected(null); setRevealed(false); }
+    }, 1200);
+  };
+
+  if (mode === "menu") return (
+    <div className="content fade-in">
+      <div className="game-header">
+        <div className="game-title">🎮 Quiz Game</div>
+        <div style={{ fontSize: 13, opacity: 0.8, marginTop: 4 }}>Practice करें • Maths & Reasoning को मज़बूत बनाएं</div>
+        <div className="game-meta">
+          <span className="game-badge">⭐ {levelLabel}</span>
+          <span className="game-badge">🔥 Streak: {gameStats.streak}</span>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title">📚 Category चुनें</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {[{ id:"maths", icon:"🔢", label:"Mathematics", desc:"Calculation, Algebra, Geometry" },
+            { id:"reasoning", icon:"🧠", label:"Reasoning", desc:"Series, Analogy, Puzzles" }].map(c => (
+            <button key={c.id} onClick={() => setCategory(c.id)} style={{
+              padding: 16, border: `2px solid ${category===c.id?"var(--primary)":"#e3e8ff"}`,
+              borderRadius: 14, background: category===c.id?"#e8eaf6":"white",
+              cursor:"pointer", textAlign:"left"
+            }}>
+              <div style={{ fontSize: 28, marginBottom: 6 }}>{c.icon}</div>
+              <div style={{ fontWeight: 800, fontSize: 14, color:"var(--primary)" }}>{c.label}</div>
+              <div style={{ fontSize: 11, color:"#9e9e9e", marginTop: 3 }}>{c.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="card">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <div className="card-title" style={{ margin: 0 }}>Current Level</div>
+          <div className="level-badge" style={{ background: levelColor+"22", color: levelColor, border: `1px solid ${levelColor}44` }}>
+            ⭐ {levelLabel}
+          </div>
+        </div>
+        <div style={{ fontSize: 13, color: "#666", lineHeight: 1.7 }}>
+          {gameStats.level === 1 && "80% से ज़्यादा सही जवाब दें → Intermediate level unlock होगा"}
+          {gameStats.level === 2 && "अच्छा performance! Advanced level के लिए 80% accuracy बनाए रखें"}
+          {gameStats.level === 3 && "🏆 आप Advanced level पर हैं! बेहतरीन performance!"}
+        </div>
+        <div className="progress-bar-bg" style={{ marginTop: 10 }}>
+          <div className="progress-bar-fill" style={{
+            width: (gameStats.totalPlayed ? gameStats.totalCorrect/gameStats.totalPlayed*100 : 0)+"%",
+            background: `linear-gradient(90deg, ${levelColor}, ${levelColor}88)`
+          }} />
+        </div>
+      </div>
+
+      <button className="btn btn-accent btn-full" style={{ fontSize: 16, padding: 16 }} onClick={startGame}>
+        🚀 Game शुरू करें ({levelLabel})
+      </button>
+    </div>
+  );
+
+  if (mode === "done") return (
+    <div className="content fade-in">
+      <div style={{ textAlign: "center", padding: "30px 0" }}>
+        <div style={{ fontSize: 64, marginBottom: 10 }}>{score >= questions.length*0.7 ? "🏆" : score >= questions.length*0.5 ? "👍" : "💪"}</div>
+        <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: 28, fontWeight: 800, color:"#1a237e" }}>
+          {score}/{questions.length} सही!
+        </div>
+        <div style={{ fontSize: 16, color: score >= questions.length*0.7 ? "#2e7d32" : "#ff6f00", fontWeight: 700, marginTop: 6 }}>
+          {score >= questions.length*0.7 ? "शानदार Performance! 🌟" : score >= questions.length*0.5 ? "अच्छा! और Practice करें 💪" : "मेहनत जारी रखें! 🎯"}
+        </div>
+        <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 16 }}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: 22, fontWeight: 800, color: "#ff6f00" }}>🔥 {streak}</div>
+            <div style={{ fontSize: 11, color: "#9e9e9e" }}>Final Streak</div>
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: 22, fontWeight: 800, color: "#1a237e" }}>⭐ {levelLabel}</div>
+            <div style={{ fontSize: 11, color: "#9e9e9e" }}>Your Level</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 10, marginTop: 20, justifyContent: "center" }}>
+          <button className="btn btn-primary" onClick={startGame}>🔄 फिर खेलें</button>
+          <button className="btn btn-outline" onClick={() => setMode("menu")}>🏠 Menu</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const q = questions[current];
+  return (
+    <div className="content" style={{ userSelect: "none" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <span className="badge badge-blue">Q {current+1}/{questions.length}</span>
+        <div style={{ display: "flex", gap: 8 }}>
+          <span className="badge badge-orange">✅ {score}</span>
+          <span className="badge badge-green">🔥 {streak}</span>
+        </div>
+      </div>
+      <div className="progress-bar-bg" style={{ marginBottom: 14 }}>
+        <div className="progress-bar-fill" style={{ width: ((current)/questions.length*100)+"%", background: "linear-gradient(90deg,#00bcd4,#004d40)" }} />
+      </div>
+
+      <div style={{
+        background: `linear-gradient(135deg, ${timeLeft <= 5 ? "#c62828" : "#004d40"}, ${timeLeft <= 5 ? "#b71c1c" : "#00695c"})`,
+        borderRadius: 14, padding: "10px 18px", color: "white", display: "flex",
+        justifyContent: "space-between", alignItems: "center", marginBottom: 14,
+        fontFamily: "'Baloo 2',cursive", fontSize: 18, fontWeight: 800
+      }}>
+        <span>⏱ Time</span>
+        <span className={timeLeft <= 5 ? "timer-warn" : ""}>{timeLeft}s</span>
+        <div style={{ display: "flex", gap: 2 }}>
+          {Array(15).fill(0).map((_,i) => (
+            <div key={i} style={{ width: 4, height: 16, borderRadius: 2, background: i < timeLeft ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.2)" }} />
+          ))}
+        </div>
+      </div>
+
+      <div className="game-question">
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#9e9e9e", letterSpacing: 1, marginBottom: 8 }}>
+          {category === "maths" ? "🔢 MATHEMATICS" : "🧠 REASONING"} • {q.level === 1 ? "Easy" : q.level === 2 ? "Medium" : "Hard"}
+        </div>
+        <div className="game-q-text">{q.q}</div>
+      </div>
+
+      <div className="game-options">
+        {q.opts.map((opt, i) => (
+          <button key={i} className={`game-opt ${
+            !revealed ? "" :
+            i === q.ans ? "correct" :
+            selected === i && i !== q.ans ? "wrong" : ""
+          }`}
+          onClick={() => !revealed && handleAnswer(i)}
+          disabled={revealed}>
+            {opt}
+          </button>
+        ))}
+      </div>
+      {revealed && (
+        <div className={`alert ${selected === q.ans ? "alert-success" : "alert-danger"}`} style={{ marginTop: 12 }}>
+          {selected === q.ans ? "✅ सही जवाब!" : selected === null ? `⏱ Time Out! सही: ${q.opts[q.ans]}` : `❌ गलत! सही जवाब: ${q.opts[q.ans]}`}
+        </div>
+      )}
+    </div>
+  );
 }
 
-// ═══════════════════════════════════════════════════
-//  KEYBOARD SHORTCUTS (desktop support)
-// ═══════════════════════════════════════════════════
-document.addEventListener('keydown', e => {
-  if(e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
-  if(e.code === 'Space') { e.preventDefault(); togglePlay(); }
-  if(e.code === 'ArrowLeft') skipBack();
-  if(e.code === 'ArrowRight') skipFwd();
-  if((e.ctrlKey||e.metaKey) && e.code === 'KeyZ') { e.preventDefault(); e.shiftKey ? doRedo() : doUndo(); }
-  if((e.ctrlKey||e.metaKey) && e.code === 'KeyE') { e.preventDefault(); openExport(); }
-  if(e.code === 'Delete') deleteClip();
-});
+// ===================== TEACHER PANEL =====================
+function TeacherPanel() {
+  const [view, setView] = useState("create"); // create | students
+  const [examJson, setExamJson] = useState(JSON.stringify(SAMPLE_EXAM, null, 2));
+  const [copied, setCopied] = useState(false);
+  const allUsers = loadData("allUsers", []);
+  const allResults = loadData("results", []);
 
-// Prevent scroll on space
-window.addEventListener('keydown', e => {
-  if(e.code === 'Space' && e.target === document.body) e.preventDefault();
-});
-</script>
-</body>
-</html>
+  const copyJson = () => {
+    navigator.clipboard.writeText(examJson).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+  };
+
+  const generateSample = () => {
+    const sample = {
+      id: "exam_" + Date.now(),
+      title: "Practice Test " + new Date().toLocaleDateString(),
+      subject: "Maths",
+      duration: 600,
+      totalMarks: 10,
+      questions: [
+        { id: 1, text: "अपना question यहाँ लिखें?", options: ["Option A", "Option B", "Option C", "Option D"], correct: 0, marks: 2 }
+      ]
+    };
+    setExamJson(JSON.stringify(sample, null, 2));
+  };
+
+  return (
+    <div className="content teacher-panel fade-in">
+      <div className="card" style={{ background: "linear-gradient(135deg,#1a237e,#283593)", color: "white", padding: 18 }}>
+        <div style={{ fontFamily: "'Baloo 2',cursive", fontSize: 20, fontWeight: 800 }}>👨‍🏫 Teacher Panel</div>
+        <div style={{ fontSize: 13, opacity: 0.8, marginTop: 4 }}>Exams बनाएं • Students देखें • Results track करें</div>
+      </div>
+
+      <div className="chip-row">
+        {["create","students","results"].map(t => (
+          <button key={t} className={`chip ${view===t?"chip-active":"chip-inactive"}`} onClick={() => setView(t)}>
+            {t==="create"?"📝 Create Exam":t==="students"?"👥 Students":"📊 All Results"}
+          </button>
+        ))}
+      </div>
+
+      {view === "create" && (
+        <>
+          <div className="alert alert-info">
+            📌 JSON format में exam बनाएं। <b>correct</b> field में option का index (0-3) डालें। यह JSON students को share करें — उनके app में answers नहीं दिखेंगे।
+          </div>
+          <div className="card">
+            <div className="card-title">📝 Exam JSON Editor</div>
+            <textarea className="json-textarea" value={examJson} onChange={e => setExamJson(e.target.value)} />
+            <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+              <button className="btn btn-primary btn-sm" onClick={copyJson} style={{ flex: 1 }}>
+                {copied ? "✅ Copied!" : "📋 Copy JSON"}
+              </button>
+              <button className="btn btn-outline btn-sm" onClick={generateSample}>🆕 Template</button>
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-title">📖 JSON Format Guide</div>
+            {[
+              { key: "id", val: "Unique exam ID (string)" },
+              { key: "title", val: "Exam का नाम" },
+              { key: "duration", val: "Seconds में time (600 = 10 min)" },
+              { key: "totalMarks", val: "कुल marks" },
+              { key: "correct", val: "Correct option का index (0=A, 1=B, 2=C, 3=D)" },
+              { key: "marks", val: "उस question के marks" },
+            ].map(f => (
+              <div key={f.key} style={{ display: "flex", gap: 8, marginBottom: 8, fontSize: 13 }}>
+                <code style={{ background: "#e8eaf6", padding: "2px 8px", borderRadius: 6, color: "#1a237e", fontWeight: 700, minWidth: 90 }}>{f.key}</code>
+                <span style={{ color: "#666" }}>{f.val}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {view === "students" && (
+        <>
+          <div className="card">
+            <div className="card-title">👥 Registered Students ({allUsers.length})</div>
+            {allUsers.length === 0
+              ? <div className="empty-state"><div className="empty-icon">👤</div><div className="empty-text">कोई student registered नहीं।</div></div>
+              : allUsers.map((u, i) => (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>{u.name}</div>
+                    <div style={{ fontSize: 12, color: "#9e9e9e" }}>Roll: {u.rollNo} • {u.batch}</div>
+                  </div>
+                  <span className="badge badge-blue">{u.batch}</span>
+                </div>
+              ))
+            }
+          </div>
+        </>
+      )}
+
+      {view === "results" && (
+        <>
+          <div className="card">
+            <div className="card-title">📊 All Exam Results</div>
+            {allResults.length === 0
+              ? <div className="empty-state"><div className="empty-icon">📊</div><div className="empty-text">अभी कोई result नहीं।</div></div>
+              : allResults.map((r, i) => (
+                <div key={i} style={{ padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 14 }}>{r.studentName || "Student"}</div>
+                      <div style={{ fontSize: 12, color: "#9e9e9e" }}>{r.title} • {r.date}</div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <span className={`badge ${r.score/r.total>=0.6?"badge-green":"badge-red"}`}>
+                        {Math.round(r.score/r.total*100)}%
+                      </span>
+                      {r.violations > 0 && <div style={{ fontSize: 11, color: "#c62828", marginTop: 4 }}>⚠️ {r.violations} violations</div>}
+                    </div>
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
