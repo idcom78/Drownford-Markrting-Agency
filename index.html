@@ -1,435 +1,915 @@
 <!DOCTYPE html>
-<html lang="hi" class="scroll-smooth">
+<html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drownford - Aapki Marketing Superpower</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>COMMANDER — Life OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+--bg:#0a0c0f;--bg2:#111418;--bg3:#181d22;--bg4:#1e252d;
+--green:#39ff14;--green2:#22c55e;--green3:#16a34a;--green4:#0d4a28;
+--amber:#f59e0b;--amber2:#d97706;--red:#ef4444;--blue:#3b82f6;
+--cyan:#06b6d4;--text:#e2e8f0;--text2:#94a3b8;--text3:#475569;
+--border:#1e2d1e;--border2:#2d3a2d;
+--font:'Rajdhani',sans-serif;--mono:'Share Tech Mono',monospace;--cond:'Barlow Condensed',sans-serif;
+--r:6px;--r2:10px
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden}
 
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0a0a0a;
-            color: #e2e8f0;
-        }
-        .gradient-text {
-            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .scroll-reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-        }
-        .scroll-reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .hero-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100%;
-            height: 100%;
-            background-image:
-                radial-gradient(at 27% 37%, hsla(215, 98%, 61%, 0.1) 0px, transparent 50%),
-                radial-gradient(at 97% 21%, hsla(125, 98%, 72%, 0.1) 0px, transparent 50%),
-                radial-gradient(at 52% 99%, hsla(355, 98%, 71%, 0.1) 0px, transparent 50%),
-                radial-gradient(at 10% 29%, hsla(256, 96%, 68%, 0.1) 0px, transparent 50%),
-                radial-gradient(at 97% 96%, hsla(38, 60%, 74%, 0.1) 0px, transparent 50%),
-                radial-gradient(at 33% 50%, hsla(222, 67%, 73%, 0.1) 0px, transparent 50%),
-                radial-gradient(at 79% 53%, hsla(343, 68%, 79%, 0.1) 0px, transparent 50%);
-            z-index: -1;
-        }
-        .prose br {
-            content: "";
-            display: block;
-            margin-bottom: 1rem;
-        }
-    </style>
+/* PIN LOCK */
+#pinOverlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+#pinOverlay h1{font-family:var(--cond);font-size:32px;font-weight:700;letter-spacing:6px;color:var(--green);text-transform:uppercase}
+#pinOverlay p{color:var(--text2);font-size:13px;letter-spacing:2px}
+.pin-dots{display:flex;gap:16px;margin:10px 0}
+.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--green);background:transparent;transition:.2s}
+.pin-dot.filled{background:var(--green)}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:220px}
+.pin-btn{height:60px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);font-family:var(--cond);font-size:22px;font-weight:600;color:var(--text);cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center}
+.pin-btn:active{background:var(--green4);border-color:var(--green);color:var(--green);transform:scale(.95)}
+.pin-error{color:var(--red);font-size:13px;letter-spacing:1px;height:18px}
+
+/* LAYOUT */
+#app{display:none;flex-direction:column;min-height:100vh;max-width:430px;margin:0 auto}
+.header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
+.hdr-left{display:flex;flex-direction:column}
+.hdr-logo{font-family:var(--cond);font-size:22px;font-weight:700;letter-spacing:4px;color:var(--green);line-height:1}
+.hdr-sub{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:2px}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.score-badge{background:var(--green4);border:1px solid var(--green3);border-radius:var(--r);padding:4px 10px;font-family:var(--mono);font-size:11px;color:var(--green);text-align:center}
+.score-badge span{display:block;font-size:18px;font-weight:600;line-height:1.1}
+
+/* NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--bg2);border-top:1px solid var(--border);display:flex;z-index:100}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 10px;cursor:pointer;transition:.15s;font-size:9px;letter-spacing:1px;color:var(--text3);font-family:var(--cond);font-weight:600;border:none;background:none;gap:3px}
+.nav-item svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-item.active{color:var(--green)}
+.nav-item.active svg{stroke:var(--green)}
+
+.page{display:none;padding:14px 14px 80px;animation:fadeIn .2s}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:12px}
+.card-title{font-family:var(--cond);font-size:12px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.card-title .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px 10px;text-align:center}
+.stat-box .val{font-family:var(--mono);font-size:24px;color:var(--green);font-weight:600;line-height:1}
+.stat-box .lbl{font-size:10px;letter-spacing:1px;color:var(--text3);margin-top:4px;font-family:var(--cond);text-transform:uppercase}
+.stat-box.amber .val{color:var(--amber)}
+.stat-box.red .val{color:var(--red)}
+.stat-box.blue .val{color:var(--blue)}
+
+/* PROGRESS BARS */
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.prog-label{font-size:13px;color:var(--text);min-width:90px;font-family:var(--cond);font-weight:600}
+.prog-track{flex:1;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:var(--green);border-radius:3px;transition:.6s ease}
+.prog-fill.amber{background:var(--amber)}
+.prog-fill.red{background:var(--red)}
+.prog-fill.blue{background:var(--blue)}
+.prog-pct{font-family:var(--mono);font-size:11px;color:var(--text2);min-width:32px;text-align:right}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:var(--r);font-family:var(--cond);font-size:14px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:.15s;border:none;text-transform:uppercase}
+.btn-green{background:var(--green3);color:#fff}
+.btn-green:active{background:var(--green4);transform:scale(.97)}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.btn-outline:active{border-color:var(--green);color:var(--green);transform:scale(.97)}
+.btn-red{background:#7f1d1d;color:var(--red)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-block{width:100%}
+
+/* POMODORO */
+.pomo-ring{width:160px;height:160px;margin:0 auto 16px;position:relative}
+.pomo-ring svg{width:160px;height:160px;transform:rotate(-90deg)}
+.pomo-ring .bg-ring{stroke:var(--bg4);fill:none;stroke-width:8}
+.pomo-ring .prog-ring{stroke:var(--green);fill:none;stroke-width:8;stroke-linecap:round;transition:.5s linear;stroke-dasharray:440;stroke-dashoffset:0}
+.pomo-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.pomo-time{font-family:var(--mono);font-size:32px;color:var(--text);font-weight:600}
+.pomo-mode{font-size:10px;letter-spacing:2px;color:var(--text3);font-family:var(--cond);margin-top:2px}
+.pomo-btns{display:flex;gap:10px;justify-content:center;margin-top:12px}
+
+/* TASKS */
+.task-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;transition:.2s}
+.task-item.done{opacity:.45}
+.task-item.done .task-text{text-decoration:line-through}
+.task-cb{width:20px;height:20px;border-radius:4px;border:2px solid var(--border2);background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.2s}
+.task-cb.checked{background:var(--green3);border-color:var(--green3)}
+.task-cb svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.5;display:none}
+.task-cb.checked svg{display:block}
+.task-text{flex:1;font-size:14px;color:var(--text);font-family:var(--cond);font-weight:600}
+.task-tag{font-size:10px;padding:2px 7px;border-radius:3px;font-family:var(--mono);font-weight:600}
+.tag-exam{background:#1a2a1a;color:var(--green2)}
+.tag-work{background:#1a1a2a;color:var(--blue)}
+.tag-health{background:#2a1a1a;color:var(--red)}
+.tag-biz{background:#2a2a1a;color:var(--amber)}
+.priority-high::before{content:'';width:3px;height:100%;background:var(--red);position:absolute;left:0;top:0;border-radius:var(--r) 0 0 var(--r)}
+.task-item{position:relative;overflow:hidden}
+.add-task-row{display:flex;gap:8px;margin-bottom:12px}
+.task-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:10px 12px;color:var(--text);font-family:var(--cond);font-size:14px;font-weight:600;outline:none}
+.task-input:focus{border-color:var(--green3)}
+.task-input::placeholder{color:var(--text3)}
+
+/* SYLLABUS TRACKER */
+.subject-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:8px}
+.subject-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.subject-name{font-family:var(--cond);font-size:15px;font-weight:700;color:var(--text)}
+.subject-pct{font-family:var(--mono);font-size:13px;color:var(--green)}
+.topics{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.topic-pill{padding:4px 10px;border-radius:20px;font-size:11px;font-family:var(--cond);font-weight:600;cursor:pointer;transition:.15s;letter-spacing:.5px}
+.topic-pill.done{background:var(--green4);color:var(--green2);border:1px solid var(--green3)}
+.topic-pill.pending{background:var(--bg4);color:var(--text3);border:1px solid var(--border)}
+.topic-pill:active{transform:scale(.95)}
+
+/* INCOME */
+.income-bar-wrap{margin-bottom:12px}
+.income-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px;font-family:var(--mono)}
+.income-bar{height:28px;background:var(--bg4);border-radius:var(--r);overflow:hidden;position:relative}
+.income-bar-fill{height:100%;background:linear-gradient(90deg,var(--green3),var(--green2));border-radius:var(--r);display:flex;align-items:center;padding-left:10px;font-family:var(--mono);font-size:11px;color:#fff;font-weight:600;min-width:50px;transition:.8s ease}
+
+/* MOOD */
+.mood-btn{width:52px;height:52px;border-radius:50%;border:2px solid var(--border2);background:var(--bg3);font-size:24px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center}
+.mood-btn.selected{border-color:var(--green);background:var(--green4);transform:scale(1.1)}
+.mood-btns{display:flex;gap:10px;justify-content:center;margin:10px 0}
+
+/* MINI CHART */
+.mini-chart{height:70px;display:flex;align-items:flex-end;gap:4px;padding:0 4px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-seg{width:100%;border-radius:3px 3px 0 0;min-height:4px;transition:.6s ease}
+.bar-day{font-size:9px;color:var(--text3);font-family:var(--mono)}
+
+/* BRIEFING */
+.brief-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.brief-item:last-child{border-bottom:none}
+.brief-icon{width:32px;height:32px;border-radius:var(--r);background:var(--green4);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.brief-text{flex:1}
+.brief-title{font-size:13px;font-weight:600;color:var(--text);font-family:var(--cond)}
+.brief-desc{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.5}
+
+/* FOCUS SCORE METER */
+.meter-wrap{padding:10px 0}
+.meter-track{height:14px;background:var(--bg4);border-radius:7px;overflow:hidden;margin:8px 0}
+.meter-fill{height:100%;border-radius:7px;transition:1s ease;background:var(--green3)}
+.meter-labels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--text3)}
+
+/* WORD QUIZ */
+.quiz-word{font-family:var(--cond);font-size:36px;font-weight:700;color:var(--green);text-align:center;padding:20px 0 8px;letter-spacing:2px}
+.quiz-hint{font-size:12px;color:var(--text3);text-align:center;margin-bottom:16px;font-family:var(--mono)}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.quiz-opt{padding:12px 8px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);font-family:var(--cond);font-size:13px;font-weight:600;color:var(--text);cursor:pointer;text-align:center;transition:.15s}
+.quiz-opt:active{transform:scale(.97)}
+.quiz-opt.correct{background:var(--green4);border-color:var(--green3);color:var(--green2)}
+.quiz-opt.wrong{background:#3f1515;border-color:var(--red);color:var(--red)}
+
+/* KANBAN */
+.kanban-col{margin-bottom:12px}
+.kanban-col-title{font-family:var(--cond);font-size:11px;letter-spacing:2px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.kanban-col-title span{background:var(--bg4);border-radius:3px;padding:1px 6px;font-family:var(--mono);font-size:10px;color:var(--text2)}
+.kanban-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;margin-bottom:6px;font-family:var(--cond);font-size:13px;font-weight:600;color:var(--text);cursor:pointer;transition:.2s}
+.kanban-item:active{transform:scale(.98);border-color:var(--green3)}
+.kanban-item .k-tag{font-size:10px;font-family:var(--mono);color:var(--text3);margin-top:3px}
+
+/* THEME TOGGLE */
+.theme-row{display:flex;gap:8px;flex-wrap:wrap}
+.theme-chip{padding:6px 14px;border-radius:20px;font-family:var(--cond);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border2);color:var(--text3);background:var(--bg3);transition:.15s}
+.theme-chip.active,.theme-chip:active{border-color:var(--green);color:var(--green);background:var(--green4)}
+
+/* NOTIFICATIONS */
+.notif-banner{background:var(--green4);border:1px solid var(--green3);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px;animation:slideDown .3s ease}
+@keyframes slideDown{from{transform:translateY(-20px);opacity:0}to{transform:none;opacity:1}}
+.notif-banner .notif-text{flex:1;font-family:var(--cond);font-size:13px;font-weight:600;color:var(--green2)}
+.notif-close{color:var(--green3);cursor:pointer;font-size:18px;line-height:1}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* VOICE BTN */
+.voice-fab{position:fixed;bottom:75px;right:16px;width:50px;height:50px;border-radius:50%;background:var(--green3);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:99;box-shadow:0 0 20px rgba(57,255,20,.25);transition:.2s}
+.voice-fab:active{transform:scale(.92)}
+.voice-fab svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.voice-fab.listening{background:var(--red);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.4)}50%{box-shadow:0 0 0 12px rgba(239,68,68,0)}}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex;animation:fadeIn .2s}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2) var(--r2) 0 0;width:100%;max-width:430px;padding:20px 16px 30px;max-height:80vh;overflow-y:auto}
+.modal-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-family:var(--cond);font-size:18px;font-weight:700;letter-spacing:2px;color:var(--text);margin-bottom:16px;text-transform:uppercase}
+.field-group{margin-bottom:12px}
+.field-label{font-size:11px;letter-spacing:1px;color:var(--text3);margin-bottom:5px;font-family:var(--cond);text-transform:uppercase}
+.field-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:10px 12px;color:var(--text);font-family:var(--cond);font-size:14px;font-weight:600;outline:none}
+.field-input:focus{border-color:var(--green3)}
+select.field-input option{background:var(--bg3)}
+
+/* SCREEN TIME */
+.app-usage-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.app-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.app-usage-info{flex:1}
+.app-usage-name{font-family:var(--cond);font-size:13px;font-weight:600;color:var(--text)}
+.app-usage-bar{height:3px;background:var(--bg4);border-radius:2px;margin-top:4px;overflow:hidden}
+.app-usage-bar-fill{height:100%;border-radius:2px}
+.app-usage-time{font-family:var(--mono);font-size:11px;color:var(--text3)}
+
+</style>
 </head>
-<body class="antialiased">
+<body>
 
-    <!-- Header -->
-    <header id="header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <a href="#" class="text-3xl font-black tracking-tighter gradient-text">Drownford</a>
-                <nav class="hidden md:flex items-center space-x-8">
-                    <a href="#services" class="text-slate-300 hover:text-white transition-colors">Services</a>
-                    <a href="#ai-tool" class="text-slate-300 hover:text-white transition-colors">AI Tool</a>
-                    <a href="#about" class="text-slate-300 hover:text-white transition-colors">About Us</a>
-                    <a href="#contact" class="text-slate-300 hover:text-white transition-colors">Contact</a>
-                </nav>
-                <a href="#contact" class="hidden md:inline-block bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded-lg transition-transform hover:scale-105">Get Started</a>
-                <button id="mobile-menu-btn" class="md:hidden">
-                    <i data-lucide="menu" class="text-white"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-    
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-90 z-40">
-        <div class="flex justify-end p-4">
-             <button id="close-menu-btn"><i data-lucide="x" class="text-white h-8 w-8"></i></button>
-        </div>
-        <nav class="flex flex-col items-center justify-center h-full space-y-8 text-2xl">
-            <a href="#services" class="mobile-link text-slate-300 hover:text-white transition-colors">Services</a>
-            <a href="#ai-tool" class="mobile-link text-slate-300 hover:text-white transition-colors">AI Tool</a>
-            <a href="#about" class="mobile-link text-slate-300 hover:text-white transition-colors">About Us</a>
-            <a href="#contact" class="mobile-link text-slate-300 hover:text-white transition-colors">Contact</a>
-            <a href="#contact" class="mobile-link bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105 mt-4">Get Started</a>
-        </nav>
+<!-- PIN OVERLAY -->
+<div id="pinOverlay">
+  <h1>⚡ COMMANDER</h1>
+  <p>LIFE OS v3.0 — ENTER PIN</p>
+  <div class="pin-dots" id="pinDots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+  </div>
+  <div id="pinError" class="pin-error"></div>
+  <div class="pin-grid">
+    <button class="pin-btn" onclick="enterPin(1)">1</button>
+    <button class="pin-btn" onclick="enterPin(2)">2</button>
+    <button class="pin-btn" onclick="enterPin(3)">3</button>
+    <button class="pin-btn" onclick="enterPin(4)">4</button>
+    <button class="pin-btn" onclick="enterPin(5)">5</button>
+    <button class="pin-btn" onclick="enterPin(6)">6</button>
+    <button class="pin-btn" onclick="enterPin(7)">7</button>
+    <button class="pin-btn" onclick="enterPin(8)">8</button>
+    <button class="pin-btn" onclick="enterPin(9)">9</button>
+    <button class="pin-btn" onclick="enterPin('C')" style="color:var(--red)">⌫</button>
+    <button class="pin-btn" onclick="enterPin(0)">0</button>
+    <button class="pin-btn" onclick="enterPin('OK')" style="color:var(--green)">✓</button>
+  </div>
+  <p style="font-size:11px;color:var(--text3);margin-top:8px">Default PIN: 1234</p>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="header">
+    <div class="hdr-left">
+      <div class="hdr-logo">⚡ COMMANDER</div>
+      <div class="hdr-sub" id="liveTime">LOADING...</div>
+    </div>
+    <div class="hdr-right">
+      <div class="score-badge">
+        FOCUS<span id="headerScore">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div id="notifArea" style="padding:10px 14px 0"></div>
+
+  <!-- PAGES -->
+  <div id="p-home" class="page active">
+    <div id="briefCard" class="card">
+      <div class="card-title"><span class="dot"></span>🌅 AI DAILY BRIEFING</div>
+      <div id="briefingList"></div>
     </div>
 
-    <main>
-        <!-- Hero Section -->
-        <section id="home" class="relative min-h-screen flex items-center justify-center text-center overflow-hidden pt-20">
-            <div class="hero-bg"></div>
-            <div class="container mx-auto px-4 z-10">
-                <h1 class="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-4 text-white animate-fade-in-down">
-                    Marketing Jo <span class="gradient-text">Result</span> De.
-                </h1>
-                <p class="max-w-3xl mx-auto text-lg md:text-xl text-slate-400 mb-8 animate-fade-in-up">
-                    Hum Drownford mein data, creativity aur AI ka istemal karke aapke business ko nayi unchaiyon tak pahunchate hain. Aapke vision ko reality mein badalna hamara kaam hai.
-                </p>
-                <a href="#ai-tool" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-4 px-10 rounded-lg transition-transform hover:scale-105 text-lg animate-bounce-slow">
-                    Try Our AI Superpower
-                </a>
-            </div>
-        </section>
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="val" id="todayScore">--</div>
+        <div class="lbl">Focus Score</div>
+      </div>
+      <div class="stat-box amber">
+        <div class="val" id="studyHrs">0.0</div>
+        <div class="lbl">Study Hrs</div>
+      </div>
+      <div class="stat-box blue">
+        <div class="val" id="tasksToday">0/0</div>
+        <div class="lbl">Tasks Done</div>
+      </div>
+      <div class="stat-box red">
+        <div class="val" id="streakDays">7</div>
+        <div class="lbl">Day Streak 🔥</div>
+      </div>
+    </div>
 
-        <!-- Services Section -->
-        <section id="services" class="py-20 lg:py-32">
-            <div class="container mx-auto px-4">
-                <div class="text-center mb-12 lg:mb-20 scroll-reveal">
-                    <h2 class="text-4xl md:text-5xl font-black tracking-tighter gradient-text">Hamari Services</h2>
-                    <p class="max-w-2xl mx-auto text-slate-400 mt-4">Aapke brand ko grow karne ke liye complete marketing solutions.</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Service Card 1 -->
-                    <div class="glass-card p-8 rounded-2xl scroll-reveal transition-all duration-300 hover:border-sky-500 hover:-translate-y-2">
-                        <div class="bg-sky-900/50 inline-block p-3 rounded-lg mb-4"><i data-lucide="video" class="text-sky-400"></i></div>
-                        <h3 class="text-2xl font-bold text-white mb-2">High-Quality Ad Videos</h3>
-                        <p class="text-slate-400">Aise advertising videos jo aapke audience ka dil jeet lein aur conversion badhayein.</p>
-                    </div>
-                    <!-- Service Card 2 -->
-                    <div class="glass-card p-8 rounded-2xl scroll-reveal transition-all duration-300 hover:border-purple-500 hover:-translate-y-2" style="transition-delay: 100ms;">
-                        <div class="bg-purple-900/50 inline-block p-3 rounded-lg mb-4"><i data-lucide="facebook" class="text-purple-400"></i></div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Facebook & Insta Ads</h3>
-                        <p class="text-slate-400">Targeted ad campaigns jo sahi logon tak pahunche aur aapko behtareen ROI dein.</p>
-                    </div>
-                    <!-- Service Card 3 -->
-                    <div class="glass-card p-8 rounded-2xl scroll-reveal transition-all duration-300 hover:border-pink-500 hover:-translate-y-2" style="transition-delay: 200ms;">
-                        <div class="bg-pink-900/50 inline-block p-3 rounded-lg mb-4"><i data-lucide="users" class="text-pink-400"></i></div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Social Media Management</h3>
-                        <p class="text-slate-400">Aapke social media presence ko manage karna, content create karna aur engagement badhana.</p>
-                    </div>
-                    <!-- Service Card 4 -->
-                    <div class="glass-card p-8 rounded-2xl scroll-reveal transition-all duration-300 hover:border-teal-500 hover:-translate-y-2">
-                        <div class="bg-teal-900/50 inline-block p-3 rounded-lg mb-4"><i data-lucide="mic" class="text-teal-400"></i></div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Voice Ad</h3>
-                        <p class="text-slate-400">Podcasts aur music streaming platforms ke liye aakarshak voice ads taiyar karna.</p>
-                    </div>
-                    <!-- Service Card 5 -->
-                    <div class="glass-card p-8 rounded-2xl scroll-reveal transition-all duration-300 hover:border-amber-500 hover:-translate-y-2" style="transition-delay: 100ms;">
-                        <div class="bg-amber-900/50 inline-block p-3 rounded-lg mb-4"><i data-lucide="image" class="text-amber-400"></i></div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Social Media Post Design</h3>
-                        <p class="text-slate-400">Aapke brand ke liye creative aur eye-catching posts, stories aur reels design karna.</p>
-                    </div>
-                    <!-- Service Card 6 -->
-                    <div class="glass-card p-8 rounded-2xl scroll-reveal transition-all duration-300 hover:border-indigo-500 hover:-translate-y-2" style="transition-delay: 200ms;">
-                        <div class="bg-indigo-900/50 inline-block p-3 rounded-lg mb-4"><i data-lucide="lightbulb" class="text-indigo-400"></i></div>
-                        <h3 class="text-2xl font-bold text-white mb-2">Marketing Strategy & Consultancy</h3>
-                        <p class="text-slate-400">Aapke business goals ke hisab se ek solid marketing plan aur expert salah.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- AI Tool Section -->
-        <section id="ai-tool" class="py-20 lg:py-32 bg-slate-900/50">
-            <div class="container mx-auto px-4">
-                <div class="text-center mb-12 lg:mb-20 scroll-reveal">
-                    <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-white">Drownford AI <span class="gradient-text">Superpower</span></h2>
-                    <p class="max-w-3xl mx-auto text-slate-400 mt-4">Apne business ki koi bhi problem yahan likhein aur hamara AI aapko ek research-based, actionable solution dega. Yeh aapka personal business consultant hai.</p>
-                </div>
-                <div class="max-w-4xl mx-auto scroll-reveal">
-                    <div class="glass-card rounded-2xl p-6 md:p-8">
-                        <div class="flex flex-col md:flex-row gap-4">
-                            <input id="ai-prompt-input" type="text" placeholder="Jaise: 'Mere restaurant mein customers kaise badhayein?'" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all">
-                            <button id="get-solution-btn" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105 w-full md:w-auto flex items-center justify-center">
-                                <span id="btn-text">Solution Paayein</span>
-                                <div id="btn-loader" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="ai-result-container" class="mt-8 glass-card rounded-2xl p-6 md:p-8 hidden">
-                        <h3 class="text-2xl font-bold gradient-text mb-4">AI ka Sujhav:</h3>
-                        <div id="ai-result-text" class="text-slate-300 space-y-4 prose prose-invert max-w-none">
-                            <!-- AI response will be injected here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- About Us Section -->
-        <section id="about" class="py-20 lg:py-32">
-            <div class="container mx-auto px-4">
-                <div class="grid md:grid-cols-2 gap-12 items-center">
-                    <div class="scroll-reveal">
-                        <h2 class="text-4xl md:text-5xl font-black tracking-tighter mb-4"><span class="gradient-text">Hum Kaun Hain?</span></h2>
-                        <p class="text-slate-400 mb-4 text-lg">
-                            Drownford ek passion-driven marketing agency hai. Hum sirf campaigns nahi banate, hum aapke business ka hissa bankar uski growth story likhte hain. Hamari team mein strategists, designers, aur tech experts hain jo aapke brand ko next level par le jaane ke liye committed hain.
-                        </p>
-                        <p class="text-slate-400 text-lg">
-                            Hamara manna hai ki har business unique hota hai, isliye hum cookie-cutter solutions nahi dete. Hum aapke business ko samajhte hain aur fir ek custom strategy banate hain jo kaam kare.
-                        </p>
-                    </div>
-                    <div class="scroll-reveal" style="transition-delay: 200ms;">
-                        <img src="https://placehold.co/600x400/0a0a0a/38bdf8?text=Team+Drownford" alt="Drownford Team" class="rounded-2xl shadow-2xl shadow-sky-900/20 w-full">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Contact Section -->
-        <section id="contact" class="py-20 lg:py-32 bg-slate-900/50">
-            <div class="container mx-auto px-4 text-center">
-                <div class="max-w-3xl mx-auto scroll-reveal">
-                    <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-white mb-4">Aaiye, Baat Karein</h2>
-                    <p class="text-slate-400 mb-8">
-                        Aapke business ko grow karne ke liye taiyar hain? Humein message karein aur hum jald hi aapse contact karenge.
-                    </p>
-                    <form id="contact-form" class="space-y-6 text-left">
-                        <input type="text" placeholder="Aapka Naam" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
-                        <input type="email" placeholder="Aapka Email" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
-                        <textarea placeholder="Aapka Message..." rows="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
-                        <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-lg transition-transform hover:scale-105">Message Bhejein</button>
-                    </form>
-                    <div id="form-success-message" class="mt-6 text-green-400 hidden">Aapka message bhej diya gaya hai. Hum jald hi aapse sampark karenge!</div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-black py-8">
-        <div class="container mx-auto px-4 text-center text-slate-500">
-            <p>&copy; 2024 Drownford. All Rights Reserved.</p>
-            <p class="text-sm mt-2">Designed with ❤️ for Growth</p>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>📊 DISCIPLINE METER</div>
+      <div class="meter-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-family:var(--mono);font-size:28px;color:var(--green);font-weight:600" id="discScore">72</span>
+          <span style="font-size:11px;color:var(--text3);font-family:var(--cond)">ELITE THRESHOLD: 85</span>
         </div>
-    </footer>
+        <div class="meter-track">
+          <div class="meter-fill" id="discBar" style="width:72%"></div>
+        </div>
+        <div class="meter-labels"><span>0 ROOKIE</span><span>50 SOLDIER</span><span>100 COMMANDER</span></div>
+      </div>
+    </div>
 
-    <script>
-        // Initialize Lucide Icons
-        lucide.createIcons();
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>📈 WEEK OVERVIEW</div>
+      <div class="mini-chart" id="weekChart"></div>
+    </div>
 
-        // Header scroll effect
-        const header = document.getElementById('header');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                header.classList.add('bg-black/70', 'backdrop-blur-sm');
-            } else {
-                header.classList.remove('bg-black/70', 'backdrop-blur-sm');
-            }
-        });
-        
-        // Mobile Menu Toggle
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const closeMenuBtn = document.getElementById('close-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const mobileLinks = document.querySelectorAll('.mobile-link');
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>⚡ MOOD & ENERGY</div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:6px;font-family:var(--cond)">Abhi energy level kya hai?</p>
+      <div class="mood-btns">
+        <button class="mood-btn" onclick="setMood(1,'😴')" id="m1">😴</button>
+        <button class="mood-btn" onclick="setMood(2,'😓')" id="m2">😓</button>
+        <button class="mood-btn" onclick="setMood(3,'😐')" id="m3">😐</button>
+        <button class="mood-btn" onclick="setMood(4,'💪')" id="m4">💪</button>
+        <button class="mood-btn" onclick="setMood(5,'🔥')" id="m5">🔥</button>
+      </div>
+      <div style="text-align:center;font-family:var(--mono);font-size:12px;color:var(--text3)" id="moodMsg">Tap to log energy</div>
+    </div>
+  </div>
 
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.remove('hidden');
-        });
+  <!-- TASKS PAGE -->
+  <div id="p-tasks" class="page">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>⚡ TODAY'S MISSIONS</div>
+      <div class="add-task-row">
+        <input class="task-input" id="taskIn" placeholder="Nayi task add karo..." />
+        <select class="task-input" id="taskTag" style="width:90px;padding:10px 6px">
+          <option value="exam">📚 Exam</option>
+          <option value="work">💼 Work</option>
+          <option value="health">❤️ Health</option>
+          <option value="biz">💰 Biz</option>
+        </select>
+        <button class="btn btn-green btn-sm" onclick="addTask()">+</button>
+      </div>
+      <div id="taskList"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>⚠️ PROCRASTINATION ALERT</div>
+      <div id="procrasMsg" style="font-family:var(--cond);font-size:13px;color:var(--text2)">Koi pending task nahi. Excellent! 💪</div>
+    </div>
+  </div>
 
-        closeMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.add('hidden');
-        });
-        
-        mobileLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                mobileMenu.classList.add('hidden');
-            });
-        });
+  <!-- STUDY PAGE -->
+  <div id="p-study" class="page">
+    <!-- POMODORO -->
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>🍅 POMODORO TIMER</div>
+      <div class="pomo-ring" id="pomoRing">
+        <svg viewBox="0 0 160 160">
+          <circle class="bg-ring" cx="80" cy="80" r="70"/>
+          <circle class="prog-ring" id="pomoCircle" cx="80" cy="80" r="70"/>
+        </svg>
+        <div class="pomo-center">
+          <div class="pomo-time" id="pomoTime">25:00</div>
+          <div class="pomo-mode" id="pomoMode">FOCUS</div>
+        </div>
+      </div>
+      <div class="pomo-btns">
+        <button class="btn btn-green" onclick="pomoToggle()" id="pomoBtn">▶ START</button>
+        <button class="btn btn-outline" onclick="pomoReset()">↺ RESET</button>
+      </div>
+      <div style="text-align:center;margin-top:12px">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text3)">Sessions: <b id="pomoSessions" style="color:var(--green)">0</b> &nbsp;|&nbsp; Study: <b id="pomoDuration" style="color:var(--amber)">25 min</b></span>
+      </div>
+    </div>
 
-        // Scroll reveal animation
-        const revealElements = document.querySelectorAll('.scroll-reveal');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, {
-            threshold: 0.1
-        });
+    <!-- SYLLABUS TRACKER -->
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>📚 SSC / UPSC SYLLABUS</div>
+      <div id="syllabusDiv"></div>
+    </div>
 
-        revealElements.forEach(el => {
-            observer.observe(el);
-        });
-        
-        // Contact Form Submission
-        const contactForm = document.getElementById('contact-form');
-        const successMessage = document.getElementById('form-success-message');
-        contactForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            // Yahan aap form submission logic (e.g., email service) add kar sakte hain.
-            // Abhi ke liye, hum sirf success message dikha rahe hain.
-            contactForm.reset();
-            successMessage.classList.remove('hidden');
-            setTimeout(() => {
-                successMessage.classList.add('hidden');
-            }, 5000);
-        });
+    <!-- WORD QUIZ -->
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>📝 ENGLISH WORD QUIZ</div>
+      <div class="quiz-word" id="quizWord">EPHEMERAL</div>
+      <div class="quiz-hint" id="quizHint">Arth kya hai?</div>
+      <div class="quiz-opts" id="quizOpts"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--text2)">Score: <b id="quizScore" style="color:var(--green)">0</b></span>
+        <button class="btn btn-outline btn-sm" onclick="nextQuiz()">Next Word →</button>
+      </div>
+    </div>
+  </div>
 
+  <!-- MONEY PAGE -->
+  <div id="p-money" class="page">
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="val" id="todayIncome">0</div>
+        <div class="lbl">Today ₹</div>
+      </div>
+      <div class="stat-box amber">
+        <div class="val" id="monthIncome">0</div>
+        <div class="lbl">Month ₹</div>
+      </div>
+    </div>
 
-        // --- AI SUPERPOWER FEATURE ---
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>💰 ADD INCOME</div>
+      <div class="field-group">
+        <div class="field-label">Amount (₹)</div>
+        <input class="field-input" type="number" id="incomeAmt" placeholder="e.g. 500" />
+      </div>
+      <div class="field-group">
+        <div class="field-label">Source</div>
+        <select class="field-input" id="incomeSrc">
+          <option>Social Media Marketing</option>
+          <option>Content Writing</option>
+          <option>Freelance</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <button class="btn btn-green btn-block" onclick="addIncome()">+ LOG INCOME</button>
+    </div>
 
-        const getSolutionBtn = document.getElementById('get-solution-btn');
-        const promptInput = document.getElementById('ai-prompt-input');
-        const resultContainer = document.getElementById('ai-result-container');
-        const resultText = document.getElementById('ai-result-text');
-        const btnText = document.getElementById('btn-text');
-        const btnLoader = document.getElementById('btn-loader');
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>📊 REVENUE — THIS WEEK</div>
+      <div id="incomeBars"></div>
+    </div>
 
-        getSolutionBtn.addEventListener('click', handleAISolution);
-        promptInput.addEventListener('keyup', (event) => {
-            if (event.key === 'Enter') {
-                handleAISolution();
-            }
-        });
+    <!-- PROJECT KANBAN -->
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>🎯 PROJECT PIPELINE</div>
+      <div id="kanbanBoard"></div>
+    </div>
+  </div>
 
-        async function handleAISolution() {
-            const userPrompt = promptInput.value.trim();
-            if (!userPrompt) {
-                // Using a custom modal instead of alert
-                showModal('Kripya apna business problem likhein.');
-                return;
-            }
+  <!-- SETTINGS PAGE -->
+  <div id="p-settings" class="page">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>🎨 THEME</div>
+      <div class="theme-row" id="themeRow">
+        <div class="theme-chip active" onclick="setTheme('night')">🌑 Night Ops</div>
+        <div class="theme-chip" onclick="setTheme('desert')">🏜️ Desert</div>
+        <div class="theme-chip" onclick="setTheme('arctic')">🧊 Arctic</div>
+        <div class="theme-chip" onclick="setTheme('ghost')">👻 Ghost</div>
+      </div>
+    </div>
 
-            // Show loading state
-            setLoading(true);
-            resultContainer.classList.add('hidden');
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>🔐 CHANGE PIN</div>
+      <div class="field-group">
+        <div class="field-label">New 4-Digit PIN</div>
+        <input class="field-input" type="number" id="newPin" placeholder="Enter new PIN" maxlength="4" />
+      </div>
+      <button class="btn btn-green btn-block" onclick="changePin()">SAVE PIN</button>
+    </div>
 
-            const fullPrompt = `Tum ek expert business aur marketing consultant ho jiska naam 'Drownford AI' hai. Ek user ne apna business problem bataya hai. Tumhara kaam hai ki ek detailed, well-researched, aur actionable solution do. Jawab ko professional, encouraging, aur step-by-step format mein do. Jawab Hindi (Devanagari script) mein hona chahiye.
-            
-            User ka problem hai: "${userPrompt}"
-            
-            Apna jawab is tarah se structure karo:
-            1.  **Samasya ka Sankshipt Vishleshan (Brief Problem Analysis):** Problem ko samjho aur use sankshipt mein batao.
-            2.  **Mukhya Karan (Potential Root Causes):** Is samasya ke kya-kya karan ho sakte hain.
-            3.  **Actionable Strategy (Step-by-Step Solution):** Bilkul saaf steps mein batao ki user ko kya karna chahiye. Har step ko detail mein samjhao.
-            4.  **Anumanit Parinaam (Expected Outcomes):** Is strategy ko apnane se kya fayda ho sakta hai.
-            5.  **Pro Tip:** Ek extra expert tip do.`;
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>📵 SCREEN TIME GUARD</div>
+      <div id="screenTimeDiv"></div>
+    </div>
 
-            try {
-                const response = await callGeminiAPI(fullPrompt);
-                displayResult(response);
-            } catch (error) {
-                console.error('Error calling Gemini API:', error);
-                displayResult('Maaf kijiye, abhi hum aapse connect nahi kar pa rahe hain. Kripya thodi der baad koshish karein.');
-            } finally {
-                setLoading(false);
-            }
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>📊 STUDY LOG — SUBJECTS</div>
+      <div id="studyLogDiv"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>ℹ️ ABOUT</div>
+      <p style="font-family:var(--cond);font-size:13px;color:var(--text3);line-height:1.7">COMMANDER — Life OS v3.0<br>Built for SSC/UPSC aspirants & digital marketers.<br>Stay disciplined. Stay focused. Win.</p>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-home" onclick="goPage('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>HOME
+    </button>
+    <button class="nav-item" id="nav-tasks" onclick="goPage('tasks')">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>TASKS
+    </button>
+    <button class="nav-item" id="nav-study" onclick="goPage('study')">
+      <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>STUDY
+    </button>
+    <button class="nav-item" id="nav-money" onclick="goPage('money')">
+      <svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>MONEY
+    </button>
+    <button class="nav-item" id="nav-settings" onclick="goPage('settings')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>SETTINGS
+    </button>
+  </nav>
+</div>
+
+<!-- VOICE FAB -->
+<button class="voice-fab" id="voiceFab" onclick="toggleVoice()" style="display:none">
+  <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
+</button>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalBox">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle">INFO</div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ============ DATA ============
+const S = {
+  pin: '1234',
+  tasks: [
+    {id:1,text:'Maths Chapter 8 complete karo',tag:'exam',done:false},
+    {id:2,text:'Instagram post schedule karo',tag:'work',done:false},
+    {id:3,text:'Morning run 5km',tag:'health',done:true},
+    {id:4,text:'Client report bhejo',tag:'biz',done:false}
+  ],
+  syllabus: {
+    'Mathematics': {total:12, done:['Number System','Algebra','Percentage','Ratio','SI & CI','Profit Loss']},
+    'General Intelligence': {total:10, done:['Analogy','Classification','Series']},
+    'English': {total:8, done:['Reading Comp','Synonyms','Antonyms','Fill Blanks']},
+    'General Awareness': {total:15, done:['History','Geography','Polity','Economy']}
+  },
+  income: {today:0,month:2400,week:[0,500,1200,800,0,2400,0]},
+  kanban: {
+    todo: [{t:'Instagram Reel Edit karo',c:'Social'},{t:'New client proposal',c:'Marketing'}],
+    doing: [{t:'Facebook Ads Campaign',c:'Ads'},{t:'YouTube thumbnail',c:'Content'}],
+    done: [{t:'Logo design delivery',c:'Design'}]
+  },
+  focusScore: 72,
+  quizScore: 0,
+  studyHrs: 2.5,
+  streak: 7,
+  mood: 0,
+  pomoState: {running:false,secs:1500,mode:'focus',sessions:0,duration:25}
+};
+
+const words = [
+  {w:'EPHEMERAL',opts:['Thodi der ka','Bahut bada','Mushkil','Khushboo wala'],ans:0},
+  {w:'PERSEVERANCE',opts:['Aalas','Lagan/Dedication','Gussa','Darr'],ans:1},
+  {w:'ELOQUENT',opts:['Maun rehna','Achi tarah bolna','Bhaagna','Likhna'],ans:1},
+  {w:'TENACIOUS',opts:['Kamzor','Tez','Dridh/Adamant','Shant'],ans:2},
+  {w:'PRAGMATIC',opts:['Sapne dekhna','Practical sochna','Darpok','Akela'],ans:1},
+  {w:'DILIGENT',opts:['Mehnat karna','Sona','Khana','Ghumna'],ans:0},
+  {w:'RESILIENT',opts:['Toot jaana','Mushkil mein toot na','Ghumna','Khel'],ans:1},
+  {w:'FRUGAL',opts:['Waste karna','Bahadur','Soch-samajh ke kharch karna','Tez'],ans:2}
+];
+let curQuiz = 0;
+
+// ============ PIN ============
+let pinBuf = '';
+const correctPin = () => localStorage.getItem('cmdPin') || S.pin;
+function enterPin(v) {
+  if (v === 'C') { pinBuf = pinBuf.slice(0,-1); }
+  else if (v === 'OK') {
+    if (pinBuf === correctPin()) { unlockApp(); }
+    else { document.getElementById('pinError').textContent = 'WRONG PIN. TRY AGAIN.'; pinBuf = ''; updatePinDots(); }
+    return;
+  } else { if (pinBuf.length < 4) pinBuf += v; }
+  updatePinDots();
+  if (pinBuf.length === 4) setTimeout(()=>{ if(pinBuf===correctPin()){unlockApp();}else{document.getElementById('pinError').textContent='WRONG PIN.';pinBuf='';updatePinDots();}},200);
+}
+function updatePinDots(){
+  for(let i=0;i<4;i++) document.getElementById('d'+i).classList.toggle('filled',i<pinBuf.length);
+}
+function unlockApp(){
+  document.getElementById('pinOverlay').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('app').style.flexDirection='column';
+  document.getElementById('voiceFab').style.display='flex';
+  initApp();
+}
+function changePin(){
+  const np = document.getElementById('newPin').value;
+  if(np.length===4 && !isNaN(np)){
+    localStorage.setItem('cmdPin',np);
+    showNotif('✅ PIN updated successfully!');
+    document.getElementById('newPin').value='';
+  } else { showNotif('⚠️ 4-digit PIN chahiye!'); }
+}
+
+// ============ NAVIGATION ============
+function goPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('p-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  if(name==='money') renderKanban();
+  if(name==='settings') renderSettings();
+}
+
+// ============ CLOCK ============
+function updateClock(){
+  const n = new Date();
+  const t = n.toTimeString().slice(0,8)+' | '+n.toDateString().toUpperCase();
+  document.getElementById('liveTime').textContent = t;
+}
+setInterval(updateClock,1000); updateClock();
+
+// ============ BRIEFING ============
+function renderBriefing(){
+  const h = new Date().getHours();
+  const greet = h<12?'Subah ka:':(h<17?'Dopahar ka:':'Shaam ka:');
+  const msgs = [
+    {icon:'🎯',title:'Aaj ka goal',desc:'3 tasks complete + 2 pomodoro sessions'},
+    {icon:'📚',title:'Study reminder',desc:'Mathematics - Chapter 9 pending hai'},
+    {icon:'💪',title:'Motivaion',desc:'"Discipline = Freedom. Jab tak nahi jeeta, tab tak nahi mana."'},
+    {icon:'🌤',title:'Focus tip',desc:'Pehle 90 minute sab se mushkil kaam karo'},
+  ];
+  document.getElementById('briefingList').innerHTML = msgs.map(m=>`
+    <div class="brief-item">
+      <div class="brief-icon">${m.icon}</div>
+      <div class="brief-text"><div class="brief-title">${m.title}</div><div class="brief-desc">${m.desc}</div></div>
+    </div>`).join('');
+}
+
+// ============ TASKS ============
+function renderTasks(){
+  const done = S.tasks.filter(t=>t.done).length;
+  document.getElementById('tasksToday').textContent = done+'/'+S.tasks.length;
+  document.getElementById('taskList').innerHTML = S.tasks.map(t=>`
+    <div class="task-item ${t.done?'done':''}" id="ti-${t.id}" ${!t.done&&Math.random()>.6?'style="border-left:3px solid var(--red)"':''}>
+      <div class="task-cb ${t.done?'checked':''}" onclick="toggleTask(${t.id})">
+        <svg viewBox="0 0 12 12"><polyline points="1.5,6 5,9.5 10.5,3"/></svg>
+      </div>
+      <div class="task-text">${t.text}</div>
+      <span class="task-tag tag-${t.tag}">${t.tag.toUpperCase()}</span>
+    </div>`).join('');
+  const pending = S.tasks.filter(t=>!t.done);
+  if(pending.length>0){
+    document.getElementById('procrasMsg').innerHTML = `<span style="color:var(--red)">⚠️ ${pending.length} tasks pending:</span><br>${pending.map(t=>`<span style="color:var(--text2)">• ${t.text}</span>`).join('<br>')}`;
+  } else {
+    document.getElementById('procrasMsg').textContent = 'Koi pending task nahi. Excellent! 💪';
+  }
+}
+function toggleTask(id){
+  const t = S.tasks.find(t=>t.id===id);
+  if(t){ t.done=!t.done; renderTasks(); updateScore(); }
+}
+function addTask(){
+  const txt = document.getElementById('taskIn').value.trim();
+  const tag = document.getElementById('taskTag').value;
+  if(!txt) return;
+  S.tasks.push({id:Date.now(),text:txt,tag,done:false});
+  document.getElementById('taskIn').value='';
+  renderTasks();
+}
+
+// ============ SCORE ============
+function updateScore(){
+  const done = S.tasks.filter(t=>t.done).length;
+  const total = S.tasks.length || 1;
+  const base = Math.round((done/total)*40 + S.studyHrs*8 + (S.mood||3)*4);
+  const score = Math.min(100, base + S.pomoState.sessions*6);
+  S.focusScore = score;
+  document.getElementById('todayScore').textContent = score;
+  document.getElementById('headerScore').textContent = score;
+  document.getElementById('discScore').textContent = score;
+  document.getElementById('discBar').style.width = score+'%';
+  document.getElementById('discBar').style.background = score>85?'var(--green)':score>50?'var(--amber)':'var(--red)';
+  document.getElementById('studyHrs').textContent = S.studyHrs.toFixed(1);
+  document.getElementById('streakDays').textContent = S.streak;
+}
+
+// ============ MOOD ============
+function setMood(v,emoji){
+  S.mood = v;
+  document.querySelectorAll('.mood-btn').forEach((b,i)=>b.classList.toggle('selected',i===v-1));
+  const msgs = ['Aram lo. Body ko recovery chahiye.','Thoda mushkil hai, par chalo.','Normal hai. Push karo.','Aaj kuch bada karo!','🔥 BEAST MODE ON! Ab koi nahi rok sakta!'];
+  document.getElementById('moodMsg').textContent = msgs[v-1];
+  updateScore();
+}
+
+// ============ WEEK CHART ============
+function renderWeekChart(){
+  const days = ['M','T','W','T','F','S','S'];
+  const vals = [65,72,55,80,70,90,75];
+  const max = Math.max(...vals);
+  document.getElementById('weekChart').innerHTML = days.map((d,i)=>`
+    <div class="bar-col">
+      <div class="bar-seg" style="height:${Math.round((vals[i]/max)*55)}px;background:${i===6?'var(--green)':'var(--bg4)'}"></div>
+      <div class="bar-day">${d}</div>
+    </div>`).join('');
+}
+
+// ============ POMODORO ============
+let pomoInterval = null;
+function pomoToggle(){
+  S.pomoState.running = !S.pomoState.running;
+  document.getElementById('pomoBtn').textContent = S.pomoState.running?'⏸ PAUSE':'▶ START';
+  if(S.pomoState.running){
+    pomoInterval = setInterval(()=>{
+      S.pomoState.secs--;
+      if(S.pomoState.secs<=0){
+        clearInterval(pomoInterval);
+        S.pomoState.running=false;
+        S.pomoState.sessions++;
+        document.getElementById('pomoSessions').textContent=S.pomoState.sessions;
+        if(S.pomoState.mode==='focus'){
+          S.studyHrs += S.pomoState.duration/60;
+          S.pomoState.mode='break';S.pomoState.secs=300;
+          showNotif('🍅 Pomodoro complete! 5 min break lo.');
+        } else {
+          S.pomoState.mode='focus';S.pomoState.secs=S.pomoState.duration*60;
+          showNotif('⚡ Break khatam! Wapas kaam pe lgo!');
         }
-        
-        function setLoading(isLoading) {
-            if (isLoading) {
-                btnText.classList.add('hidden');
-                btnLoader.classList.remove('hidden');
-                getSolutionBtn.disabled = true;
-                promptInput.disabled = true;
-            } else {
-                btnText.classList.remove('hidden');
-                btnLoader.classList.add('hidden');
-                getSolutionBtn.disabled = false;
-                promptInput.disabled = false;
-            }
-        }
+        document.getElementById('pomoMode').textContent=S.pomoState.mode==='focus'?'FOCUS':'BREAK';
+        document.getElementById('pomoBtn').textContent='▶ START';
+        updateScore();
+      }
+      renderPomoTimer();
+    },1000);
+  } else { clearInterval(pomoInterval); }
+}
+function pomoReset(){
+  clearInterval(pomoInterval);
+  S.pomoState = {...S.pomoState,running:false,secs:S.pomoState.duration*60,mode:'focus'};
+  document.getElementById('pomoBtn').textContent='▶ START';
+  document.getElementById('pomoMode').textContent='FOCUS';
+  renderPomoTimer();
+}
+function renderPomoTimer(){
+  const m = Math.floor(S.pomoState.secs/60);
+  const s = S.pomoState.secs%60;
+  document.getElementById('pomoTime').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  const total = S.pomoState.mode==='focus'?S.pomoState.duration*60:300;
+  const pct = S.pomoState.secs/total;
+  const circ = 2*Math.PI*70;
+  document.getElementById('pomoCircle').style.strokeDashoffset = circ*(1-pct);
+  document.getElementById('pomoCircle').style.stroke = S.pomoState.mode==='break'?'var(--blue)':'var(--green)';
+  document.getElementById('pomoDuration').textContent = S.pomoState.duration+' min';
+}
 
-        function displayResult(text) {
-            // Convert markdown-like text to HTML
-            let html = text
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
-                .replace(/\n/g, '<br>'); // New lines
-            
-            resultText.innerHTML = html;
-            resultContainer.classList.remove('hidden');
-        }
-        
-        async function callGeminiAPI(prompt) {
-             // The API key is an empty string. The Canvas environment will automatically provide it.
-             const apiKey = ""; 
-             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-             
-             const payload = {
-                 contents: [{
-                     parts: [{
-                         text: prompt
-                     }]
-                 }]
-             };
+// ============ SYLLABUS ============
+function renderSyllabus(){
+  const html = Object.entries(S.syllabus).map(([sub,data])=>{
+    const pct = Math.round(data.done.length/data.total*100);
+    const allTopics = generateTopics(sub, data.total);
+    return `<div class="subject-card">
+      <div class="subject-header">
+        <div class="subject-name">${sub}</div>
+        <div class="subject-pct">${pct}%</div>
+      </div>
+      <div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div class="topics">${allTopics.map(t=>`
+        <div class="topic-pill ${data.done.includes(t)?'done':'pending'}" onclick="toggleTopic('${sub}','${t}')">${t}</div>
+      `).join('')}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('syllabusDiv').innerHTML = html;
+}
+function generateTopics(sub, total){
+  const topicMap = {
+    'Mathematics':['Number System','Algebra','Percentage','Ratio','SI & CI','Profit Loss','Time & Work','Speed','Mensuration','Geometry','Statistics','Trigonometry'],
+    'General Intelligence':['Analogy','Classification','Series','Coding','Blood Relation','Direction','Syllogism','Matrix','Venn Diagram','Puzzle'],
+    'English':['Reading Comp','Synonyms','Antonyms','Fill Blanks','Error Spotting','Para Jumbles','Idioms','Vocabulary'],
+    'General Awareness':['History','Geography','Polity','Economy','Science','Current Affairs','Sports','Awards','Books','Schemes','Environment','Technology','Art & Culture','International','Defence']
+  };
+  return (topicMap[sub]||[]).slice(0,total);
+}
+function toggleTopic(sub,topic){
+  const idx = S.syllabus[sub].done.indexOf(topic);
+  if(idx>-1) S.syllabus[sub].done.splice(idx,1);
+  else S.syllabus[sub].done.push(topic);
+  renderSyllabus();
+}
 
-             let response;
-             let delay = 1000; // Start with 1 second delay
-             
-             // Retry logic with exponential backoff
-             for (let i = 0; i < 5; i++) {
-                 try {
-                    response = await fetch(apiUrl, {
-                         method: 'POST',
-                         headers: {
-                             'Content-Type': 'application/json'
-                         },
-                         body: JSON.stringify(payload)
-                     });
+// ============ WORD QUIZ ============
+function renderQuiz(){
+  const q = words[curQuiz % words.length];
+  document.getElementById('quizWord').textContent = q.w;
+  document.getElementById('quizOpts').innerHTML = q.opts.map((o,i)=>`
+    <button class="quiz-opt" onclick="answerQuiz(${i},${q.ans})">${o}</button>`).join('');
+}
+function answerQuiz(sel, correct){
+  const btns = document.querySelectorAll('.quiz-opt');
+  btns.forEach((b,i)=>{
+    b.onclick=null;
+    if(i===correct)b.classList.add('correct');
+    if(i===sel&&sel!==correct)b.classList.add('wrong');
+  });
+  if(sel===correct){S.quizScore++;showNotif('✅ Correct! +1 point');}
+  else{showNotif('❌ Wrong! Sahi jawab: '+words[curQuiz%words.length].opts[correct]);}
+  document.getElementById('quizScore').textContent=S.quizScore;
+  setTimeout(nextQuiz,1500);
+}
+function nextQuiz(){ curQuiz=(curQuiz+1)%words.length; renderQuiz(); }
 
-                     if (response.ok) {
-                         const data = await response.json();
-                         if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0) {
-                            return data.candidates[0].content.parts[0].text;
-                         } else {
-                            throw new Error("Invalid response structure from API.");
-                         }
-                     } else if (response.status === 429 || response.status >= 500) {
-                        // If throttled or server error, wait and retry
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        delay *= 2; // Increase delay for next retry
-                     } else {
-                        // For other errors, don't retry
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                     }
+// ============ INCOME ============
+function addIncome(){
+  const amt = parseInt(document.getElementById('incomeAmt').value)||0;
+  if(!amt) return;
+  S.income.today+=amt; S.income.month+=amt; S.income.week[6]+=amt;
+  document.getElementById('incomeAmt').value='';
+  renderIncome(); showNotif('💰 ₹'+amt+' logged!');
+}
+function renderIncome(){
+  document.getElementById('todayIncome').textContent='₹'+S.income.today;
+  document.getElementById('monthIncome').textContent='₹'+S.income.month;
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const max=Math.max(...S.income.week,1);
+  document.getElementById('incomeBars').innerHTML=S.income.week.map((v,i)=>`
+    <div class="income-bar-wrap">
+      <div class="income-bar-label"><span>${days[i]}</span><span>₹${v}</span></div>
+      <div class="income-bar"><div class="income-bar-fill" style="width:${Math.round(v/max*100)}%">₹${v>0?v:''}</div></div>
+    </div>`).join('');
+}
 
-                 } catch (error) {
-                    if (i === 4) { // If it's the last attempt, throw the error
-                        throw error;
-                    }
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    delay *= 2;
-                 }
-             }
-             
-             throw new Error("AI service is currently unavailable after multiple retries.");
-        }
+// ============ KANBAN ============
+function renderKanban(){
+  const cols = {todo:'📋 TO DO',doing:'⚡ IN PROGRESS',done:'✅ DONE'};
+  document.getElementById('kanbanBoard').innerHTML = Object.entries(S.kanban).map(([k,items])=>`
+    <div class="kanban-col">
+      <div class="kanban-col-title">${cols[k]} <span>${items.length}</span></div>
+      ${items.map(it=>`<div class="kanban-item" onclick="moveTask('${k}','${it.t}')">${it.t}<div class="k-tag">${it.c}</div></div>`).join('')}
+    </div>`).join('');
+}
+function moveTask(from, title){
+  const order = ['todo','doing','done'];
+  const i = order.indexOf(from);
+  if(i<2){
+    const t = S.kanban[from].find(x=>x.t===title);
+    S.kanban[from] = S.kanban[from].filter(x=>x.t!==title);
+    S.kanban[order[i+1]].push(t);
+    renderKanban();
+    showNotif('✅ Task moved forward!');
+  }
+}
 
-    </script>
+// ============ SETTINGS ============
+function renderSettings(){
+  // Screen time
+  const apps=[{n:'Instagram',emoji:'📱',mins:28,lim:30},{n:'YouTube',emoji:'📺',mins:45,lim:60},{n:'Twitter',emoji:'🐦',mins:12,lim:30}];
+  document.getElementById('screenTimeDiv').innerHTML=apps.map(a=>`
+    <div class="app-usage-row">
+      <div class="app-icon">${a.emoji}</div>
+      <div class="app-usage-info">
+        <div class="app-usage-name">${a.n} <span style="font-size:10px;color:${a.mins>=a.lim?'var(--red)':'var(--text3)'}">${a.mins>=a.lim?'⚠️ LIMIT NEAR':''}</span></div>
+        <div class="app-usage-bar"><div class="app-usage-bar-fill" style="width:${Math.round(a.mins/a.lim*100)}%;background:${a.mins>=a.lim*0.8?'var(--red)':'var(--green)'}"></div></div>
+      </div>
+      <div class="app-usage-time">${a.mins}/${a.lim}m</div>
+    </div>`).join('');
+
+  // Study log
+  const subjects = Object.entries(S.syllabus);
+  document.getElementById('studyLogDiv').innerHTML=subjects.map(([s,d])=>`
+    <div class="prog-row">
+      <div class="prog-label">${s.split(' ')[0]}</div>
+      <div class="prog-track"><div class="prog-fill" style="width:${Math.round(d.done.length/d.total*100)}%"></div></div>
+      <div class="prog-pct">${Math.round(d.done.length/d.total*100)}%</div>
+    </div>`).join('');
+}
+
+// ============ THEME ============
+function setTheme(t){
+  document.querySelectorAll('.theme-chip').forEach(c=>c.classList.remove('active'));
+  event.target.classList.add('active');
+  const themes = {
+    night:{bg:'#0a0c0f',green:'#39ff14',accent:'#22c55e'},
+    desert:{bg:'#0f0d08',green:'#f59e0b',accent:'#d97706'},
+    arctic:{bg:'#080f14',green:'#06b6d4',accent:'#0891b2'},
+    ghost:{bg:'#0a0a0a',green:'#e2e8f0',accent:'#94a3b8'}
+  };
+  const th=themes[t];
+  document.documentElement.style.setProperty('--green',th.green);
+  document.documentElement.style.setProperty('--green2',th.accent);
+  document.documentElement.style.setProperty('--bg',th.bg);
+  showNotif('🎨 Theme changed!');
+}
+
+// ============ NOTIFICATIONS ============
+function showNotif(msg){
+  const area=document.getElementById('notifArea');
+  const div=document.createElement('div');
+  div.className='notif-banner';
+  div.innerHTML=`<div class="notif-text">${msg}</div><div class="notif-close" onclick="this.parentElement.remove()">×</div>`;
+  area.appendChild(div);
+  setTimeout(()=>div.remove&&div.remove(),3500);
+}
+
+// ============ MODAL ============
+function openModal(title,html){
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalBody').innerHTML=html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(e){if(e.target===document.getElementById('modalOverlay'))document.getElementById('modalOverlay').classList.remove('open');}
+
+// ============ VOICE ============
+let voiceOn=false;
+function toggleVoice(){
+  voiceOn=!voiceOn;
+  document.getElementById('voiceFab').classList.toggle('listening',voiceOn);
+  if(voiceOn){
+    showNotif('🎤 Voice active — boliye: "Mark done", "Start pomodoro"...');
+    setTimeout(()=>{voiceOn=false;document.getElementById('voiceFab').classList.remove('listening');},4000);
+  }
+}
+
+// ============ INIT ============
+function initApp(){
+  renderBriefing();
+  renderTasks();
+  renderWeekChart();
+  updateScore();
+  renderPomoTimer();
+  renderSyllabus();
+  renderQuiz();
+  renderIncome();
+  setTimeout(()=>showNotif('🌅 Jai Ho! Aaj ka din mahan banega! Focus Score: '+S.focusScore),800);
+}
+</script>
 </body>
 </html>
